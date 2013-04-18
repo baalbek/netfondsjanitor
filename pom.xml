@@ -18,89 +18,65 @@
     </parent>
 
     <dependencies>
-        <!-- Local stuff -->
 
-        <!--
+        <!--****************************************************************
+        ***************************** Local stuff **************************
+        ********************************************************************-->
+
         <dependency>
             <groupId>rcstadheim</groupId>
             <artifactId>maunakea</artifactId>
         </dependency>
-        -->
 
-        <!--
         <dependency>
             <groupId>rcstadheim</groupId>
             <artifactId>oahu</artifactId>
         </dependency>
-        -->
 
+        <!--****************************************************************
+        ******************************** JAvaFX ****************************
+        ********************************************************************-->
+        <dependency>
+            <groupId>com.oracle.javafx</groupId>
+            <artifactId>javafx</artifactId>
+        </dependency>
+
+        <!--****************************************************************
+        ****************************** Joda Time ***************************
+        ********************************************************************-->
 
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
 
-
-        <!-- JavaFX -->
-        <dependency>
-            <groupId>com.oracle.javafx</groupId>
-            <artifactId>javafx</artifactId>
-        </dependency>
-
-        <!-- Spring -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-        </dependency>
-
-        <!-- AOP -->
-
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjtools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-
-
-        <!-- Junit -->
+        <!--****************************************************************
+        ******************************** JUnit *****************************
+        ********************************************************************-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
         </dependency>
 
-        <!-- Cglib -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-        </dependency>
 
-        <!-- Log4J -->
+        <!--****************************************************************
+        ******************************** Log4J *****************************
+        ********************************************************************-->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
 
-        <!-- Clojure -->
+
+        <!--****************************************************************
+        ******************************** Clojure ***************************
+        ********************************************************************-->
         <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>clojure</artifactId>
@@ -114,17 +90,31 @@
             <artifactId>core.match</artifactId>
         </dependency>
 
-        <!-- Mybatis -->
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-        </dependency>
 
+
+        <!--****************************************************************
+        ******************************* Postgres ***************************
+        ********************************************************************-->
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
 
+        <!--****************************************************************
+        ******************************** spring ****************************
+        ********************************************************************-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -132,39 +122,61 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin}</version>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!--
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            -->
+                            <outputDirectory>/home/rcs/opt/java/haleakala/target</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>${maven-jar-plugin}</version>
                 <configuration>
                     <archive>
-                        <index>true</index>
-                            <manifest>
-                                <!--
-                                <classpathPrefix>lib/</classpathPrefix>
-                                -->
-                                <addClasspath>true</addClasspath>
-                            <mainClass>taiarapu.App</mainClass>
+                        <manifest>
+                            <mainClass>maunakea.App</mainClass>
+
+                            <addClasspath>true</addClasspath>
+
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin}</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                    <!--
+                    <executable>C:/Program Files/Java/jdk1.7.0_05/bin/javac</executable>
+                    <fork>true</fork>
+                    -->
+                </configuration>
+            </plugin>
             <!--
             <plugin>
                 <groupId>com.theoryinpractise</groupId>
                 <artifactId>clojure-maven-plugin</artifactId>
-                <version>1.3.10</version>
+                <version>${clojure-maven-plugin}</version>
                 <extensions>true</extensions>
+
                 <executions>
                     <execution>
                         <id>compile-clojure</id>
@@ -173,6 +185,7 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
+
                     <execution>
                         <id>test-clojure</id>
                         <phase>test</phase>
@@ -182,11 +195,13 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <testScript>src/test/clojure/taiarapu/test1.clj</testScript>
+                    <testScript>src/test/clojure/test.clj</testScript>
+                    <testSourceDirectories>
+                        <testSourceDirectory>src/test/clojure</testSourceDirectory>
+                    </testSourceDirectories>
                     <warnOnReflection>true</warnOnReflection>
                 </configuration>
             </plugin>
-
             -->
         </plugins>
 

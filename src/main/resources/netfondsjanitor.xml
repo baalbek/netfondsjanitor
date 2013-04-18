@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    <!--
+    <import resource="classpath:aop.xml"  />
+    -->
+
+
+
+    <bean id="janitor" class="netfondsjanitor.DefaultDownloadJanitor">
+        <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
+    </bean>
+
+
+    <bean id="downloader" class="maunakea.financial.impl.NetfondsDownloader">
+        <property name="janitor" ref="janitor" />
+    </bean>
+
+
+    <bean id="stock-parser" class="maunakea.financial.impl.DefaultStockParser" />
+
+    <bean id="etrade" class="maunakea.financial.impl.Netfonds">
+        <property name="downloader" ref="downloader" />
+        <!--
+        <property name="derivativeParser" ref="derivative-parser" />
+        -->
+        <property name="stockParser" ref="stock-parser" />
+        <property name="caching" value="true" />
+    </bean>
+
+    <bean name="ticker-list" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>STL</value>
+                <value>NHY</value>
+                <value>YAR</value>
+                <value>ORK</value>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>
+
+
