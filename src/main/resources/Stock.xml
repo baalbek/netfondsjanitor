@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="maunaloa.models.mybatis.StockMapper">
+
+    <!--
+    oid    | integer | not null default nextval('stockprice_oid_seq'::regclass)
+    ticker | ticker  |
+    dx     | date    | default now()
+    opn    | price   |
+    hi     | price   |
+    lo     | price   |
+    cls    | price   |
+    vol    | volume
+    -->
+
+    <resultMap id="stockResultMap" type="oahu.financial.beans.StockBean">
+        <result column="dx" property="dx"/>
+        <result column="opn" property="opn"/>
+        <result column="hi" property="hi"/>
+        <result column="lo" property="lo"/>
+        <result column="cls" property="cls"/>
+        <result column="vol" property="volume"/>
+    </resultMap>
+
+
+    <insert id="insertStockPrice" parameterType="oahu.financial.beans.StockBean">
+        insert into trader.stockprice (ticker, opn, hi, lo, cls, vol)
+        values (#{ticker}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
+    </insert>
+</mapper>
