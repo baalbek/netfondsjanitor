@@ -1,10 +1,20 @@
 (ns netfondsjanitor.app
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [maunakea.financial.impl NetfondsDownloader])
+    [org.apache.log4j PropertyConfigurator]
+    [java.util Properties])
   (:use [waimea.cli :only (cli)]))
 
+
+(defn initLog4j []
+  (let [props (Properties.)
+       clazz (.getClass props)
+       resource (.getResourceAsStream clazz "/log4j.properties")]
+    (.load props resource)
+    (PropertyConfigurator/configure props)))
+
 (defn main [args]
+  (initLog4j)
   (let [parsed-args-vec (cli args
                           ["-x" "--xml" "Spring xml filename" :default "netfondsjanitor.xml"]
                           ["-d" "--[no-]defaultTickers" "Use tickers from xml file" :default true]
@@ -18,7 +28,7 @@
       (println parsed-args)
       ;(println (.getHi (.getSpot etrade "NHY")))
 
-      (println tix-list)
+      (doseq [t tix-list] (println t))
       )))
 
 (main *command-line-args*)
