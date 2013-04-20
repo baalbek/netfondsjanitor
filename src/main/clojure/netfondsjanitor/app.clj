@@ -4,7 +4,8 @@
     [org.apache.log4j PropertyConfigurator]
     [org.apache.commons.logging LogFactory]
     [java.util Properties]
-    [maunakea.util MyBatisUtils])
+    [maunakea.util MyBatisUtils]
+    [netfondsjanitor.model.mybatis StockMapper])
   (:use [waimea.cli :only (cli)]))
 
 (defn initLog4j []
@@ -21,8 +22,10 @@
   `(map #(~map-fn ~java-obj %) ~lst))
 
 (defn update-stockprices [stock-beans]
-  (println (MyBatisUtils/getSession))
-  (doseq [x stock-beans] (println (.getTicker x) (.getHi x))))
+  (let [session (MyBatisUtils/getSession)
+        mapper (.getMapper session StockMapper)]
+    (println mapper)
+    (doseq [x stock-beans] (println (.getTicker x) (.getHi x)))))
 
 (defn main [args]
   (initLog4j)
@@ -40,6 +43,7 @@
         (let [f ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))
               etrade (.getBean f "etrade")
               tix-list (.getBean f "ticker-list")]
-              (update-stockprices (map-java-fn .getSpot etrade tix-list)))))))
+              ;(update-stockprices (map-java-fn .getSpot etrade tix-list)))))))
+              (update-stockprices []))))))
 
 (main *command-line-args*)

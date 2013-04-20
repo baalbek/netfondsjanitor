@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="maunaloa.models.mybatis.StockMapper">
+<mapper namespace="netfondsjanitor.model.mybatis.StockMapper">
 
     <!--
     oid    | integer | not null default nextval('stockprice_oid_seq'::regclass)
