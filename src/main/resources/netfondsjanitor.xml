@@ -33,10 +33,13 @@
     <bean name="ticker-list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <value>STL</value>
+                <!--
                 <value>NHY</value>
                 <value>YAR</value>
+                -->
                 <value>ORK</value>
+                <value>STL</value>
+
             </list>
         </constructor-arg>
     </bean>

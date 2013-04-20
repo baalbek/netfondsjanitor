@@ -16,22 +16,30 @@
     (.load props resource)
     (PropertyConfigurator/configure props)))
 
+
+(defmacro map-java-fn [map-fn java-obj lst]
+  `(map #(~map-fn ~java-obj %) ~lst))
+
+(defn update-stockprices [stock-beans]
+  (println (MyBatisUtils/getSession))
+  (doseq [x stock-beans] (println (.getTicker x) (.getHi x))))
+
 (defn main [args]
   (initLog4j)
   (let [parsed-args-vec (cli args
+                          ["-h" "--[no-]help" "Print cmd line options and quit" :default false]
                           ["-x" "--xml" "Spring xml filename" :default "netfondsjanitor.xml"]
-                          ["-d" "--[no-]defaultTickers" "Use tickers from xml file" :default true]
-                          ["-t"
-
-                           "--tickers" "Tickers (comma-separated) from cli"])
+                          ;["-d" "--[no-]defaultTickers" "Use tickers from xml file" :default true]
+                          )
         parsed-args (first parsed-args-vec)]
-    (let [f ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))
-          etrade (.getBean f "etrade")
-          tix-list (.getBean f "ticker-list")]
-      (println parsed-args)
-      ;(println (.getHi (.getSpot etrade "NHY")))
-      (println (MyBatisUtils/getSession))
-      (doseq [t tix-list] (println t))
-      )))
+    (if (= (:help parsed-args) true)
+      (do
+        (println parsed-args-vec)
+        (println parsed-args))
+      (do
+        (let [f ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))
+              etrade (.getBean f "etrade")
+              tix-list (.getBean f "ticker-list")]
+              (update-stockprices (map-java-fn .getSpot etrade tix-list)))))))
 
 (main *command-line-args*)
