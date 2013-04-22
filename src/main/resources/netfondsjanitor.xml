@@ -9,15 +9,23 @@
 
 
 
-    <bean id="janitor" class="netfondsjanitor.DefaultDownloadJanitor">
+    <bean id="janitor" class="netfondsjanitor.etrade.DefaultDownloadJanitor">
         <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
     </bean>
 
 
+    <!-- -->
     <bean id="downloader" class="maunakea.financial.impl.NetfondsDownloader">
         <property name="janitor" ref="janitor" />
     </bean>
+    <!-- -->
 
+    <!--
+    <bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
+        <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
+        <property name="suffix" value="2013-4-20" />
+    </bean>
+    -->
 
     <bean id="stock-parser" class="maunakea.financial.impl.DefaultStockParser" />
 
@@ -33,11 +41,8 @@
     <bean name="ticker-list" class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <!--
                 <value>NHY</value>
                 <value>YAR</value>
-                -->
-                <value>ORK</value>
                 <value>STL</value>
 
             </list>

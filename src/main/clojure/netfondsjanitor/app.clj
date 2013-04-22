@@ -25,14 +25,16 @@
   (let [session (MyBatisUtils/getSession)
         mapper (.getMapper session StockMapper)]
     (println mapper)
-    (doseq [x stock-beans] (println (.getTicker x) (.getHi x)))))
+    (doseq [x stock-beans]
+      (println x)
+      (.insertStockPrice mapper x))
+    (doto session .commit .close)))
 
 (defn main [args]
   (initLog4j)
   (let [parsed-args-vec (cli args
                           ["-h" "--[no-]help" "Print cmd line options and quit" :default false]
                           ["-x" "--xml" "Spring xml filename" :default "netfondsjanitor.xml"]
-                          ;["-d" "--[no-]defaultTickers" "Use tickers from xml file" :default true]
                           )
         parsed-args (first parsed-args-vec)]
     (if (= (:help parsed-args) true)
@@ -43,7 +45,11 @@
         (let [f ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))
               etrade (.getBean f "etrade")
               tix-list (.getBean f "ticker-list")]
-              ;(update-stockprices (map-java-fn .getSpot etrade tix-list)))))))
-              (update-stockprices []))))))
+              (update-stockprices (map-java-fn .getSpot etrade tix-list)))))))
+
+;(defn scaffold []
+;  (let [f ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. "netfondsjanitor.xml")
+;        etrade (.getBean f "etrade")]
+;    etrade))
 
 (main *command-line-args*)
