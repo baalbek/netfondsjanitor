@@ -15,6 +15,8 @@ do
     CP=$CP:$f
 done
 
+export CP
+
 # /usr/local/bin/clj netfondsjanitor/app.clj
 
 exec java -cp $CP clojure.main netfondsjanitor/app.clj
