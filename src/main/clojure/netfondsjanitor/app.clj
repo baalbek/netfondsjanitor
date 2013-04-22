@@ -6,7 +6,7 @@
     [java.util Properties]
     [maunakea.util MyBatisUtils]
     [netfondsjanitor.model.mybatis StockMapper])
-  (:use [waimea.cli :only (cli)]))
+  (:use [netfondsjanitor.cli :only (cli)]))
 
 (defn initLog4j []
   (let [lf (LogFactory/getFactory)
@@ -52,4 +52,4 @@
 ;        etrade (.getBean f "etrade")]
 ;    etrade))
 
-(main *command-line-args*)
+;(main *command-line-args*)
