@@ -23,7 +23,6 @@
         ***************************** Local stuff **************************
         ********************************************************************-->
 
-        <!--
         <dependency>
             <groupId>rcstadheim</groupId>
             <artifactId>maunakea</artifactId>
@@ -33,7 +32,6 @@
             <groupId>rcstadheim</groupId>
             <artifactId>oahu</artifactId>
         </dependency>
-        -->
 
         <!--****************************************************************
         ******************************** JAvaFX ****************************
