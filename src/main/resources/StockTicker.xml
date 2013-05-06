@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="netfondsjanitor.model.mybatis.StockTickerMapper">
+
+    <!--
+    oid | ticker | company_name | status
+
+   1 | NHY    | Norsk hydro  |      1
+   2 | STL    | StatoilHydro |      1
+
+    -->
+
+    <resultMap id="stockTickerResultMap"
+               type="oahu.financial.beans.StockTickerBean">
+        <id column="oid" property="id" jdbcType="INTEGER" />
+        <result column="ticker" property="ticker"/>
+        <result column="company_name" property="companyName"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="selectTickers" parameterType="map" resultMap="stockTickerResultMap">
+        select * from stockmarket.stocktickers where active = 1 order by companyname
+    </select>
+
+
+</mapper>

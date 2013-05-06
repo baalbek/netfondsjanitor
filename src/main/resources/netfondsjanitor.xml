@@ -9,34 +9,51 @@
     <import resource="classpath:kalihiwai.xml" />
 
 
-    <bean id="janitor" class="netfondsjanitor.etrade.DefaultDownloadJanitor">
-        <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
-    </bean>
-
-
-    <!-- -->
-    <bean id="downloader" class="maunakea.financial.impl.NetfondsDownloader">
-        <property name="janitor" ref="janitor" />
-    </bean>
-    <!-- -->
 
     <!--
+<bean id="janitor" class="netfondsjanitor.etrade.DefaultDownloadJanitor">
+    <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
+</bean>
+
+
+
+<bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
+    <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
+    <property name="suffix" value="2013-4-20" />
+</bean>
+-->
+
+    <!--
+    <bean id="downloader" class="maunakea.financial.mocks.MockRollingDownloader">
+        <property name="htmlPath"
+                  value="file:///home/rcs/opt/java/ivharvest/html/volsnapshots/2012/12" ></property>
+    </bean>
+    -->
+
     <bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
         <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
         <property name="suffix" value="2013-4-20" />
     </bean>
-    -->
 
-    <bean id="stock-parser" class="maunakea.financial.impl.DefaultStockParser" />
+    <bean id="calculator" class="netfondsjanitor.service.BlackScholesCalculator">
+        <property name="helper" ref="kalihiwai-calc" ></property>
+    </bean>
+
+    <bean id="html-derivative-factory" class="maunakea.financial.impl.HtmlCalculatedDerivativeBeanFactory" ></bean>
+    <bean id="html-stock-factory" class="maunakea.financial.impl.DefaultHtmlStockBeanFactory" ></bean>
+
+    <bean id="html-parser" class="maunakea.financial.impl.DefaultHtmlParser">
+        <property name="derivativeFactory" ref="html-derivative-factory" />
+        <property name="stockBeanFactory" ref="html-stock-factory" />
+        <property name="calculator" ref="calculator" />
+    </bean>
+
 
     <bean id="etrade" class="maunakea.financial.impl.Netfonds">
         <property name="downloader" ref="downloader" />
-        <!--
-        <property name="derivativeParser" ref="derivative-parser" />
-        -->
-        <property name="stockParser" ref="stock-parser" />
-        <property name="caching" value="true" />
+        <property name="htmlParser" ref="html-parser" />
     </bean>
+
 
     <bean name="ticker-list" class="java.util.ArrayList">
         <constructor-arg>

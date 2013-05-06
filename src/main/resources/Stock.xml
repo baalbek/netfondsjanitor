@@ -16,7 +16,7 @@
 
     <resultMap id="stockResultMap"
                type="oahu.financial.beans.StockBean">
-        <id column="id" property="id" jdbcType="INTEGER" />
+        <id column="oid" property="id" jdbcType="INTEGER" />
         <result column="ticker_id" property="tickerId"/>
         <result column="dx" property="dx"/>
         <result column="opn" property="opn"/>

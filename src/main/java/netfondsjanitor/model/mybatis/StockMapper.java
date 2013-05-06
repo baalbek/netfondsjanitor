@@ -1,6 +1,10 @@
 package netfondsjanitor.model.mybatis;
 
 import oahu.financial.beans.StockBean;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,4 +15,8 @@ import oahu.financial.beans.StockBean;
 
 public interface StockMapper {
     void insertStockPrice(StockBean bean);
+
+    List<StockBean> selectTicker(@Param("tickerId") int tickerId,
+                                 @Param("fromDx") Date fromDx);
+
 }
