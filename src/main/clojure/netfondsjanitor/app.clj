@@ -7,7 +7,7 @@
     [org.apache.ibatis.session SqlSession]
 
     [oahu.financial.beans StockBean]
-    [oahu.financial Etrade]
+    [oahu.financial Etrade StockTicker]
     [maunakea.financial.beans CalculatedDerivativeBean]
     [maunakea.util MyBatisUtils]
     [netfondsjanitor.model.mybatis StockMapper])
@@ -41,6 +41,7 @@
   (let [session ^SqlSession (MyBatisUtils/getSession)
         mapper ^StockMapper (.getMapper session StockMapper)
         result (.selectTicker mapper id (new-date 2013 1 1))]
+    (doto session .commit .close)
     result))
 
 (defn main [args]
@@ -66,9 +67,8 @@
             ]
 
         (if (check-arg :ivharvest)
-            (do
-              (println "Iv harvestin'" f)))
-
+          (let [stockticker ^StockTicker (.getBean f "stockticker")]
+            (println (.findId  stockticker "YAR"))))
         (if (check-arg :spot)
           (let [etrade ^Etrade (.getBean f "etrade")
                 tix-list (.getBean f "ticker-list")

@@ -16,5 +16,6 @@
     </environments>
     <mappers>
         <mapper resource="Stock.xml"/>
+        <mapper resource="StockTicker.xml"/>
     </mappers>
 </configuration>

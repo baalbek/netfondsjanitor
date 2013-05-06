@@ -20,7 +20,7 @@
     </resultMap>
 
     <select id="selectTickers" parameterType="map" resultMap="stockTickerResultMap">
-        select * from stockmarket.stocktickers where active = 1 order by companyname
+        select * from stockmarket.stocktickers where status=1 order by company_name
     </select>
 
 

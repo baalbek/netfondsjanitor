@@ -40,7 +40,12 @@
     </bean>
 
     <bean id="html-derivative-factory" class="maunakea.financial.impl.HtmlCalculatedDerivativeBeanFactory" ></bean>
-    <bean id="html-stock-factory" class="maunakea.financial.impl.DefaultHtmlStockBeanFactory" ></bean>
+
+    <bean id="stockticker" class="netfondsjanitor.model.impl.StockTickerImpl" ></bean>
+
+    <bean id="html-stock-factory" class="maunakea.financial.impl.DefaultHtmlStockBeanFactory" >
+        <property name="stockTicker" ref="stockticker" />
+    </bean>
 
     <bean id="html-parser" class="maunakea.financial.impl.DefaultHtmlParser">
         <property name="derivativeFactory" ref="html-derivative-factory" />
