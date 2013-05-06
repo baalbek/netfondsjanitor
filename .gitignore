@@ -1,0 +1,13 @@
+target
+.idea
+*.iml
+tmp
+src/test/resources/Critter.xml
+src/test/resources/mybatis.conf.xml
+src/main/java/maunakea
+src/main/java/oahu
+src/main/clojure/waimea
+src/main/java/waimea
+*.swp
+*.swo
+*.log

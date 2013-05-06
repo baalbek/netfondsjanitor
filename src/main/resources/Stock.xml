@@ -14,7 +14,10 @@
     vol    | volume
     -->
 
-    <resultMap id="stockResultMap" type="oahu.financial.beans.StockBean">
+    <resultMap id="stockResultMap"
+               type="oahu.financial.beans.StockBean">
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="ticker_id" property="tickerId"/>
         <result column="dx" property="dx"/>
         <result column="opn" property="opn"/>
         <result column="hi" property="hi"/>
@@ -23,9 +26,17 @@
         <result column="vol" property="volume"/>
     </resultMap>
 
+    <select id="selectTicker" parameterType="map" resultMap="stockResultMap">
+        select * from stockmarket.stockprice where ticker_id = #{tickerId} and dx &gt;= #{fromDx} order by dx
+    </select>
 
-    <insert id="insertStockPrice" parameterType="oahu.financial.beans.StockBean">
-        insert into trader.stockprice (ticker, opn, hi, lo, cls, vol)
-        values (#{ticker}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
+
+
+    <insert id="insertStockPrice"
+            parameterType="oahu.financial.beans.StockBean"
+            useGeneratedKeys="true"
+            keyProperty="id" >
+        insert into stockmarket.stockprice (ticker_id, opn, hi, lo, cls, vol)
+        values (#{tickerId}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
     </insert>
 </mapper>
