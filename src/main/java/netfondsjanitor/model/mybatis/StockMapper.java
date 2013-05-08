@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,5 +19,7 @@ public interface StockMapper {
 
     List<StockBean> selectTicker(@Param("tickerId") int tickerId,
                                  @Param("fromDx") Date fromDx);
+
+    List<Map<Integer,Date>> selectMaxDate();
 
 }

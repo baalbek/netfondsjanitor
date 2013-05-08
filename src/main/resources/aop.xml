@@ -11,11 +11,11 @@
     <bean id="loggerAspect" class="taiarapu.aspect.TraceAspect" />
     -->
 
-    <!-- -->
+    <!--
 
     <bean id="traceAspect" class="maunakea.aspects.TraceAspect" />
 
-    <!-- -->
+    -->
 
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect" />
 

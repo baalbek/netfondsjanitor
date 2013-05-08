@@ -31,12 +31,16 @@
     </select>
 
 
+    <select id="selectMaxDate" resultType="hashMap">
+        select ticker_id,max(dx) as max_dx from stockmarket.stockprice group by ticker_id
+    </select>
+
 
     <insert id="insertStockPrice"
             parameterType="oahu.financial.beans.StockBean"
             useGeneratedKeys="true"
             keyProperty="id" >
-        insert into stockmarket.stockprice (ticker_id, opn, hi, lo, cls, vol)
-        values (#{tickerId}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
+        insert into stockmarket.stockprice (ticker_id, dx, opn, hi, lo, cls, vol)
+        values (#{tickerId}, #{dx}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
     </insert>
 </mapper>

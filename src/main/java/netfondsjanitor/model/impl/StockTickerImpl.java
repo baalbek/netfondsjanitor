@@ -30,7 +30,7 @@ public class StockTickerImpl implements StockTicker {
 
 
     @Override
-    public int findId(String ticker) {
+    public Integer findId(String ticker) {
         if (ticker2id == null) {
             populate();
         }

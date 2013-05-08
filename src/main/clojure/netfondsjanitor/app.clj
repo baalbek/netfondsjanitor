@@ -73,8 +73,9 @@
           (let [etrade ^Etrade (.getBean f "etrade")
                 tix-list (.getBean f "ticker-list")
                 stocks (map-java-fn .getSpot etrade tix-list)]
-            (println stocks))))))))
-
+            ;(println stocks))))))))
+            (doseq [s stocks]
+              (println (.getTicker s))))))))))
 
 
     (comment
