@@ -1,13 +1,14 @@
-(ns netfondsjanitor.scaffold
+(ns netfondsjanitor.service.feed
   (:use
     [clojure.string :only (join split)])
   (:require
+    [netfondsjanitor.service.db :as DB]
     [clojure.java.io :as IO])
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial StockTicker]
     [oahu.financial.beans StockBean StockTickerBean]
-    [org.joda.time DateTime]))
+    [org.joda.time DateMidnight]))
 
 ;  (with-open [wrtr (writer "/tmp/test.txt")]
 ;    (.write wrtr "Line to be written"))
@@ -28,7 +29,7 @@
 
 (defn parse-date [s]
   (let [[a y m d] (first (re-seq #"(\d\d\d\d)(\d\d)(\d\d)" s))]
-    (DateTime. (str->int y) (str->int m) (str->int d) 0 0 0)))
+    (DateMidnight. (str->int y) (str->int m) (str->int d))))
 
 (defn line-filter [dx lx]
   (let [cur-dx (parse-date (first lx))]
@@ -43,7 +44,7 @@
   (let [[dx ticker _ _ opn hi lo cls vol _] l
         bean ^StockBean (StockBean.)]
     (doto bean
-      (.setDx (.toDate (parse-date dx)))
+      (.setDxJoda (parse-date dx))
       (.setOpn (str->double opn))
       (.setHi (str->double hi))
       (.setLo (str->double lo))
@@ -53,27 +54,12 @@
       (.setTickerId (.findId stock-ticker ticker)))
     bean))
 
-(defn maxdx->map [mx]
-  (loop [x mx result {}]
-    (if (not (seq x))
-      result
-      (let [m (first x)
-            tix (.get m "ticker_id")
-            dx (DateTime. (.getTime (.get m "max_dx")))]
-        (recur (rest x) (assoc result tix dx))))))
-
-(defn get-max-dx []
-  (let [session ^SqlSession (MyBatisUtils/getSession)
-        mapper ^StockMapper (.getMapper session StockMapper)
-        result (.selectMaxDate mapper)]
-    (doto session .commit .close)
-    (maxdx->map result)))
 
 (defn get-lines [ticker]
   (let [f ^ClassPathXmlApplicationContext
         (ClassPathXmlApplicationContext. "netfondsjanitor.xml")
         stock-ticker (.getBean f "stockticker")
-        max-dx (get-max-dx)
+        max-dx (DB/get-max-dx)
         cur-dx (max-dx (.findId stock-ticker ticker))
         cur-filter (if (nil? cur-dx)
                      (fn [_] true)

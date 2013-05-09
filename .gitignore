@@ -11,3 +11,5 @@ src/main/java/waimea
 *.swp
 *.swo
 *.log
+feed/
+html/
