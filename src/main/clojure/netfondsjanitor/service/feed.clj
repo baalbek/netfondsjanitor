@@ -1,6 +1,7 @@
 (ns netfondsjanitor.service.feed
   (:use
-    [clojure.string :only (join split)])
+    [clojure.string :only (join split)]
+    [netfondsjanitor.service.common :only (*spring*)])
   (:require
     [netfondsjanitor.service.db :as DB]
     [clojure.java.io :as IO])
@@ -56,9 +57,8 @@
 
 
 (defn get-lines [ticker]
-  (let [f ^ClassPathXmlApplicationContext
-        (ClassPathXmlApplicationContext. "netfondsjanitor.xml")
-        stock-ticker (.getBean f "stockticker")
+  (let [
+        stock-ticker (.getBean *spring* "stockticker")
         max-dx (DB/get-max-dx)
         cur-dx (max-dx (.findId stock-ticker ticker))
         cur-filter (if (nil? cur-dx)
