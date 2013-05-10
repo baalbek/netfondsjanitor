@@ -19,6 +19,12 @@
 
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect" />
 
+    <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
+        <property name="fileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
+        <property name="fileStoreFormat" value="xml" />
+    </bean>
+
+
     <!--
     <aop:aspectj-autoproxy>
         <aop:include name="loggerAspect" />

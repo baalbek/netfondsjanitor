@@ -20,7 +20,7 @@ import java.util.Collection;
 
 @Aspect
 public class ValidateBeansAspect {
-    Logger log = Logger.getLogger(getClass().getName());
+    Logger log = Logger.getLogger(getClass().getPackage().getName());
 
     private static String NL = "\t\n";
 

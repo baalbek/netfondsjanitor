@@ -30,10 +30,17 @@
     </bean>
     -->
 
+
     <bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
         <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
         <property name="suffix" value="2013-4-20" />
     </bean>
+
+    <!--
+    <bean id="downloader" class="maunakea.financial.impl.NetfondsDownloader"></bean>
+    -->
+
+
 
     <bean id="calculator" class="netfondsjanitor.service.BlackScholesCalculator">
         <property name="helper" ref="kalihiwai-calc" ></property>
