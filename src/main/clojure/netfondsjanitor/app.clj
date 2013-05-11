@@ -21,13 +21,18 @@
 (defn do-spot [tix]
   (let [etrade ^Etrade (.getBean *spring* "etrade")
         stocks (map-java-fn .getSpot etrade tix)]
-    (DB/with-session
+    (DB/with-session StockMapper
       (doseq [s ^StockBean stocks]
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
             (.insertStockPrice it s)))))))
 
+(comment
+(defn do-spot [tix]
+  (DB/with-session StockMapper
+    (println it)))
+  )
 
 (defn do-feed [tix]
   (doseq [t tix]
