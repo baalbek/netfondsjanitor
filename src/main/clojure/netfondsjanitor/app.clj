@@ -2,6 +2,8 @@
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Etrade StockTicker]
+    [oahu.financial.beans StockBean]
+    [netfondsjanitor.model.mybatis StockMapper]
     [java.io FileNotFoundException])
   (:require
       [netfondsjanitor.service.logservice :as LOG]
@@ -16,12 +18,16 @@
   `(map #(~map-fn ~java-obj %) ~lst))
 
 
-(defn do-spot []
+(defn do-spot [tix]
   (let [etrade ^Etrade (.getBean *spring* "etrade")
-        tix-list (.getBean *spring* "ticker-list")
-        stocks (map-java-fn .getSpot etrade tix-list)]
-    (doseq [s stocks]
-      (println (.getTicker s)))))
+        stocks (map-java-fn .getSpot etrade tix)]
+    (DB/with-session
+      (doseq [s ^StockBean stocks]
+        (if-not (nil? s)
+          (do
+            (LOG/info (str "Will insert spot for " (.getTicker s)))
+            (.insertStockPrice it s)))))))
+
 
 (defn do-feed [tix]
   (doseq [t tix]
@@ -59,6 +65,11 @@
         (println parsed-args-vec)
         (println parsed-args)
         (System/exit 0)))
+
+    ;(if (check-arg :spot)
+    ;  (do
+    ;    (do-spot nil)
+    ;    (System/exit 0)))
 
     (binding [*spring* ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))]
       (let [stockticker (.getBean *spring* "stockticker")
