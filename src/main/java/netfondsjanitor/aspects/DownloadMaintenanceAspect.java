@@ -56,9 +56,21 @@ public class DownloadMaintenanceAspect {
             }
 
             // get the content in bytes
-            byte[] contentInBytes = "xml".equals(getFileStoreFormat()) ?
+            byte[] contentInBytes = null;
+
+            /*
+            "xml".equals(getFileStoreFormat()) ?
                                     pg.asXml().getBytes() :
                                     pg.asText().getBytes();
+            */
+            switch (getFileStoreFormat()) {
+                case "txt": contentInBytes = pg.asText().getBytes();
+                    break;
+                case "xml": contentInBytes = pg.asXml().getBytes();
+                    break;
+                case "html": contentInBytes = pg.getWebResponse().getContentAsString().getBytes();
+                    break;
+            }
 
             fop.write(contentInBytes);
             fop.flush();
@@ -74,7 +86,7 @@ public class DownloadMaintenanceAspect {
     //region Private Methods
     private String fileNameFor(ProceedingJoinPoint jp) {
         Object[] args = jp.getArgs();
-        return String.format("%s/%sx.%s", getFileStoreDir(), args[0], getFileStoreFormat());
+        return String.format("%s/%sy.%s", getFileStoreDir(), args[0], getFileStoreFormat());
     }
     //endregion Private Methods
 

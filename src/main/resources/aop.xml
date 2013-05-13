@@ -21,7 +21,7 @@
 
     <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
         <property name="fileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
-        <property name="fileStoreFormat" value="xml" />
+        <property name="fileStoreFormat" value="html" />
     </bean>
 
 

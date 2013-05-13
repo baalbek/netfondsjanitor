@@ -26,7 +26,8 @@
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            (.insertStockPrice it s)))))))
+            ;(.insertStockPrice it s)
+            ))))))
 
 (comment
 (defn do-spot [tix]
