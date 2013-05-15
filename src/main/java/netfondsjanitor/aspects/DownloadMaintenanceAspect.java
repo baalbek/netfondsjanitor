@@ -37,6 +37,8 @@ public class DownloadMaintenanceAspect {
     }
     */
 
+    //@Around("@annotation(com.x.y.MethodExecutionTime)")
+
     @Around("downloadPointcut()")
     public Object tracePointcutMethod(ProceedingJoinPoint jp) throws Throwable {
         Object result = jp.proceed();
@@ -58,23 +60,23 @@ public class DownloadMaintenanceAspect {
             // get the content in bytes
             byte[] contentInBytes = null;
 
-            /*
-            "xml".equals(getFileStoreFormat()) ?
-                                    pg.asXml().getBytes() :
-                                    pg.asText().getBytes();
-            */
             switch (getFileStoreFormat()) {
-                case "txt": contentInBytes = pg.asText().getBytes();
+                case "html": contentInBytes = pg.getWebResponse().getContentAsString().getBytes();
                     break;
                 case "xml": contentInBytes = pg.asXml().getBytes();
                     break;
-                case "html": contentInBytes = pg.getWebResponse().getContentAsString().getBytes();
+                case "txt": contentInBytes = pg.asText().getBytes();
                     break;
             }
 
-            fop.write(contentInBytes);
-            fop.flush();
-            fop.close();
+            if (contentInBytes == null) {
+                log.warn(String.format("Could not get bytes from %s with the %s extension",pg.getUrl(),getFileStoreFormat()));
+            }
+            else {
+                fop.write(contentInBytes);
+                fop.flush();
+                fop.close();
+            }
         }
         catch (IOException e) {
             log.warn(String.format("Could not save: %s", fn));
