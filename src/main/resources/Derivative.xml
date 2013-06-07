@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="netfondsjanitor.model.mybatis.DerivativeMapper">
+
+    <insert id="insertDerivative"
+            parameterType="maunakea.financial.beans.DerivativeBean"
+            useGeneratedKeys="true"
+            keyProperty="id" >
+        insert into stockmarket.optionx (ticker_id, dx, opn, hi, lo, cls, vol)
+        values (#{tickerId}, #{dx}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
+    </insert>
+</mapper>
