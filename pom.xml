@@ -35,32 +35,12 @@
         </dependency>
         -->
 
-        <!--****************************************************************
-        ****************************** scala **************************
-        ********************************************************************-->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>rcstadheim</groupId>
-            <artifactId>kalihiwai</artifactId>
-            <version>1.1</version>
+            <artifactId>vega</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>colt</groupId>
-            <artifactId>colt</artifactId>
-        </dependency>
 
-        <!--****************************************************************
-        ******************************** JAvaFX ****************************
-        ********************************************************************-->
-        <dependency>
-            <groupId>com.oracle.javafx</groupId>
-            <artifactId>javafx</artifactId>
-        </dependency>
 
         <!--****************************************************************
         ********************************* AOP ******************************

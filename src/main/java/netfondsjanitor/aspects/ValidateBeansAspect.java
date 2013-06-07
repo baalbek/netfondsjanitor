@@ -1,7 +1,6 @@
 package netfondsjanitor.aspects;
 
-import maunakea.financial.beans.CalculatedDerivativeBean;
-import oahu.financial.beans.DerivativeBean;
+import maunakea.financial.beans.DerivativeBean;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -40,8 +39,8 @@ public class ValidateBeansAspect {
 
         sb.append("\n\tNumber of options: ").append(tmp.size());
 
-        for (DerivativeBean bean : tmp) {
-            CalculatedDerivativeBean cb = (CalculatedDerivativeBean)bean;
+        for (DerivativeBean cb : tmp) {
+            //CalculatedDerivativeBean cb = (CalculatedDerivativeBean)bean;
 
             String ticker = cb.getTicker();
 
@@ -51,7 +50,7 @@ public class ValidateBeansAspect {
             }
 
 
-            if (cb.daysProperty().get() < 0) {
+            if (cb.getDays() < 0) {
                 sb.append(NL).append(ticker).append(" has expired!");
                 continue;
             }

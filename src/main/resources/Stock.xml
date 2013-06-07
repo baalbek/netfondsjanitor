@@ -15,7 +15,7 @@
     -->
 
     <resultMap id="stockResultMap"
-               type="oahu.financial.beans.StockBean">
+               type="maunakea.financial.beans.StockBean">
         <id column="oid" property="id" jdbcType="INTEGER" />
         <result column="ticker_id" property="tickerId"/>
         <result column="dx" property="dx"/>
@@ -37,7 +37,7 @@
 
 
     <insert id="insertStockPrice"
-            parameterType="oahu.financial.beans.StockBean"
+            parameterType="maunakea.financial.beans.StockBean"
             useGeneratedKeys="true"
             keyProperty="id" >
         insert into stockmarket.stockprice (ticker_id, dx, opn, hi, lo, cls, vol)

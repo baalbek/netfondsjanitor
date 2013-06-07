@@ -1,10 +1,9 @@
 package netfondsjanitor.model.impl;
 
+import maunakea.financial.beans.StockTickerBean;
 import maunakea.util.MyBatisUtils;
 import netfondsjanitor.model.mybatis.StockTickerMapper;
-import oahu.exceptions.NotImplementedException;
 import oahu.financial.StockTicker;
-import oahu.financial.beans.StockTickerBean;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.ArrayList;

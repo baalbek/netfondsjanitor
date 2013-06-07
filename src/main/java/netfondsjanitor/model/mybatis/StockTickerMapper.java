@@ -1,6 +1,7 @@
 package netfondsjanitor.model.mybatis;
 
-import oahu.financial.beans.StockTickerBean;
+
+import maunakea.financial.beans.StockTickerBean;
 
 import java.util.List;
 

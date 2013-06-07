@@ -1,8 +1,8 @@
 (ns netfondsjanitor.app
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial Etrade StockTicker]
-    [oahu.financial.beans StockBean]
+    [oahu.financial Etrade ]
+    [maunakea.financial.beans StockBean StockTickerBean DerivativeBean]
     [netfondsjanitor.model.mybatis StockMapper]
     [java.io FileNotFoundException])
   (:require
@@ -29,12 +29,6 @@
             (.insertStockPrice it s)
             ))))))
 
-(comment
-(defn do-spot [tix]
-  (DB/with-session StockMapper
-    (println it)))
-  )
-
 (defn do-feed [tix]
   (doseq [t tix]
     (try
@@ -51,6 +45,10 @@
       (catch Exception e
         (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
         (System/exit 0)))))
+
+(defn do-ivharvest [tix]
+
+  )
 
 (defn main [args]
   (LOG/initLog4j)
@@ -82,7 +80,7 @@
             tix (.getTickers stockticker)]
 
         (if (check-arg :ivharvest)
-            (println tix))
+            (do-ivharvest tix))
 
         (if (check-arg :spot)
           (do-spot tix))

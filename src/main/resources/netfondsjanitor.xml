@@ -41,8 +41,6 @@
     <bean id="downloader" class="maunakea.financial.impl.NetfondsDownloader"></bean>
 
 
-
-
     <bean id="calculator" class="netfondsjanitor.service.BlackScholesCalculator">
         <property name="helper" ref="kalihiwai-calc" ></property>
     </bean>

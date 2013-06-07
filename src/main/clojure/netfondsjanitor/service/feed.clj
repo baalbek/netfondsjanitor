@@ -8,7 +8,7 @@
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial StockTicker]
-    [oahu.financial.beans StockBean StockTickerBean]
+    [maunakea.financial.beans StockBean StockTickerBean]
     [org.joda.time DateMidnight]))
 
 ;  (with-open [wrtr (writer "/tmp/test.txt")]
