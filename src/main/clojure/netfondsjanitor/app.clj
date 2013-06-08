@@ -91,4 +91,7 @@
       ))))
 
 
-(main *command-line-args*)
+;(main *command-line-args*)
+
+(defn factory []
+  (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))

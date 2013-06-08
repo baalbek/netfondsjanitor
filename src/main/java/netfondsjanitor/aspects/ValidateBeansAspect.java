@@ -1,6 +1,7 @@
 package netfondsjanitor.aspects;
 
-import maunakea.financial.beans.DerivativeBean;
+import oahu.exceptions.BinarySearchException;
+import oahu.financial.Derivative;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -21,53 +22,123 @@ import java.util.Collection;
 public class ValidateBeansAspect {
     Logger log = Logger.getLogger(getClass().getPackage().getName());
 
-    private static String NL = "\t\n";
+    private Double spreadLimit = null;
+    private Integer daysLimit = 0;
+
 
     @Pointcut("execution(* oahu.financial.Etrade.getCalls(String))")
     public void getCallsPointcut() {
     }
 
 
-    @Around("getCallsPointcut()")
-    public Collection<DerivativeBean> getCallsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+    @Pointcut("execution(* oahu.financial.Etrade.getPuts(String))")
+    public void getPutsPointcut() {
+    }
 
-        StringBuilder sb = new StringBuilder(jp.toString());
 
-        Collection<DerivativeBean> tmp = (Collection<DerivativeBean>)jp.proceed();
 
-        Collection<DerivativeBean> result = new ArrayList<>();
+    @Around("getPutsPointcut()")
+    public Collection<Derivative> getPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
 
-        sb.append("\n\tNumber of options: ").append(tmp.size());
+        Collection<Derivative> tmp = (Collection<Derivative>)jp.proceed();
 
-        for (DerivativeBean cb : tmp) {
+        Collection<Derivative> result = new ArrayList<>();
+
+        log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
+
+        for (Derivative cb : tmp) {
             //CalculatedDerivativeBean cb = (CalculatedDerivativeBean)bean;
 
-            String ticker = cb.getTicker();
-
-            if (cb.getParent() == null) {
-                sb.append(NL).append(ticker).append(": parent is null!");
-                continue;
-            }
-
-
-            if (cb.getDays() < 0) {
-                sb.append(NL).append(ticker).append(" has expired!");
-                continue;
-            }
-
-
-            if (cb.getIvSell() < 0 || cb.getIvBuy() < 0) {
-                sb.append(NL).append(ticker).append(": iv not valid!");
-                continue;
-            }
+            if (isOk(cb) == false) continue;
 
             result.add(cb);
         }
 
-        log.debug(sb.toString());
-
-        System.out.println(sb.toString());
         return result;
+    }
+
+    @Around("getCallsPointcut()")
+    public Collection<Derivative> getCallsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+
+        Collection<Derivative> tmp = (Collection<Derivative>)jp.proceed();
+
+        Collection<Derivative> result = new ArrayList<>();
+
+        log.info(String.format("%s\nNumber of calls: %d",jp.toString(),tmp.size()));
+
+        for (Derivative cb : tmp) {
+
+            if (isOk(cb) == false) continue;
+
+            result.add(cb);
+        }
+
+        return result;
+    }
+
+    private boolean isOk(Derivative cb) {
+        String ticker = cb.getTicker();
+
+        if (cb.getParent() == null) {
+            log.warn(String.format("%s: parent is null",ticker));
+            return false;
+        }
+
+        if (cb.getDays() < daysLimit) {
+            log.info(String.format("%s has expired within %d days",ticker,daysLimit));
+            return false;
+        }
+
+        if (cb.getBuy() <= 0) {
+            log.info(String.format("%s: buy <= 0.0",ticker));
+            return false;
+        }
+
+        if (cb.getSell() <= 0) {
+            log.info(String.format("%s: sell <= 0.0",ticker));
+            return false;
+        }
+
+        if (spreadLimit != null) {
+            double spread = cb.getSell() - cb.getBuy();
+            if (spread > spreadLimit.doubleValue()) {
+                log.info(String.format("%s: spread (%.2f) larger than allowed (%.2f)",ticker,spread,spreadLimit));
+                return false;
+            }
+        }
+
+        try {
+            if (cb.getIvSell() <= 0) {
+                log.info(String.format("%s: ivSell <= 0.0",ticker));
+                return false;
+            }
+
+            if (cb.getIvBuy() <= 0) {
+                log.info(String.format("%s: ivBuy <= 0.0",ticker));
+                return false;
+            }
+        }
+        catch (BinarySearchException ex) {
+            log.warn(String.format("%s: %s",ticker,ex.getMessage()));
+            return false;
+        }
+        return true;
+    }
+
+    public Double getSpreadLimit() {
+        return spreadLimit;
+    }
+
+    public void setSpreadLimit(Double spreadLimit) {
+        this.spreadLimit = spreadLimit;
+    }
+
+    public Integer getDaysLimit() {
+        return daysLimit;
+    }
+
+    public void setDaysLimit(Integer daysLimit) {
+        this.daysLimit = daysLimit;
     }
 
 

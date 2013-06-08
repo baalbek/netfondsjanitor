@@ -2,7 +2,6 @@ package netfondsjanitor.etrade;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import oahu.exceptions.NotImplementedException;
 import oahu.financial.EtradeDownloader;
 
@@ -18,12 +17,16 @@ import java.net.URL;
  */
 public class DummyDownloader implements EtradeDownloader{
     private String storePath;
-    private String suffix;
+    private String indexSuffix = null;
+    private String optionSuffix = null;
 
 
 
-    private URL getUrl(String ticker) throws MalformedURLException {
-        URL url = new URL("file://" + getStorePath() + "/" + ticker + "-" + getSuffix() + ".html");
+    private URL getUrl(String ticker, String curSuffix) throws MalformedURLException {
+        String urlStr = curSuffix == null ?
+                                String.format("file://%s/%s.html",getStorePath(),ticker) :
+                                String.format("file://%s/%s-%s.html",getStorePath(),ticker, getOptionSuffix());
+        URL url = new URL(urlStr);
         return url;
     }
 
@@ -35,19 +38,19 @@ public class DummyDownloader implements EtradeDownloader{
         this.storePath = storePath;
     }
 
-    public String getSuffix() {
-        return suffix;
+    public String getOptionSuffix() {
+        return optionSuffix;
     }
 
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
+    public void setOptionSuffix(String optionSuffix) {
+        this.optionSuffix = optionSuffix;
     }
 
 
 
     @Override
     public Page downloadDerivatives(String ticker) throws IOException {
-        URL url = getUrl(ticker);
+        URL url = getUrl(ticker,getOptionSuffix());
 
         System.out.println("URL: " + url.toString());
 
@@ -58,7 +61,7 @@ public class DummyDownloader implements EtradeDownloader{
 
     @Override
     public Page downloadIndex(String stockIndex) throws IOException {
-        URL url = getUrl(stockIndex);
+        URL url = getUrl(stockIndex,getIndexSuffix());
 
         WebClient webClient = new WebClient();
 
@@ -88,5 +91,13 @@ public class DummyDownloader implements EtradeDownloader{
     @Override
     public Page getLogoutPage() {
         throw new NotImplementedException();
+    }
+
+    public String getIndexSuffix() {
+        return indexSuffix;
+    }
+
+    public void setIndexSuffix(String indexSuffix) {
+        this.indexSuffix = indexSuffix;
     }
 }

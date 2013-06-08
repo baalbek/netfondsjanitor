@@ -12,7 +12,7 @@
   (let [lf (LogFactory/getFactory)
         props (Properties.)
         clazz (.getClass props)
-        resource (.getResourceAsStream clazz "/log4j.properties")]
+        resource (.getResourceAsStream clazz "/log4j.xml")]
     (.setAttribute lf "org.apache.commons.logging.Log" "org.apache.commons.logging.impl.NoOpLog")
     (.load props resource)
     (PropertyConfigurator/configure props)))

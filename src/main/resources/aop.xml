@@ -17,17 +17,17 @@
 
     -->
 
-    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect" />
-
-    <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
-        <property name="fileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
-        <property name="fileStoreFormat" value="html" />
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
+        <!-- property name="spreadLimit" value="5.0" / -->
+        <property name="daysLimit" value="10" />
     </bean>
 
 
     <!--
-    <aop:aspectj-autoproxy>
-        <aop:include name="loggerAspect" />
-    </aop:aspectj-autoproxy>
+    <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
+        <property name="fileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
+        <property name="fileStoreFormat" value="html" />
+    </bean>
     -->
+
 </beans>
