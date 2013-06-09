@@ -1,4 +1,5 @@
 (ns netfondsjanitor.app
+  (:import [maunakea.financial.beans StockPriceBean StockPriceBean StockBean])
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Etrade ]

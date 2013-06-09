@@ -46,7 +46,7 @@
 
     <bean id="stockticker" class="netfondsjanitor.model.impl.StockTickerImpl" ></bean>
 
-    <bean id="html-stock-factory" class="maunakea.financial.DefaultHtmlStockBeanFactory" >
+    <bean id="html-stock-factory" class="maunakea.financial.DefaultHtmlStockPriceFactory" >
         <property name="stockTicker" ref="stockticker" />
     </bean>
 

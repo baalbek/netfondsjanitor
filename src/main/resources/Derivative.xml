@@ -3,11 +3,54 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="netfondsjanitor.model.mybatis.DerivativeMapper">
 
+
+
+    <resultMap id="derivativeMap" type="maunakea.financial.beans.DerivativeBean">
+        <id column="oid" property="oid"/>
+        <result column="opname" property="name" />
+        <result column="strike" property="name" />
+        <result column="exp_date" property="name" />
+        <result column="optype" property="sellVolume" />
+        <result column="stock_id" property="sellVolume" />
+        <result column="series" property="sellVolume" />
+    </resultMap>
+
+    <select id="getDerivatives" resultMap="derivativeMap">
+        select * from trader.critter where purchase_id=#{value} and status=7 and sale_id is null
+        order by oid
+    </select>
+
+    <resultMap id="stockWithDerivativesMap" type="maunakea.financial.beans.StockPriceBean">
+        <id column="oid" property="oid"/>
+        <result column="dx" property="dx"/>
+        <result column="price" property="price"/>
+        <result column="volume" property="volume"/>
+        <result column="sell_volume" property="sellVolume"/>
+        <result column="status" property="status"/>
+        <result column="ticker" property="ticker"/>
+        <result column="opname" property="optionName"/>
+        <collection column="oid"
+                    property="critters"
+                    select="getCritters"
+                    ofType="taiarapu.beans.CritterBean"
+                    javaType="java.util.ArrayList"/>
+
+    </resultMap>
+
+
+    <select id="selectDerivatves" resultMap="stockWithDerivativesMap">
+        select o.*,s.ticker,d.opname from trader.optionpurchase o join trader.optionx d on d.oid=o.opid
+        join trader.stocktickers s on s.oid=d.stock_id
+        where o.purchase_type=#{purchasetype} order by o.dx
+    </select>
+
+    <!-- oid | opname | strike | exp_date | optype | stock_id | series -->
+
     <insert id="insertDerivative"
             parameterType="maunakea.financial.beans.DerivativeBean"
             useGeneratedKeys="true"
             keyProperty="id" >
-        insert into stockmarket.optionx (ticker_id, dx, opn, hi, lo, cls, vol)
-        values (#{tickerId}, #{dx}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
+        insert into stockmarket.optionx (opname, strike, exp_date, optype, stock_id, series)
+        values (#{ticker}, #{x}, #{expiry}, #{opTypeStr}, #{stockId}, #{series})
     </insert>
 </mapper>

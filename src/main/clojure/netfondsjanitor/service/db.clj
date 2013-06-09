@@ -33,9 +33,10 @@
 
 (defmacro with-session [mapper & body]
   `(let [session# ^SqlSession (MyBatisUtils/getSession)
-         ~'it (.getMapper session# ~mapper)]
-    ~@body
-    (doto session# .commit .close)))
+         ~'it (.getMapper session# ~mapper)
+         result# ~@body]
+    (doto session# .commit .close)
+      result#))
 
 (comment
   (defmacro make [v & body]

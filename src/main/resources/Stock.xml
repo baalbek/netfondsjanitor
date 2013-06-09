@@ -3,6 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="netfondsjanitor.model.mybatis.StockMapper">
 
+
     <!--
     oid    | integer | not null default nextval('stockprice_oid_seq'::regclass)
     ticker | ticker  |
@@ -14,8 +15,8 @@
     vol    | volume
     -->
 
-    <resultMap id="stockResultMap"
-               type="maunakea.financial.beans.StockBean">
+    <resultMap id="stockPriceMap"
+               type="maunakea.financial.beans.StockPriceBean">
         <id column="oid" property="id" jdbcType="INTEGER" />
         <result column="ticker_id" property="tickerId"/>
         <result column="dx" property="dx"/>
@@ -26,7 +27,7 @@
         <result column="vol" property="volume"/>
     </resultMap>
 
-    <select id="selectTicker" parameterType="map" resultMap="stockResultMap">
+    <select id="selectStockprices" parameterType="map" resultMap="stockPriceMap">
         select * from stockmarket.stockprice where ticker_id = #{tickerId} and dx &gt;= #{fromDx} order by dx
     </select>
 
@@ -37,10 +38,58 @@
 
 
     <insert id="insertStockPrice"
-            parameterType="maunakea.financial.beans.StockBean"
+            parameterType="maunakea.financial.beans.StockPriceBean"
             useGeneratedKeys="true"
             keyProperty="id" >
         insert into stockmarket.stockprice (ticker_id, dx, opn, hi, lo, cls, vol)
         values (#{tickerId}, #{dx}, #{opn}, #{hi}, #{lo}, #{cls}, #{volume})
     </insert>
+
+    <!--
+        oid | ticker | company_name | status
+
+        1 | NHY    | Norsk hydro  |      1
+        2 | STL    | StatoilHydro |      1
+    -->
+
+    <resultMap id="stocksMap"
+               type="maunakea.financial.beans.StockBean">
+        <id column="oid" property="id" jdbcType="INTEGER" />
+        <result column="ticker" property="ticker"/>
+        <result column="company_name" property="companyName"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="selectStocks" parameterType="map" resultMap="stocksMap">
+        select * from stockmarket.stocktickers where status=1 order by ticker
+    </select>
+
+    <select id="pricesCollection" parameterType="map" resultMap="stockPriceMap">
+        select * from stockmarket.stockprice where ticker_id = #{value} and dx &gt;= '2013-1-1' order by dx
+    </select>
+
+    <resultMap id="stocksWithPricesMap"
+               type="maunakea.financial.beans.StockBean">
+        <id column="oid" property="id" jdbcType="INTEGER" />
+        <result column="ticker" property="ticker"/>
+        <result column="company_name" property="companyName"/>
+        <result column="status" property="status"/>
+        <collection column="oid"
+                    property="prices"
+                    select="pricesCollection"
+                    ofType="maunakea.financial.beans.StockPriceBean"
+                    javaType="java.util.ArrayList"/>
+    </resultMap>
+
+
+    <select id="selectStocksWithPrices" parameterType="map" resultMap="stocksWithPricesMap">
+        select * from stockmarket.stocktickers where status=1
+        and oid in
+        <foreach item="item" index="index" collection="tickerIds"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        order by ticker
+    </select>
+
 </mapper>

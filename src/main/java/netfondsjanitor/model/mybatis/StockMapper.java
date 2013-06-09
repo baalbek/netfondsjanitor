@@ -1,6 +1,8 @@
 package netfondsjanitor.model.mybatis;
 
+import maunakea.financial.beans.StockBean;
 import oahu.financial.Stock;
+import oahu.financial.StockPrice;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
@@ -18,9 +20,14 @@ import java.util.Map;
 public interface StockMapper {
     void insertStockPrice(Stock bean);
 
-    List<Stock> selectTicker(@Param("tickerId") int tickerId,
+    List<StockPrice> selectStockprices(@Param("tickerId") int tickerId,
                                  @Param("fromDx") Date fromDx);
 
     List<Map<Integer,Date>> selectMaxDate();
+
+    List<Stock> selectStocks();
+
+    List<Stock> selectStocksWithPrices(@Param("tickerIds") List<Integer> tickerIds,
+                                      @Param("fromDx") Date fromDx);
 
 }

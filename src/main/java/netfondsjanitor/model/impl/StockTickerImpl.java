@@ -1,9 +1,10 @@
 package netfondsjanitor.model.impl;
 
-import maunakea.financial.beans.StockTickerBean;
+import maunakea.financial.beans.StockBean;
 import maunakea.util.MyBatisUtils;
-import netfondsjanitor.model.mybatis.StockTickerMapper;
-import oahu.financial.StockTicker;
+import netfondsjanitor.model.mybatis.StockMapper;
+import oahu.financial.Stock;
+import oahu.financial.StockTickerIdMap;
 import org.apache.ibatis.session.SqlSession;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
  * Date: 5/6/13
  * Time: 6:17 PM
  */
-public class StockTickerImpl implements StockTicker {
+public class StockTickerImpl implements StockTickerIdMap {
     private HashMap<Integer,String> id2ticker;
     private HashMap<String,Integer> ticker2id;
     private List<String> tickers;
@@ -55,12 +56,12 @@ public class StockTickerImpl implements StockTicker {
 
         SqlSession session = MyBatisUtils.getSession();
 
-        StockTickerMapper mapper = session.getMapper(StockTickerMapper.class);
+        StockMapper mapper = session.getMapper(StockMapper.class);
 
-        List<StockTickerBean> tix = mapper.selectTickers();
+        List<Stock> tix = mapper.selectStocks();
 
 
-        for (StockTickerBean b : tix) {
+        for (Stock b : tix) {
             id2ticker.put(b.getId(), b.getTicker());
             ticker2id.put(b.getTicker(), b.getId());
             tickers.add(b.getTicker());

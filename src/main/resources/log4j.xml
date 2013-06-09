@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+    <appender name="CA" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+    <appender name="FA" class="org.apache.log4j.FileAppender">
+        <param name="File" value="netfondsjanitor.log"/>
+        <param name="Threshold" value="DEBUG"/>
+        <param name="Append" value="False" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d [%t] %-5p %c %x - %m%n"/>
+        </layout>
+    </appender>
+
+    <logger name="maunaloa.aspects">
+        <level value="INFO" />
+        <appender-ref ref="CA" />
+    </logger>
+    <root>
+        <level value="DEBUG"/>
+        <appender-ref ref="FA"/>
+    </root>
+</log4j:configuration>

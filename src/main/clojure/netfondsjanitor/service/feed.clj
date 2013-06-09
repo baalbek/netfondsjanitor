@@ -1,4 +1,7 @@
 (ns netfondsjanitor.service.feed
+  (:import [oahu.financial StockTickerIdMap])
+  (:import [oahu.financial StockTickerMapping StockTickerIdMap]
+           [maunakea.financial.beans StockPriceBean StockPriceBean StockPriceBean StockBean])
   (:use
     [clojure.string :only (join split)]
     [netfondsjanitor.service.common :only (*spring*)])
@@ -7,7 +10,7 @@
     [clojure.java.io :as IO])
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial StockTicker]
+    [oahu.financial StockTicker StockTickerMapping]
     [maunakea.financial.beans StockBean StockTickerBean]
     [org.joda.time DateMidnight]))
 
