@@ -10,9 +10,8 @@
 (defn prices []
   (DB/with-session StockMapper
     (let [tix (ArrayList.)
-     dx (DateMidnight. 2013 1 1)]
+     dx (DateMidnight. 2013 3 1)]
       (doto tix
-        (.add 2)
         (.add 3)
         (.add 4))
       (.selectStocksWithPrices it tix (.toDate dx)))))

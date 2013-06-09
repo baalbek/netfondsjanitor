@@ -20,9 +20,6 @@ import java.util.Map;
 public interface StockMapper {
     void insertStockPrice(Stock bean);
 
-    List<StockPrice> selectStockprices(@Param("tickerId") int tickerId,
-                                 @Param("fromDx") Date fromDx);
-
     List<Map<Integer,Date>> selectMaxDate();
 
     List<Stock> selectStocks();
