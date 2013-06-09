@@ -19,7 +19,7 @@ export CP
 
 # /usr/local/bin/clj netfondsjanitor/app.clj
 
-exec java -cp $CP clojure.main netfondsjanitor/app.clj
+exec java -cp $CP clojure.main netfondsjanitor/app.clj -s
 
 exit 0
 
