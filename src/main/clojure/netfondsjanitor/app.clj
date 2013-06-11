@@ -26,7 +26,7 @@
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            ;(.insertStockPrice it s)
+            (.insertStockPrice it s)
             ))))))
 
 (defn do-feed [tix]
@@ -48,32 +48,14 @@
 (defn do-ivharvest [tix])
 
 
-
-(defn insert-derivatives [ds]
-  (DB/with-session DerivativeMapper
-    (let [will-insert
-            (fn [^DerivativeBean x]
-              (if (= 0 (.countDerivative it (.getTicker x)))
-                true
-                false))]
-      (doseq [d ds]
-        (if (= true (will-insert d))
-          (do
-            (LOG/info (str "Will insert " (.getTicker d)))
-            (.insertDerivative it d))
-          (LOG/info (str (.getTicker d) " already exists")))))))
-
 (defn do-derivatives [tix]
   (let [etrade ^Etrade (.getBean *spring* "etrade")]
     (doseq [t tix]
-      (LOG/info (str "Will update derivatives for " t)))))
-
-
-(comment
+      (LOG/info (str "Will update derivatives for " t))
       (let [calls (.getCalls etrade t)
             puts (.getPuts etrade t)]
-        (insert-derivatives calls)
-        (insert-derivatives puts)))
+        (DB/insert-derivatives calls)
+        (DB/insert-derivatives puts)))))
 
 
 (defn main [args]
@@ -117,7 +99,6 @@
 
         (if (check-arg :derivatives)
           (do-derivatives tix))
-
       ))))
 
 
