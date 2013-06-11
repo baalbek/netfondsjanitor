@@ -6,22 +6,6 @@
 
     <import resource="classpath:aop.xml" />
 
-
-
-
-    <!--
-<bean id="janitor" class="netfondsjanitor.etrade.DefaultDownloadJanitor">
-    <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
-</bean>
-
-
-
-<bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
-    <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
-    <property name="optionSuffix" value="2013-4-20" />
-</bean>
--->
-
     <!--
     <bean id="downloader" class="maunakea.financial.mocks.MockRollingDownloader">
         <property name="htmlPath"
@@ -30,24 +14,24 @@
     -->
 
 
+    <!--
     <bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
         <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
         <property name="indexSuffix" value="2013-4-20" />
     </bean>
-
-    <!--
-    <bean id="downloader" class="maunakea.financial.NetfondsDownloader"></bean>
     -->
+
+    <bean id="downloader" class="maunakea.financial.NetfondsDownloader"></bean>
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes">
     </bean>
 
     <bean id="html-derivative-factory" class="maunakea.financial.HtmlCalculatedDerivativeBeanFactory" ></bean>
 
-    <bean id="stockticker" class="netfondsjanitor.model.impl.StockTickerImpl" ></bean>
+    <bean id="stocklocator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
 
     <bean id="html-stock-factory" class="maunakea.financial.DefaultHtmlStockPriceFactory" >
-        <property name="stockTicker" ref="stockticker" />
+        <property name="stockLocator" ref="stocklocator" />
     </bean>
 
     <bean id="html-parser" class="maunakea.financial.DefaultHtmlParser">

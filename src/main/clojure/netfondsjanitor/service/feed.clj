@@ -1,7 +1,4 @@
 (ns netfondsjanitor.service.feed
-  (:import [oahu.financial StockTickerIdMap])
-  (:import [oahu.financial StockTickerMapping StockTickerIdMap]
-           [maunakea.financial.beans StockPriceBean StockPriceBean StockPriceBean StockBean])
   (:use
     [clojure.string :only (join split)]
     [netfondsjanitor.service.common :only (*spring*)])
@@ -10,8 +7,8 @@
     [clojure.java.io :as IO])
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial StockTicker StockTickerMapping]
-    [maunakea.financial.beans StockBean StockTickerBean]
+    [oahu.financial Stock StockLocator]
+    [ranoraraku.beans StockPriceBean]
     [org.joda.time DateMidnight]))
 
 ;  (with-open [wrtr (writer "/tmp/test.txt")]
@@ -44,9 +41,9 @@
 ; 0date	       1paper 2exch	3      4open	  5high	  6low	   7close	   8volume	9value
 ; ["20130102" "YAR" "Oslo" "Bors" "277.70" "279.00" "275.70" "276.80" "839375" "232598528"]
 
-(defn line->stockbean [^StockTicker stock-ticker l]
+(defn line->stockpricebean [^Stock stock l]
   (let [[dx ticker _ _ opn hi lo cls vol _] l
-        bean ^StockBean (StockBean.)]
+        bean ^StockPriceBean (StockPriceBean.)]
     (doto bean
       (.setDxJoda (parse-date dx))
       (.setOpn (str->double opn))
@@ -54,16 +51,16 @@
       (.setLo (str->double lo))
       (.setCls (str->double cls))
       (.setVolume (str->int vol))
-      (.setStockTicker stock-ticker)
-      (.setTickerId (.findId stock-ticker ticker)))
+      (.setStock stock)
+      )
     bean))
 
 
 (defn get-lines [ticker]
   (let [
-        stock-ticker (.getBean *spring* "stockticker")
+        locator ^StockLocator (.getBean *spring* "stocklocator")
         max-dx (DB/get-max-dx)
-        cur-dx (max-dx (.findId stock-ticker ticker))
+        cur-dx (max-dx (.findId locator ticker))
         cur-filter (if (nil? cur-dx)
                      (fn [_] true)
                      (partial line-filter cur-dx))
@@ -71,5 +68,5 @@
              ticker
              str->list
              cur-filter)]
-    (map (partial line->stockbean stock-ticker) lx)))
+    (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
 

@@ -1,10 +1,9 @@
 (ns netfondsjanitor.app
-  (:import [maunakea.financial.beans StockPriceBean StockPriceBean StockBean])
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial Etrade ]
-    [maunakea.financial.beans StockBean StockTickerBean DerivativeBean]
-    [netfondsjanitor.model.mybatis StockMapper]
+    [oahu.financial Etrade]
+    [ranoraraku.models.mybatis StockMapper DerivativeMapper]
+    [ranoraraku.beans StockPriceBean DerivativeBean]
     [java.io FileNotFoundException])
   (:require
       [netfondsjanitor.service.logservice :as LOG]
@@ -23,11 +22,11 @@
   (let [etrade ^Etrade (.getBean *spring* "etrade")
         stocks (map-java-fn .getSpot etrade tix)]
     (DB/with-session StockMapper
-      (doseq [s ^StockBean stocks]
+      (doseq [s ^StockPriceBean stocks]
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            (.insertStockPrice it s)
+            ;(.insertStockPrice it s)
             ))))))
 
 (defn do-feed [tix]
@@ -35,7 +34,6 @@
     (try
       (let [cur-lines  (FEED/get-lines t)
             num-beans (count cur-lines)]
-
         (if (> num-beans 0)
           (do
             (LOG/info (str "Will insert " num-beans " for " t))
@@ -47,9 +45,36 @@
         (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
         (System/exit 0)))))
 
-(defn do-ivharvest [tix]
+(defn do-ivharvest [tix])
 
-  )
+
+
+(defn insert-derivatives [ds]
+  (DB/with-session DerivativeMapper
+    (let [will-insert
+            (fn [^DerivativeBean x]
+              (if (= 0 (.countDerivative it (.getTicker x)))
+                true
+                false))]
+      (doseq [d ds]
+        (if (= true (will-insert d))
+          (do
+            (LOG/info (str "Will insert " (.getTicker d)))
+            (.insertDerivative it d))
+          (LOG/info (str (.getTicker d) " already exists")))))))
+
+(defn do-derivatives [tix]
+  (let [etrade ^Etrade (.getBean *spring* "etrade")]
+    (doseq [t tix]
+      (LOG/info (str "Will update derivatives for " t)))))
+
+
+(comment
+      (let [calls (.getCalls etrade t)
+            puts (.getPuts etrade t)]
+        (insert-derivatives calls)
+        (insert-derivatives puts)))
+
 
 (defn main [args]
   (LOG/initLog4j)
@@ -57,6 +82,7 @@
                           ["-h" "--[no-]help" "Print cmd line options and quit" :default false]
                           ["-x" "--xml" "Spring xml filename" :default "netfondsjanitor.xml"]
                           ["-i" "--[no-]ivharvest" "Harvesting implied volatility" :default false]
+                          ["-d" "--[no-]derivatives" "Update database with new options" :default false]
                           ["-s" "--[no-]spot" "Update todays stockprices" :default false]
                           ["-f" "--[no-]feed" "Update stockprices from feed" :default false]
                           )
@@ -77,8 +103,8 @@
     ;    (System/exit 0)))
 
     (binding [*spring* ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))]
-      (let [stockticker (.getBean *spring* "stockticker")
-            tix (.getTickers stockticker)]
+      (let [locator (.getBean *spring* "stocklocator")
+            tix (.getTickers locator)]
 
         (if (check-arg :ivharvest)
             (do-ivharvest tix))
@@ -89,10 +115,13 @@
         (if (check-arg :feed)
           (do-feed tix))
 
+        (if (check-arg :derivatives)
+          (do-derivatives tix))
+
       ))))
 
 
-;(main *command-line-args*)
+(main *command-line-args*)
 
 (defn factory []
   (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))

@@ -8,6 +8,7 @@ src/main/java/maunakea
 src/main/java/oahu
 src/main/clojure/waimea
 src/main/java/waimea
+src/main/java/ranoraraku
 *.swp
 *.swo
 *.log

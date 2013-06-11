@@ -3,7 +3,8 @@ package netfondsjanitor.etrade;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import oahu.exceptions.NotImplementedException;
-import oahu.financial.EtradeDownloader;
+import oahu.financial.html.EtradeDownloader;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -15,17 +16,18 @@ import java.net.URL;
  * Date: 4/20/13
  * Time: 9:55 PM
  */
-public class DummyDownloader implements EtradeDownloader{
+public class DummyDownloader implements EtradeDownloader {
     private String storePath;
     private String indexSuffix = null;
     private String optionSuffix = null;
-
+    private Logger log = Logger.getLogger(getClass().getPackage().getName());
 
 
     private URL getUrl(String ticker, String curSuffix) throws MalformedURLException {
         String urlStr = curSuffix == null ?
                                 String.format("file://%s/%s.html",getStorePath(),ticker) :
-                                String.format("file://%s/%s-%s.html",getStorePath(),ticker, getOptionSuffix());
+                                String.format("file://%s/%s-%s.html",getStorePath(),ticker, curSuffix);
+        log.info("Url string: " + urlStr);
         URL url = new URL(urlStr);
         return url;
     }

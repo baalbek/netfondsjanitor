@@ -2,7 +2,7 @@
   (:import
     [java.util ArrayList]
     [org.joda.time DateMidnight]
-    [netfondsjanitor.model.mybatis StockMapper])
+    [ranoraraku.models.mybatis StockMapper])
   (:require
     [netfondsjanitor.service.db :as DB]))
 

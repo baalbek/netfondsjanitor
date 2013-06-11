@@ -2,7 +2,7 @@
   (:import
     [maunakea.util MyBatisUtils]
     [org.joda.time DateMidnight]
-    [netfondsjanitor.model.mybatis StockMapper]
+    [ranoraraku.models.mybatis StockMapper]
     [org.apache.ibatis.session SqlSession]))
 
 
