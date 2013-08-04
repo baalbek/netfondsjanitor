@@ -104,5 +104,5 @@
 
 (main *command-line-args*)
 
-(defn factory []
-  (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))
+;(defn factory []
+;  (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))

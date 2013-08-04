@@ -71,6 +71,11 @@ public class DummyDownloader implements EtradeDownloader {
     }
 
     @Override
+    public Page downloadPaperHistory(String ticker) throws IOException {
+        throw new NotImplementedException();
+    }
+
+    @Override
     public void login() throws IOException {
         throw new NotImplementedException();
     }
