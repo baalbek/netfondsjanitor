@@ -2,6 +2,7 @@
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Etrade]
+    [oahu.financial.html EtradeDownloader]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockPriceBean DerivativeBean]
     [java.io FileNotFoundException])
@@ -28,6 +29,14 @@
             (LOG/info (str "Will insert spot for " (.getTicker s)))
             (.insertStockPrice it s)
             ))))))
+
+(defn do-paper-history [tix]
+  (let [downloader ^EtradeDownloader (.getBean *spring* "downloader")]
+    (let [t (first tix)]
+      (LOG/info (str t))
+      (.downloadPaperHistory downloader t))))
+    ;(doseq [t tix]
+    ;  (println t))))
 
 (defn do-feed [tix]
   (doseq [t tix]
@@ -66,6 +75,7 @@
                           ["-i" "--[no-]ivharvest" "Harvesting implied volatility" :default false]
                           ["-d" "--[no-]derivatives" "Update database with new options" :default false]
                           ["-s" "--[no-]spot" "Update todays stockprices" :default false]
+                          ["-p" "--[no-]paper" "Download paper history" :default false]
                           ["-f" "--[no-]feed" "Update stockprices from feed" :default false]
                           )
         parsed-args (first parsed-args-vec)
@@ -93,6 +103,9 @@
 
         (if (check-arg :spot)
           (do-spot tix))
+
+        (if (check-arg :paper)
+          (do-paper-history tix))
 
         (if (check-arg :feed)
           (do-feed tix))
