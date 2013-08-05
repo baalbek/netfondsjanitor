@@ -129,16 +129,19 @@ public class DownloadMaintenanceAspect {
     @Around("storeHtmlPagePointcut(annot)")
     public Object store2htmlPointcutMethod(ProceedingJoinPoint jp, StoreHtmlPage annot) throws Throwable {
         Object result = jp.proceed();
-        //htmlPage2file((Page)result,jp,"txt");
         int storeFormat = annot.storeFormat();
         switch (storeFormat) {
             case StoreHtmlPage.HTML:
+                htmlPage2file((HtmlPage)result,jp,"html");
+                log.info(String.format("Store will be performed for type: %d (html)", storeFormat));
+                break;
             case StoreHtmlPage.XML:
-                log.info(String.format("Store will be performed for type: %d", storeFormat));
+                htmlPage2file((HtmlPage)result,jp,"xml");
+                log.info(String.format("Store will be performed for type: %d (xml)", storeFormat));
                 break;
             case StoreHtmlPage.TXT:
                 textPage2file((TextPage)result,jp);
-                log.info(String.format("Store will be performed for type: %d", storeFormat));
+                log.info(String.format("Store will be performed for type: %d (txt)", storeFormat));
                 break;
             default:
                 log.warn(String.format("No store will be performed for type %d!", storeFormat));
@@ -150,7 +153,7 @@ public class DownloadMaintenanceAspect {
     //region Private Methods
     private String fileNameFor(ProceedingJoinPoint jp, String storeFormat) {
         Object[] args = jp.getArgs();
-        return String.format("%s/%sy.%s", getFileStoreDir(), args[0], storeFormat);
+        return String.format("%s/%s.%s", getFileStoreDir(), args[0], storeFormat);
     }
     //endregion Private Methods
 

@@ -7,15 +7,6 @@
 
     <aop:aspectj-autoproxy />
 
-    <!--
-    <bean id="loggerAspect" class="taiarapu.aspect.TraceAspect" />
-    -->
-
-    <!--
-
-    <bean id="traceAspect" class="maunakea.aspects.TraceAspect" />
-
-    -->
 
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
         <!-- property name="spreadLimit" value="5.0" / -->
@@ -23,11 +14,9 @@
     </bean>
 
 
-    <!--
     <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
         <property name="fileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
         <property name="fileStoreFormat" value="html" />
     </bean>
-    -->
 
 </beans>

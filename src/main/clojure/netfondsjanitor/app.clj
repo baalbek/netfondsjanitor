@@ -32,11 +32,9 @@
 
 (defn do-paper-history [tix]
   (let [downloader ^EtradeDownloader (.getBean *spring* "downloader")]
-    (let [t (first tix)]
-      (LOG/info (str t))
+    (doseq [t tix]
+      (LOG/info (str "Will download paper history for " t))
       (.downloadPaperHistory downloader t))))
-    ;(doseq [t tix]
-    ;  (println t))))
 
 (defn do-feed [tix]
   (doseq [t tix]

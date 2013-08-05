@@ -1,5 +1,6 @@
 (ns netfondsjanitor.service.db
   (:import
+    [oahu.financial StockPrice]
     [maunakea.util MyBatisUtils]
     [org.joda.time DateMidnight]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
@@ -41,7 +42,7 @@
 
 (defn update-stockprices [stock-beans]
   (with-session StockMapper
-    (doseq [^StockBean x stock-beans]
+    (doseq [^StockPrice x stock-beans]
       (.insertStockPrice it x))))
 
 (defn get-max-dx []
