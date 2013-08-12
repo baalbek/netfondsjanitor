@@ -75,6 +75,7 @@
                           ["-s" "--[no-]spot" "Update todays stockprices" :default false]
                           ["-p" "--[no-]paper" "Download paper history" :default false]
                           ["-f" "--[no-]feed" "Update stockprices from feed" :default false]
+                          ["-t" "--[no-]tickers" "Show active tickers" :default false]
                           )
         parsed-args (first parsed-args-vec)
         check-arg (fn [arg]
@@ -94,7 +95,11 @@
 
     (binding [*spring* ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))]
       (let [locator (.getBean *spring* "stocklocator")
-            tix (.getTickers locator)]
+            tix (map #(.getTicker %) (.getTickers locator))]
+
+        (if (check-arg :tickers)
+          (doseq [t tix]
+            (println "Ticker: " t)))
 
         (if (check-arg :ivharvest)
             (do-ivharvest tix))
