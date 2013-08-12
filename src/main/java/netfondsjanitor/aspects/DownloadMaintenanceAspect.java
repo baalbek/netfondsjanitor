@@ -2,7 +2,6 @@ package netfondsjanitor.aspects;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.Page;
 
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,8 +27,10 @@ public class DownloadMaintenanceAspect {
 
     private Logger log = Logger.getLogger(getClass().getPackage().getName());
 
-    private String fileStoreDir;
-    private String fileStoreFormat;
+    private String htmlFileStoreDir;
+    private String htmlFileStoreFormat;
+
+    private String feedStoreDir;
 
     //@Pointcut("execution(* oahu.financial.EtradeDownloader.download*(String))")
     //public void downloadPointcut() {
@@ -78,7 +79,7 @@ public class DownloadMaintenanceAspect {
             }
 
             if (contentInBytes == null) {
-                log.warn(String.format("Could not get bytes from %s with the %s extension",pg.getUrl(),getFileStoreFormat()));
+                log.warn(String.format("Could not get bytes from %s with the %s extension",pg.getUrl(), getHtmlFileStoreFormat()));
             }
             else {
                 fop.write(contentInBytes);
@@ -93,7 +94,7 @@ public class DownloadMaintenanceAspect {
     }
 
     private void textPage2file(TextPage pg, ProceedingJoinPoint jp) {
-        String fn = fileNameFor(jp,"txt");
+        String fn = fileNameFor(jp,"txt",getFeedStoreDir());
 
         log.info(String.format("Downloaded: %s, saving to: %s", pg.getUrl(), fn));
 
@@ -151,28 +152,40 @@ public class DownloadMaintenanceAspect {
     }
 
     //region Private Methods
-    private String fileNameFor(ProceedingJoinPoint jp, String storeFormat) {
+    private String fileNameFor(ProceedingJoinPoint jp, String storeFormat)  {
+        return  fileNameFor(jp, storeFormat, getHtmlFileStoreDir());
+    }
+
+    private String fileNameFor(ProceedingJoinPoint jp, String storeFormat, String storeDir) {
         Object[] args = jp.getArgs();
-        return String.format("%s/%s.%s", getFileStoreDir(), args[0], storeFormat);
+        return String.format("%s/%s.%s", storeDir, args[0], storeFormat);
     }
     //endregion Private Methods
 
     //region Properties
-    public String getFileStoreDir() {
-        return fileStoreDir;
+    public String getHtmlFileStoreDir() {
+        return htmlFileStoreDir;
     }
 
-    public void setFileStoreDir(String fileStoreDir) {
-        this.fileStoreDir = fileStoreDir;
+    public void setHtmlFileStoreDir(String htmlFileStoreDir) {
+        this.htmlFileStoreDir = htmlFileStoreDir;
     }
 
 
-    public String getFileStoreFormat() {
-        return fileStoreFormat;
+    public String getHtmlFileStoreFormat() {
+        return htmlFileStoreFormat;
     }
 
-    public void setFileStoreFormat(String fileStoreFormat) {
-        this.fileStoreFormat = fileStoreFormat;
+    public void setHtmlFileStoreFormat(String htmlFileStoreFormat) {
+        this.htmlFileStoreFormat = htmlFileStoreFormat;
+    }
+
+    public String getFeedStoreDir() {
+        return feedStoreDir;
+    }
+
+    public void setFeedStoreDir(String feedStoreDir) {
+        this.feedStoreDir = feedStoreDir;
     }
     //endregion Properties
 
