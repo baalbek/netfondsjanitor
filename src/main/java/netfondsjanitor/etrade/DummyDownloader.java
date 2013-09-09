@@ -100,6 +100,11 @@ public class DummyDownloader implements EtradeDownloader {
         throw new NotImplementedException();
     }
 
+    @Override
+    public WebClient getWebClient() {
+        throw new NotImplementedException();
+    }
+
     public String getIndexSuffix() {
         return indexSuffix;
     }

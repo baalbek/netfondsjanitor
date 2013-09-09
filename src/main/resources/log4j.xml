@@ -22,5 +22,6 @@
     <root>
         <level value="DEBUG"/>
         <appender-ref ref="FA"/>
+        <appender-ref ref="CA" />
     </root>
 </log4j:configuration>
