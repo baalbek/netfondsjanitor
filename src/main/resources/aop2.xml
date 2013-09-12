@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <aop:aspectj-autoproxy />
+
+
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
+        <!-- property name="spreadLimit" value="5.0" / -->
+        <property name="daysLimit" value="10" />
+    </bean>
+
+
+    <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadMaintenanceAspect">
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+        <property name="htmlFileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
+        <property name="htmlFileStoreFormat" value="html" />
+    </bean>
+
+</beans>

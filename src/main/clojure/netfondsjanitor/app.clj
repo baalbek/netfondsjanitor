@@ -1,5 +1,6 @@
 (ns netfondsjanitor.app
   (:import
+    [org.joda.time LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Etrade]
     [oahu.financial.html EtradeDownloader]
@@ -7,6 +8,7 @@
     [ranoraraku.beans StockPriceBean DerivativeBean]
     [java.io FileNotFoundException])
   (:require
+      [netfondsjanitor.service.common :as COM]
       [netfondsjanitor.service.logservice :as LOG]
       [netfondsjanitor.service.db :as DB]
       [netfondsjanitor.service.feed :as FEED])
@@ -64,6 +66,12 @@
         (DB/insert-derivatives calls)
         (DB/insert-derivatives puts)))))
 
+(defn while-task [test wait f]
+  (while (test) (do (f) (Thread/sleep wait))))
+
+(defn time-less-than [cur-time]
+  (fn []
+    (< (.compareTo (LocalTime.) cur-time) 0)))
 
 (defn main [args]
   (LOG/initLog4j)
@@ -76,30 +84,43 @@
                           ["-p" "--[no-]paper" "Download paper history" :default false]
                           ["-f" "--[no-]feed" "Update stockprices from feed" :default false]
                           ["-t" "--[no-]tickers" "Show active tickers" :default false]
+                          ["-O" "--[no-]options" "Rolling download options for tix" :default false]
+                          ["-I" "--[no-]stock-index" "Rolling download stock index OBX" :default false]
+                          ["-T" "--time-interval" "Rolling download time interval in minutes" :default "30"]
+                          ["-C" "--close" "Closing time for the market (hh:mm)" :default "17:20"]
                           )
         parsed-args (first parsed-args-vec)
-        check-arg (fn [arg]
-                   (= (arg parsed-args) true))
+        check-arg (fn [& args]
+                    (some #(= (% parsed-args) true) args))
        ]
 
     (if (check-arg :help)
       (do
         (println parsed-args-vec)
-        (println parsed-args)
         (System/exit 0)))
-
-    ;(if (check-arg :spot)
-    ;  (do
-    ;    (do-spot nil)
-    ;    (System/exit 0)))
 
     (binding [*spring* ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))]
       (let [locator (.getBean *spring* "stocklocator")
-            tix (map #(.getTicker %) (.getTickers locator))]
+            tix (if (check-arg :options :stock-index) (.getTickers locator) (map #(.getTicker %) (.getTickers locator)))]
 
         (if (check-arg :tickers)
           (doseq [t tix]
             (println "Ticker: " t)))
+
+        (if (check-arg :options :stock-index) 
+          (let [closing-time (COM/str->date (:close parsed-args))
+                dl (.getBean *spring* "downloader")
+                run (if (check-arg :options)
+                      ; :option
+                      (let [opx-tix (map #(.getTicker %) (filter #(= (.getTickerCategory %) 1) tix))]
+                        (fn [] 
+                          (doseq [t opx-tix]
+                            ;(println t))))
+                            (.downloadDerivatives dl t))))
+                      ; :stock-index
+                      (fn [] (doseq [t tix] (println t))))]
+              (while-task (time-less-than closing-time) (* 60000 (read-string (:time-interval parsed-args))) run)
+              (System/exit 0)))
 
         (if (check-arg :ivharvest)
             (do-ivharvest tix))
