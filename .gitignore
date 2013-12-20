@@ -14,3 +14,7 @@ src/main/java/ranoraraku
 *.log
 feed/
 html/
+.gradle
+build/
+dist/
+cache
