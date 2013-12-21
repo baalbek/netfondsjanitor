@@ -28,10 +28,13 @@ task copydeps(type: Copy) {
 }
 
 task listres {
-    //from configurations.resources 
-
     //project(':netfondsjanitor').configurations.dist.allArtifactFiles.each { item ->
+    /*
     configurations.runtime.each { item ->
+        println item
+    }
+    */
+    project.resources.each { item ->
         println item
     }
 }
