@@ -66,6 +66,11 @@
         (DB/insert-derivatives calls)
         (DB/insert-derivatives puts)))))
 
+(defn block-task [test wait]
+  (while (test)
+    (LOG/info "Market not open yet...")
+    (Thread/sleep wait)))
+
 (defn while-task [test wait f]
   (while (test) (do (f) (Thread/sleep wait))))
 
@@ -87,6 +92,7 @@
                           ["-O" "--[no-]options" "Rolling download options for tix" :default false]
                           ["-I" "--[no-]stock-index" "Rolling download stock index OBX" :default false]
                           ["-T" "--time-interval" "Rolling download time interval in minutes" :default "30"]
+                          ["-U" "--open" "Opening time for the market (hh:mm)" :default "9:30"]
                           ["-C" "--close" "Closing time for the market (hh:mm)" :default "17:20"]
                           )
         parsed-args (first parsed-args-vec)
@@ -108,7 +114,8 @@
             (println "Ticker: " t)))
 
         (if (check-arg :options :stock-index) 
-          (let [closing-time (COM/str->date (:close parsed-args))
+          (let [opening-time (COM/str->date (:open parsed-args))
+                closing-time (COM/str->date (:close parsed-args))
                 dl (.getBean *spring* "downloader")
                 run (if (check-arg :options)
                       ; :option
@@ -119,6 +126,7 @@
                             (.downloadDerivatives dl t))))
                       ; :stock-index
                       (fn [] (doseq [t tix] (println t))))]
+              (block-task (time-less-than opening-time) (* 10 60 1000))
               (while-task (time-less-than closing-time) (* 60000 (read-string (:time-interval parsed-args))) run)
               (System/exit 0)))
 

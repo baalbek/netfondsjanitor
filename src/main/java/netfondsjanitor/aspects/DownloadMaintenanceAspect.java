@@ -123,8 +123,6 @@ public class DownloadMaintenanceAspect {
         catch (IOException e) {
             log.warn(String.format("Could not save: %s", fn));
         }
-
-
     }
 
     @Around("storeHtmlPagePointcut(annot)")

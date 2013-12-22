@@ -27,15 +27,21 @@ task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
 
-task listres {
+task copyjr(type: Copy, dependsOn: copydeps) {
+    into 'dist' from sourceSets.main.output.resourcesDir.listFiles()
+}
+
+/*
+task listme {
     //project(':netfondsjanitor').configurations.dist.allArtifactFiles.each { item ->
-    /*
     configurations.runtime.each { item ->
         println item
     }
-    */
     project.resources.each { item ->
         println item
     }
-}
 
+    sourceSets.main.output.resourcesDir.listFiles().each { f -> println f}
+    println sourceSets.main.output.classesDir
+}
+*/
