@@ -1,10 +1,13 @@
 apply plugin: 'java'
 group = 'rcstadheim'
 archivesBaseName = 'netfondsjanitor'
-version = '2.0'
+version = '3.0'
  
 repositories {
     mavenCentral()
+    maven {
+        url 'http://clojars.org/repo'
+    }
 }
 
 dependencies {
@@ -16,6 +19,7 @@ dependencies {
     compile 'org.aspectj:aspectjtools:1.7.4'
     compile 'org.aspectj:aspectjweaver:1.7.4'
     compile 'joda-time:joda-time:2.3'
+    runtime 'enlive:enlive:1.1.5'
     runtime 'org.clojure:clojure:1.5.1'
     runtime 'org.clojure:clojure-contrib:1.2.0'
     runtime 'org.springframework:spring-core:4.0.0.RELEASE'
@@ -27,21 +31,9 @@ task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
 
+/*
 task copyjr(type: Copy, dependsOn: copydeps) {
     into 'dist' from sourceSets.main.output.resourcesDir.listFiles()
 }
-
-/*
-task listme {
-    //project(':netfondsjanitor').configurations.dist.allArtifactFiles.each { item ->
-    configurations.runtime.each { item ->
-        println item
-    }
-    project.resources.each { item ->
-        println item
-    }
-
-    sourceSets.main.output.resourcesDir.listFiles().each { f -> println f}
-    println sourceSets.main.output.classesDir
-}
 */
+
