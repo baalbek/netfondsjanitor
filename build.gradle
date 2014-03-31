@@ -22,6 +22,7 @@ dependencies {
     runtime 'enlive:enlive:1.1.5'
     runtime 'org.clojure:clojure:1.5.1'
     runtime 'org.clojure:clojure-contrib:1.2.0'
+    runtime 'org.clojure:algo.monads:0.1.5'
     runtime 'org.springframework:spring-core:4.0.0.RELEASE'
     runtime 'org.springframework:spring-context:4.0.0.RELEASE'
     runtime 'org.springframework:spring-aop:4.0.0.RELEASE'
