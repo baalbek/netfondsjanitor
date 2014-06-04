@@ -58,7 +58,7 @@
 
 (defn get-lines [ticker]
   (let [
-        locator ^StockLocator (.getBean *spring* "stocklocator")
+        locator ^StockLocator (.getBean *spring* "locator")
         max-dx (DB/get-max-dx)
         cur-dx (max-dx (.findId locator ticker))
         cur-filter (if (nil? cur-dx)
