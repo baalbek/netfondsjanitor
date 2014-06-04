@@ -106,7 +106,7 @@
         (System/exit 0)))
 
     (binding [*spring* ^ClassPathXmlApplicationContext (ClassPathXmlApplicationContext. (:xml parsed-args))]
-      (let [locator (.getBean *spring* "stocklocator")
+      (let [locator (.getBean *spring* "locator")
             tix (if (check-arg :options :stock-index) (.getTickers locator) (map #(.getTicker %) (.getTickers locator)))]
 
         (if (check-arg :tickers)

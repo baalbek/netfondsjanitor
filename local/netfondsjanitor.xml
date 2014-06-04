@@ -13,7 +13,6 @@
     </bean>
     -->
 
-
     <!--<bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">-->
         <!--<property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />-->
         <!--<property name="indexSuffix" value="2013-4-20" />-->
@@ -21,29 +20,15 @@
 
     <bean id="downloader" class="maunakea.financial.NetfondsDownloader"></bean>
 
-    <bean id="calculator" class="vega.financial.calculator.BlackScholes">
-    </bean>
+    <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
 
-    <bean id="html-derivative-factory" class="maunakea.financial.HtmlCalculatedDerivativeBeanFactory" ></bean>
+    <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
 
-    <bean id="stocklocator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
-
-    <bean id="html-stock-factory" class="maunakea.financial.DefaultHtmlStockPriceFactory" >
-        <property name="stockLocator" ref="stocklocator" />
-    </bean>
-
-    <bean id="html-parser" class="maunakea.financial.DefaultHtmlParser">
-        <property name="derivativeFactory" ref="html-derivative-factory" />
-        <property name="stockBeanFactory" ref="html-stock-factory" />
-        <property name="calculator" ref="calculator" />
-    </bean>
-
-
-    <bean id="etrade" class="maunakea.financial.Netfonds">
+    <bean id="etrade" class="maunakea.financial.Netfonds2">
         <property name="downloader" ref="downloader" />
-        <property name="htmlParser" ref="html-parser" />
+        <property name="calculator" ref="calculator" />
+        <property name="stockLocator" ref="locator" />
     </bean>
-
 
 </beans>
 
