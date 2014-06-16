@@ -17,8 +17,10 @@
         <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
     </bean>
 
-    <!--<bean id="downloader" class="maunakea.financial.NetfondsDownloader"></bean>
-    -->
+    <!--<bean id="downloader" class="maunakea.financial.NetfondsDownloader">
+        <property name="javaScriptEnabled" value="false" />
+    </bean>-->
+
     <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
 
     <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
