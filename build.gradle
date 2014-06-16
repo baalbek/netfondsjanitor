@@ -18,7 +18,7 @@ dependencies {
     compile 'org.aspectj:aspectjrt:1.7.4'
     compile 'org.aspectj:aspectjtools:1.7.4'
     compile 'org.aspectj:aspectjweaver:1.7.4'
-    compile 'joda-time:joda-time:2.3'
+    //compile 'joda-time:joda-time:2.3'
     runtime 'enlive:enlive:1.1.5'
     runtime 'org.clojure:clojure:1.5.1'
     runtime 'org.clojure:clojure-contrib:1.2.0'
@@ -31,6 +31,26 @@ dependencies {
 task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
+
+task cj(type: Copy) {
+    into 'dist' from new File("$libsDir/netfondsjanitor-${version}.jar")
+}
+
+task clj2dist(type: Copy) {
+    from 'src/main/clojure'
+    into 'dist'
+    include '**/*.clj'
+}
+
+task ifwindows {
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        //FileTree cljFiles = fileTree(dir: 'src/main/clojure')
+    }
+}
+
+task local(dependsOn: [build, cj])
+
+task localwin(dependsOn: [local,clj2dist])
 
 /*
 task copyjr(type: Copy, dependsOn: copydeps) {

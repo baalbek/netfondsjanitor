@@ -15,8 +15,9 @@
 ;    (.write wrtr "Line to be written"))
 
 (defn parse-file [ticker line-fn filter-fn]
-  (with-open [rdr (IO/reader (str "/home/rcs/opt/java/netfondsjanitor/feed/" ticker ".txt"))]
-    (doall (take-while filter-fn (rest (map line-fn (line-seq rdr)))))))
+  (let [feed (.getFeedStoreDir (.getBean *spring* "downloadMaintenanceAspect"))]
+    (with-open [rdr (IO/reader (str feed "/" ticker ".txt"))]
+      (doall (take-while filter-fn (rest (map line-fn (line-seq rdr))))))))
 
 
 (defn str->list [line]

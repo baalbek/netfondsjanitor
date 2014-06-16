@@ -49,7 +49,7 @@
             (DB/update-stockprices cur-lines))
           (LOG/info (str "No beans for " t))))
       (catch FileNotFoundException fe
-        (LOG/warn (str "No feed for ticker " t)))
+        (LOG/warn (str "No feed for ticker " t ": " (.getMessage fe))))
       (catch Exception e
         (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
         (System/exit 0)))))
