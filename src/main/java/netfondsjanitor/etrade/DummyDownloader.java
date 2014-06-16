@@ -58,6 +58,7 @@ public class DummyDownloader implements EtradeDownloader {
 
         WebClient webClient = new WebClient();
 
+        webClient.getOptions().setJavaScriptEnabled(false);
         return webClient.getPage(url);
     }
 
@@ -67,6 +68,7 @@ public class DummyDownloader implements EtradeDownloader {
 
         WebClient webClient = new WebClient();
 
+        webClient.getOptions().setJavaScriptEnabled(false);
         return webClient.getPage(url);
     }
 

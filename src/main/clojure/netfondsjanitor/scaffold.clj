@@ -13,7 +13,8 @@
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
     [netfondsjanitor.service.db :as DB]
-    [netfondsjanitor.service.feed :as FEED])
+    [netfondsjanitor.service.feed :as FEED]
+    [maunakea.financial.Netfonds2 :as N2])
   (:use
     [clojure.string :only [split join]]))
 
@@ -27,9 +28,9 @@
 (defn hn-headlines []
   (map html/text (html/select (fetch-url *base-url*) [:td.title :a])))
 
-(def factory 
-  (memoize 
-    (fn [] 
+(def factory
+  (memoize
+    (fn []
       (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
 
 (defn etrade []
@@ -38,6 +39,19 @@
 (defn dl []
   (.getBean (factory) "downloader"))
 
+(defn loc []
+  (.getBean (factory) "locator"))
+
+(defn calc []
+  (.getBean (factory) "calculator"))
+
+(defn get-deriv [] (partial N2/get-derivatives (loc) (calc) (dl)))
+
+(defn get-spot [] (partial N2/get-spot (loc) (dl)))
+
+(defn osebx [] (N2/snip-osebx (dl)))
+
+(defn html-sel [] html/select)
 
 (defn mz [f]
   (let [cache (atom {})]
