@@ -43,7 +43,7 @@
 ; ["20130102" "YAR" "Oslo" "Bors" "277.70" "279.00" "275.70" "276.80" "839375" "232598528"]
 
 (defn line->stockpricebean [^Stock stock l]
-  (let [[dx ticker _ _ opn hi lo cls vol _] l
+  (let [[dx ticker _ _ opn hi lo cls vol market-val] l
         bean ^StockPriceBean (StockPriceBean.)]
     (doto bean
       (.setDxJoda (parse-date dx))
@@ -52,6 +52,7 @@
       (.setLo (str->double lo))
       (.setCls (str->double cls))
       (.setVolume (str->int vol))
+      (.setMarketValue (str->double market-val))
       (.setStock stock)
       )
     bean))
@@ -71,3 +72,11 @@
              cur-filter)]
     (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
 
+(defn get-all-lines [ticker]
+  (let [locator ^StockLocator (.getBean *spring* "locator")
+        cur-filter (fn [_] true)
+        lx (parse-file
+             ticker
+             str->list
+             cur-filter)]
+    (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
