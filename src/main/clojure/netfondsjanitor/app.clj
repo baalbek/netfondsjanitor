@@ -1,4 +1,8 @@
 (ns netfondsjanitor.app
+  (:gen-class
+   :methods [
+      [job [] void]
+             ])
   (:import
     [org.joda.time LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
@@ -157,6 +161,6 @@
             (do-stats my-tix)))
         ))))
 
-
+(defn -job [] (println "Hi dude!"))
 
 ;(main *command-line-args*)

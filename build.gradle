@@ -40,6 +40,20 @@ dependencies {
     compile 'org.clojure:algo.monads:0.1.5'
 }
 
+
+String clazzPath() {
+    ((configurations.runtime.files.collect { f ->
+        f.name
+    }) << ".").join(" ")
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'netfondsjanitor.App'
+        attributes 'Class-Path': clazzPath()
+    }
+}
+
 task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
