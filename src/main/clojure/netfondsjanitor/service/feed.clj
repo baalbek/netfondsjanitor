@@ -72,10 +72,11 @@
              cur-filter)]
     (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
 
-(defn get-all-lines [ticker & my-filter]
+(defn get-all-lines [ticker]
   (let [locator ^StockLocator (.getBean *spring* "locator")
-        supplied-filter [my-filter]
-        cur-filter (or supplied-filter (fn [_] true))
+        ;supplied-filter [my-filter]
+        ;cur-filter (or supplied-filter (fn [_] true))
+        cur-filter (fn [_] true)
         lx (parse-file
              ticker
              str->list

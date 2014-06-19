@@ -159,12 +159,4 @@
 
 
 
-(main *command-line-args*)
-
-(comment
-(defn factory []
-  (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))
-
-(defn etrade []
-  (.getBean (factory) "etrade"))
-  )
+;(main *command-line-args*)

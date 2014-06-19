@@ -1,21 +1,8 @@
 apply plugin: 'java'
-
-apply plugin: 'clojure'
-
 group = 'rcstadheim'
-
 archivesBaseName = 'netfondsjanitor'
-
-version = '3.1'
+version = '3.0'
  
-sourceCompatibility = 1.8
-
-targetCompatibility = 1.8
-
-aotCompile = true
-
-ext.springVersion = '4.0.0.RELEASE'
-
 repositories {
     mavenCentral()
     maven {
@@ -31,13 +18,14 @@ dependencies {
     compile 'org.aspectj:aspectjrt:1.7.4'
     compile 'org.aspectj:aspectjtools:1.7.4'
     compile 'org.aspectj:aspectjweaver:1.7.4'
-    compile "org.springframework:spring-core:$springVersion"
-    compile "org.springframework:spring-context:$springVersion"
-    compile "org.springframework:spring-aop:$springVersion"
-    compile 'enlive:enlive:1.1.5'
-    compile 'org.clojure:clojure:1.5.1'
-    compile 'org.clojure:clojure-contrib:1.2.0'
-    compile 'org.clojure:algo.monads:0.1.5'
+    //compile 'joda-time:joda-time:2.3'
+    runtime 'enlive:enlive:1.1.5'
+    runtime 'org.clojure:clojure:1.5.1'
+    runtime 'org.clojure:clojure-contrib:1.2.0'
+    runtime 'org.clojure:algo.monads:0.1.5'
+    runtime 'org.springframework:spring-core:4.0.0.RELEASE'
+    runtime 'org.springframework:spring-context:4.0.0.RELEASE'
+    runtime 'org.springframework:spring-aop:4.0.0.RELEASE'
 }
 
 task copydeps(type: Copy) {
@@ -64,14 +52,9 @@ task local(dependsOn: [build, cj])
 
 task localwin(dependsOn: [local,clj2dist])
 
-buildscript {
-    repositories {
-        maven {
-            url 'http://clojars.org/repo'
-        }
-    }
-
-    dependencies {
-        classpath 'clojuresque:clojuresque:1.5.8'
-    }
+/*
+task copyjr(type: Copy, dependsOn: copydeps) {
+    into 'dist' from sourceSets.main.output.resourcesDir.listFiles()
 }
+*/
+

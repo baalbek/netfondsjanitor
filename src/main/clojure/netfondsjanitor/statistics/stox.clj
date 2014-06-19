@@ -7,6 +7,8 @@
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.feed :as FEED]))
 
+(def date-format (java.text.SimpleDateFormat. "yyyy-MM-dd"))
+
 (defn marketval->volume [^StockPriceBean s]
   (let [avg (* 0.25 (+ (.getOpn s) (.getHi s) (.getLo s) (.getCls s)))
         result (/ (.getMarketValue s) avg)]
@@ -22,9 +24,10 @@
   (let [feed (.getFeedStoreDir (.getBean COM/*spring* "downloadMaintenanceAspect"))
         beans (remove #(= (.getVolume %) 0) (FEED/get-all-lines ticker))
         diffs (map vol-diff-pct beans)
+        dxx (map #(.format date-format (.getDx %)) beans)
         orig-vols (map #(.getVolume %) beans)]
     (with-open [wrt (IO/writer (str feed "/" ticker "_R"))]
-      (.write wrt "D\tV\n")
-      (doseq [[x1 x2] (map vector diffs orig-vols)] 
-        (.write wrt (str x1 "\t" x2 "\n"))))))
+      (.write wrt "DX\tD\tV\n")
+      (doseq [[dx x1 x2] (map vector dxx diffs orig-vols)]
+        (.write wrt (str dx "\t" x1 "\t" x2 "\n"))))))
 
