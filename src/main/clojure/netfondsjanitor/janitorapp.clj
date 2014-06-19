@@ -1,5 +1,6 @@
-(ns netfondsjanitor.app
+(ns netfondsjanitor.janitorapp
   (:gen-class
+   :implements [netfondsjanitor.Janitor]
    :methods [
       [job [] void]
              ])
