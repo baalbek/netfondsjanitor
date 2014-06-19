@@ -10,3 +10,6 @@
           minutes (nth v 2)] 
       (println (str hours " " minutes))
       (LocalTime. (read-string hours) (read-string minutes)))))
+
+(defmacro map-java-fn [map-fn java-obj lst]
+  `(map #(~map-fn ~java-obj %) ~lst))
