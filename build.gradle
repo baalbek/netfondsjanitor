@@ -38,6 +38,7 @@ dependencies {
     compile 'org.clojure:clojure:1.5.1'
     compile 'org.clojure:clojure-contrib:1.2.0'
     compile 'org.clojure:algo.monads:0.1.5'
+    compile 'args4j:args4j:2.0.28'
 }
 
 

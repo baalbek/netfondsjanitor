@@ -1,9 +1,4 @@
 (ns netfondsjanitor.janitorapp
-  (:gen-class
-   :implements [netfondsjanitor.Janitor]
-   :methods [
-      [job [] void]
-             ])
   (:import
     [org.joda.time LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
@@ -161,7 +156,5 @@
                           (map #(.getTicker %) (.getTickers locator)))]
             (do-stats my-tix)))
         ))))
-
-(defn -job [] (println "Hi dude!"))
 
 ;(main *command-line-args*)

@@ -35,6 +35,7 @@
         <property name="stockLocator" ref="locator" />
     </bean>
 
+    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor"></bean>
 </beans>
 
 
