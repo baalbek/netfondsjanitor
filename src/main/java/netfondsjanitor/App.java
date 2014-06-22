@@ -1,11 +1,11 @@
 package netfondsjanitor;
 
-import oahu.financial.Janitor;
+import oahu.financial.janitors.Janitor;
 import oahu.financial.Stock;
 import oahu.financial.StockLocator;
+import oahu.financial.janitors.JanitorContext;
 import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 import netfondsjanitor.service.CmdLineValues;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class App {
     public static void main(String[] args) {
@@ -26,13 +25,14 @@ public class App {
 
             Janitor janitor = factory.getBean("janitor",Janitor.class);
 
-            List<String> tickers = opts.getTickers();
+            /*List<String> tickers = opts.getTickers();
             if (tickers == null) {
                 StockLocator locator = factory.getBean("locator",StockLocator.class);
                 List<Stock> stox = locator.getTickers();
                 tickers = stox.stream().map(Stock::getTicker).collect(Collectors.toList());
-            }
+            }*/
 
+            janitor.run(opts);
 
         } catch (CmdLineException e) {
             System.out.println(e.getMessage());

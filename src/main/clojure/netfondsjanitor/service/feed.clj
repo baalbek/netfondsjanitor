@@ -1,7 +1,7 @@
 (ns netfondsjanitor.service.feed
   (:use
     [clojure.string :only (join split)]
-    [netfondsjanitor.service.common :only (*spring*)])
+    [netfondsjanitor.service.common :only (*feed* *locator*)])
   (:require
     [netfondsjanitor.service.db :as DB]
     [clojure.java.io :as IO])
@@ -15,9 +15,8 @@
 ;    (.write wrtr "Line to be written"))
 
 (defn parse-file [ticker line-fn filter-fn]
-  (let [feed (.getFeedStoreDir (.getBean *spring* "downloadMaintenanceAspect"))]
-    (with-open [rdr (IO/reader (str feed "/" ticker ".txt"))]
-      (doall (take-while filter-fn (rest (map line-fn (line-seq rdr))))))))
+  (with-open [rdr (IO/reader (str *feed* "/" ticker ".txt"))]
+    (doall (take-while filter-fn (rest (map line-fn (line-seq rdr)))))))
 
 
 (defn str->list [line]
@@ -60,9 +59,8 @@
 
 (defn get-lines [ticker]
   (let [
-        locator ^StockLocator (.getBean *spring* "locator")
         max-dx (DB/get-max-dx)
-        cur-dx (max-dx (.findId locator ticker))
+        cur-dx (max-dx (.findId *locator* ticker))
         cur-filter (if (nil? cur-dx)
                      (fn [_] true)
                      (partial line-filter cur-dx))
@@ -70,15 +68,13 @@
              ticker
              str->list
              cur-filter)]
-    (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
+    (map (partial line->stockpricebean (.locateStock *locator* ticker)) lx)))
 
 (defn get-all-lines [ticker]
-  (let [locator ^StockLocator (.getBean *spring* "locator")
-        ;supplied-filter [my-filter]
-        ;cur-filter (or supplied-filter (fn [_] true))
+  (let [
         cur-filter (fn [_] true)
         lx (parse-file
              ticker
              str->list
              cur-filter)]
-    (map (partial line->stockpricebean (.locateStock locator ticker)) lx)))
+    (map (partial line->stockpricebean (.locateStock *locator* ticker)) lx)))

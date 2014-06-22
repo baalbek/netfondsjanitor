@@ -2,7 +2,13 @@
   (:import
     [org.joda.time LocalTime]))
 
-(def ^:dynamic *spring*)
+;(def ^:dynamic *spring*)
+;(def ^:dynamic *janitor-context*)
+
+(def ^:dynamic *feed*)
+
+(def ^:dynamic *locator*)
+
 
 (defn str->date [arg]
   (if-let [v (re-find #"(\d+):(\d+)" arg)]

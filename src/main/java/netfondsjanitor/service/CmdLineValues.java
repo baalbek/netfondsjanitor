@@ -1,5 +1,6 @@
 package netfondsjanitor.service;
 
+import oahu.financial.janitors.JanitorContext;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -7,7 +8,7 @@ import org.kohsuke.args4j.Option;
 import java.util.Arrays;
 import java.util.List;
 
-public class CmdLineValues {
+public class CmdLineValues implements JanitorContext {
     /*@Argument(required = true, index = 1, metaVar = "XML",
             usage = "Spring XML file name")*/
 

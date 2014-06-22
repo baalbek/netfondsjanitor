@@ -35,7 +35,10 @@
         <property name="stockLocator" ref="locator" />
     </bean>
 
-    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor"></bean>
+    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
+        <property name="stockLocator" ref="locator" />
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+    </bean>
 </beans>
 
 
