@@ -18,6 +18,9 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Stock tickers" )
     private String tickers;
 
+    @Option(name = "-p", aliases = { "--paper" }, required = false, usage = "Download paper history" )
+    private boolean paperHistory;
+
     @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
     private boolean help;
 
@@ -46,5 +49,13 @@ public class CmdLineValues implements JanitorContext {
         if (tickers == null) return null;
         return Arrays.asList(tickers.split(","));
 
+    }
+
+    //-------------------------------------------------
+    //-------------- Interface JanitorContext ---------
+    //-------------------------------------------------
+    @Override
+    public boolean isPaperHistory() {
+        return paperHistory;
     }
 }
