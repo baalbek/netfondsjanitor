@@ -13,11 +13,13 @@
   (:use
     [netfondsjanitor.service.common :only (*feed* *locator*)])
   (:import
+    [java.io FileNotFoundException]
     [oahu.financial StockLocator Etrade]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader])
   (:require
     [netfondsjanitor.service.logservice :as LOG]
+    [netfondsjanitor.service.db :as DB]
     [netfondsjanitor.service.feed :as FEED]))
 
 ;;;------------------------------------------------------------------------
@@ -50,6 +52,25 @@
     (LOG/info (str "Will download paper history for " t))
     (.downloadPaperHistory downloader t)))
 
+(defn do-feed [tix]
+  (doseq [t tix]
+    (try
+      (let [cur-lines  (FEED/get-lines t)
+            num-beans (count cur-lines)]
+        (if (> num-beans 0)
+          (do
+            (LOG/info (str "Will insert " num-beans " for " t))
+            (DB/update-stockprices cur-lines))
+          (LOG/info (str "No beans for " t))))
+      (catch FileNotFoundException fe
+        (LOG/warn (str "No feed for ticker " t ": " (.getMessage fe))))
+      (catch Exception e
+        (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
+        (System/exit 0)))))
+
+(defmacro doif [java-prop ctx & body]
+  `(if (= (~java-prop  ~ctx) true)
+    ~@body))
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------
@@ -58,6 +79,6 @@
     (binding [*feed* (@s :feed)
               *locator* (@s :locator)]
       (let [tix (or (.getTickers ctx) (map #(.getTicker %) (.getTickers *locator*)))]
-        (if (= (.isPaperHistory ctx) true)
-          (do-paper-history tix (@s :downloader)))
+        (doif .isPaperHistory ctx (do-paper-history tix (@s :downloader)))
+        (doif .isFeed ctx (do-feed tix))
         ))))

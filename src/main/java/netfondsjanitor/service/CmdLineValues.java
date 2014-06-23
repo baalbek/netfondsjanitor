@@ -21,6 +21,9 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-p", aliases = { "--paper" }, required = false, usage = "Download paper history" )
     private boolean paperHistory;
 
+    @Option(name = "-f", aliases = { "--feed" }, required = false, usage = "Update stockprices from feed" )
+    private boolean feed;
+
     @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
     private boolean help;
 
@@ -57,5 +60,10 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public boolean isPaperHistory() {
         return paperHistory;
+    }
+
+    @Override
+    public boolean isFeed() {
+        return feed;
     }
 }
