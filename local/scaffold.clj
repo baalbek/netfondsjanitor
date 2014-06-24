@@ -14,8 +14,10 @@
     [netfondsjanitor.service.logservice :as LOG]
     [netfondsjanitor.service.db :as DB]
     [netfondsjanitor.service.feed :as FEED]
+    [netfondsjanitor.janitors.DefaultJanitor :as JAN]
     [maunakea.financial.Netfonds2 :as N2])
   (:use
+    [netfondsjanitor.service.common :only (*feed* *locator*)]
     [clojure.string :only [split join]]))
 
 
@@ -55,5 +57,11 @@
 
 (defn calc []
   (.getBean (factory) "calculator"))
+
+;(def tix (binding [*locator* (loc)] (JAN/db-tix)))
+
+(def tix JAN/db-tix)
+
+(defn my-tix [f] (binding [*locator* (loc)] (JAN/db-tix f)))
 
 

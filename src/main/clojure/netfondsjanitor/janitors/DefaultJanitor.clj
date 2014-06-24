@@ -15,7 +15,7 @@
   (:import
     [java.io FileNotFoundException]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
-    [ranoraraku.beans StockPriceBean DerivativeBean]
+    [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial StockLocator Etrade]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader])
@@ -50,39 +50,49 @@
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
 ;;;------------------------------------------------------------------------
-(defn do-paper-history [tix, ^EtradeDownloader downloader]
-  (doseq [t tix]
-    (LOG/info (str "Will download paper history for " t))
-    (.downloadPaperHistory downloader t)))
 
-(defn do-feed [tix]
-  (doseq [t tix]
-    (try
-      (let [cur-lines  (FEED/get-lines t)
-            num-beans (count cur-lines)]
-        (if (> num-beans 0)
-          (do
-            (LOG/info (str "Will insert " num-beans " for " t))
-            (DB/update-stockprices cur-lines))
-          (LOG/info (str "No beans for " t))))
-      (catch FileNotFoundException fe
-        (LOG/warn (str "No feed for ticker " t ": " (.getMessage fe))))
-      (catch Exception e
-        (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
-        (System/exit 0)))))
+(def db-tix (memoize 
+  (fn [f]
+    (println (str "db-tix first time " f))
+    (let [tix (if (nil? f)
+                (.getTickers *locator*)
+                (filter f (.getTickers *locator*)))
+          tix-s (map #(.getTicker %) tix)]
+      [tix tix-s]))))
 
-(defn do-spot [tix, ^Etrade etrade]
-  (let [stocks (COM/map-java-fn .getSpot etrade tix)]
-    (doseq [^StockPriceBean s stocks]
-      (println (.getTicker s)))))
+(defn do-paper-history [^EtradeDownloader downloader]
+  (let [[_ tix-s] (db-tix nil)]
+    (doseq [t tix-s]
+      (LOG/info (str "Will download paper history for " t))
+      (.downloadPaperHistory downloader t))))
 
-    (comment (DB/with-session StockMapper
+(defn do-feed []
+  (let [[_ tix-s] (db-tix nil)]
+    (doseq [t tix-s]
+      (try
+        (let [cur-lines  (FEED/get-lines t)
+              num-beans (count cur-lines)]
+          (if (> num-beans 0)
+            (do
+              (LOG/info (str "Will insert " num-beans " for " t))
+              (DB/update-stockprices cur-lines))
+            (LOG/info (str "No beans for " t))))
+        (catch FileNotFoundException fe
+          (LOG/warn (str "No feed for ticker " t ": " (.getMessage fe))))
+        (catch Exception e
+          (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
+          (System/exit 0))))))
+
+(defn do-spot [^Etrade etrade]
+  (let [[_ tix-s] (db-tix #(= 1 (.getTickerCategory %)))
+        stocks (COM/map-java-fn .getSpot etrade tix-s)]
+    (DB/with-session StockMapper
       (doseq [s ^StockPriceBean stocks]
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            ;(.insertStockPrice it s)
-            )))))
+            (.insertStockPrice it s)
+            ))))))
 
 (defmacro doif [java-prop ctx & body]
   `(if (= (~java-prop  ~ctx) true)
@@ -94,9 +104,8 @@
   (let [s (.state this)]
     (binding [*feed* (@s :feed)
               *locator* (@s :locator)]
-      (let [tix (or (.getTickers ctx) (map #(.getTicker %) (.getTickers *locator*)))]
-        (doif .isPaperHistory ctx (do-paper-history tix (@s :downloader)))
-        (doif .isFeed ctx (do-feed tix))
-        (doif .isSpot ctx (do-spot tix (@s :etrade)))
-        (doif .isQuery ctx (doseq [t tix] (println t)))
-        ))))
+      (doif .isFeed ctx (do-feed))
+      (doif .isQuery ctx (let [[_ tix-s] (db-tix nil)] (doseq [t tix-s] (println t))))
+      (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
+      (doif .isSpot ctx (do-spot (@s :etrade)))
+        )))
