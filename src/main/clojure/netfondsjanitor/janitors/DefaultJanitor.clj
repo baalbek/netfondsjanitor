@@ -11,9 +11,10 @@
                ]
     )
   (:use
-    [netfondsjanitor.service.common :only (*feed* *locator*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *locator*)])
   (:import
     [java.io FileNotFoundException]
+    [java.time LocalTime]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial StockLocator Etrade]
@@ -58,16 +59,19 @@
                 (.getTickers *locator*)
                 (filter f (.getTickers *locator*)))
           tix-s (map #(.getTicker %) tix)]
-      [tix tix-s]))))
+      tix-s))))
+      ;[tix tix-s]))))
 
 (defn do-paper-history [^EtradeDownloader downloader]
-  (let [[_ tix-s] (db-tix nil)]
+  ;(let [[_ tix-s] (db-tix nil)]
+  (let [tix-s (or *user-tix* (db-tix nil))]
     (doseq [t tix-s]
       (LOG/info (str "Will download paper history for " t))
       (.downloadPaperHistory downloader t))))
 
 (defn do-feed []
-  (let [[_ tix-s] (db-tix nil)]
+  ;(let [[_ tix-s] (db-tix nil)]
+  (let [tix-s (or *user-tix* (db-tix nil))]
     (doseq [t tix-s]
       (try
         (let [cur-lines  (FEED/get-lines t)
@@ -84,7 +88,7 @@
           (System/exit 0))))))
 
 (defn do-spot [^Etrade etrade]
-  (let [[_ tix-s] (db-tix #(= 1 (.getTickerCategory %)))
+  (let [tix-s (db-tix #(= 1 (.getTickerCategory %)))
         stocks (COM/map-java-fn .getSpot etrade tix-s)]
     (DB/with-session StockMapper
       (doseq [s ^StockPriceBean stocks]
@@ -93,6 +97,18 @@
             (LOG/info (str "Will insert spot for " (.getTicker s)))
             (.insertStockPrice it s)
             ))))))
+
+(defn block-task [test wait]
+  (while (test)
+    (LOG/info "Market not open yet...")
+    (Thread/sleep wait)))
+
+(defn while-task [test wait f]
+  (while (test) (do (f) (Thread/sleep wait))))
+
+(defn time-less-than [cur-time]
+  (fn []
+    (< (.compareTo (LocalTime/now) cur-time) 0)))
 
 (defmacro doif [java-prop ctx & body]
   `(if (= (~java-prop  ~ctx) true)
@@ -103,9 +119,21 @@
 (defn -run [this, ^JanitorContext ctx]
   (let [s (.state this)]
     (binding [*feed* (@s :feed)
-              *locator* (@s :locator)]
+              *locator* (@s :locator)
+              *user-tix* (.getTickers ctx)]
       (doif .isFeed ctx (do-feed))
-      (doif .isQuery ctx (let [[_ tix-s] (db-tix nil)] (doseq [t tix-s] (println t))))
+      (doif .isQuery ctx (let [tix-s (db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isSpot ctx (do-spot (@s :etrade)))
+      (doif .isRollingOptions ctx 
+        (let [opening-time (COM/str->date (.getOpen ctx))
+              closing-time (COM/str->date (.getClose ctx))
+              dl (@s :downloader)
+              opx-tix (db-tix #(= 1 (.getTickerCategory %)))
+              rollopt-run (fn [] 
+                            (doseq [t opx-tix]
+                              (.downloadDerivatives dl t)))]
+            (block-task (time-less-than opening-time) (* 10 60 1000))
+            (while-task (time-less-than closing-time) (* 60000 (.getRollingInterval ctx)) rollopt-run)
+            (System/exit 0)))
         )))

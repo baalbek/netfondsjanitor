@@ -37,8 +37,15 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
     private boolean query;
 
+    @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
+    private boolean rollingOptions;
+
+    @Option(name = "-T", aliases = { "--rolling-interval" }, required = false, usage = "Rolling download time interval in minutes. Default: 30" )
+    private int rollingInterval = 30;
+
     @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
     private boolean help;
+
 
     public CmdLineValues(String... args) throws CmdLineException  {
         CmdLineParser parser = new CmdLineParser(this);
@@ -63,19 +70,22 @@ public class CmdLineValues implements JanitorContext {
         }
     }
 
-    public String getXml() {
-        return xml;
-    }
 
-    public List<String> getTickers() {
-        if (tickers == null) return null;
-        return Arrays.asList(tickers.split(","));
-
-    }
 
     //-------------------------------------------------
     //-------------- Interface JanitorContext ---------
     //-------------------------------------------------
+    @Override
+    public String getXml() {
+        return xml;
+    }
+
+    @Override
+    public List<String> getTickers() {
+        if (tickers == null) return null;
+        return Arrays.asList(tickers.split(","));
+    }
+
     @Override
     public boolean isPaperHistory() {
         return paperHistory;
@@ -105,4 +115,14 @@ public class CmdLineValues implements JanitorContext {
     public boolean isQuery() {
         return query;
     }
+
+    @Override
+    public boolean isRollingOptions() {
+        return rollingOptions;
+    }
+    @Override
+    public int getRollingInterval() {
+        return rollingInterval;
+    }
+
 }

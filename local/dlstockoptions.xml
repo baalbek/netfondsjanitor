@@ -11,6 +11,21 @@
     </bean>
 
     <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
+
+    <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
+
+    <bean id="etrade" class="maunakea.financial.Netfonds2">
+        <property name="downloader" ref="downloader" />
+        <property name="calculator" ref="calculator" />
+        <property name="stockLocator" ref="locator" />
+    </bean>
+
+    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
+        <property name="stockLocator" ref="locator" />
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+        <property name="downloader" ref="downloader" />
+        <property name="etrade" ref="etrade" />
+    </bean>
 </beans>
 
 
