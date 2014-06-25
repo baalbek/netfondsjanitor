@@ -98,6 +98,15 @@
             (.insertStockPrice it s)
             ))))))
 
+(defn do-upd-derivatives [^Etrade etrade]
+  (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
+    (doseq [t tix-s]
+      (LOG/info (str "Will update derivatives for " t))
+      (let [calls (.getCalls etrade t)
+            puts (.getPuts etrade t)]
+        (DB/insert-derivatives calls)
+        (DB/insert-derivatives puts)))))
+
 (defn block-task [test wait]
   (while (test)
     (LOG/info "Market not open yet...")
@@ -125,7 +134,8 @@
       (doif .isQuery ctx (let [tix-s (db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      (doif .isRollingOptions ctx 
+      (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
+      (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
               dl (@s :downloader)

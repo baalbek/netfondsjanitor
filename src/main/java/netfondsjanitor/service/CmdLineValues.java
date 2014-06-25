@@ -37,6 +37,10 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
     private boolean query;
 
+
+    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
+    private boolean updateDbOptions;
+
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
 
@@ -78,6 +82,11 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public String getXml() {
         return xml;
+    }
+
+    @Override
+    public boolean isUpdateDbOptions() {
+        return updateDbOptions;
     }
 
     @Override
