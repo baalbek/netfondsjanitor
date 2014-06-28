@@ -6,10 +6,10 @@
     [netfondsjanitor.service.db :as DB]
     [clojure.java.io :as IO])
   (:import
+    [java.time LocalDate]
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Stock StockLocator]
-    [ranoraraku.beans StockPriceBean]
-    [org.joda.time DateMidnight]))
+    [ranoraraku.beans StockPriceBean]))
 
 ;  (with-open [wrtr (writer "/tmp/test.txt")]
 ;    (.write wrtr "Line to be written"))
@@ -30,7 +30,7 @@
 
 (defn parse-date [s]
   (let [[a y m d] (first (re-seq #"(\d\d\d\d)(\d\d)(\d\d)" s))]
-    (DateMidnight. (str->int y) (str->int m) (str->int d))))
+    (LocalDate/of (str->int y) (str->int m) (str->int d))))
 
 (defn line-filter [dx lx]
   (let [cur-dx (parse-date (first lx))]

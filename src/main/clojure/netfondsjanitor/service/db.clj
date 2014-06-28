@@ -1,8 +1,8 @@
 (ns netfondsjanitor.service.db
   (:import
+    [java.time LocalDate]
     [oahu.financial StockPrice]
     [maunakea.util MyBatisUtils]
-    [org.joda.time DateMidnight]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans DerivativeBean]
     [org.apache.ibatis.session SqlSession])
@@ -16,7 +16,7 @@
       result
       (let [m (first x)
             tix (.get m "ticker_id")
-            dx (DateMidnight. (.getTime (.get m "max_dx")))]
+            dx (.toLocalDate (.get m "max_dx"))]
         (recur (rest x) (assoc result tix dx))))))
 
 (defmacro with-session [mapper & body]

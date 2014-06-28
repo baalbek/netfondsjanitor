@@ -1,7 +1,7 @@
 (ns netfondsjanitor.demo.mybatisdemo
   (:import
     [java.util ArrayList]
-    [org.joda.time DateMidnight]
+    [java.time LocalDate]
     [ranoraraku.models.mybatis StockMapper])
   (:require
     [netfondsjanitor.service.db :as DB]))
@@ -10,7 +10,7 @@
 (defn prices []
   (DB/with-session StockMapper
     (let [tix (ArrayList.)
-     dx (DateMidnight. 2013 3 1)]
+     dx (LocalDate/of 2013 3 1)]
       (doto tix
         (.add 3)
         (.add 4))

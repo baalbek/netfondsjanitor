@@ -13,9 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import oahu.annotations.StoreHtmlPage;
-import org.joda.time.DateMidnight;
-import org.joda.time.LocalTime;
+import java.time.LocalTime;
+import java.time.LocalDate;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,9 +42,9 @@ public class DownloadDerivativesManager {
 
         Object[] args = jp.getArgs();
 
-        LocalTime t = new LocalTime();
-        int h = t.getHourOfDay();
-        int m = t.getMinuteOfHour();
+        LocalTime t = LocalTime.now();
+        int h = t.getHour();
+        int m = t.getMinute();
 
         String hs = h < 10 ? String.format("0%d",h) : String.format("%d",h);
         String ms = m < 10 ? String.format("0%d",m) : String.format("%d",m);
@@ -96,9 +95,9 @@ public class DownloadDerivativesManager {
         if (getFeedStoreDir() == null) {
             throw new EtradeJanitorException("Property feedStoreDir not set!");
         };
-        DateMidnight m = new DateMidnight();
+        LocalDate m = LocalDate.now();
         int year = m.getYear();
-        int month = m.getMonthOfYear();
+        int month = m.getMonthValue();
         int day = m.getDayOfMonth();
         dateFeedStoreDir = String.format("%s/%d/%d/%d",getFeedStoreDir(),year,month,day);
         File f = new File(dateFeedStoreDir);
