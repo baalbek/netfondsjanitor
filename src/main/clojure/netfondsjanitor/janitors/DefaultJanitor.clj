@@ -130,9 +130,9 @@
     (binding [*feed* (@s :feed)
               *locator* (@s :locator)
               *user-tix* (.getTickers ctx)]
-      (doif .isFeed ctx (do-feed))
       (doif .isQuery ctx (let [tix-s (db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
+      (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isRollingOptions ctx

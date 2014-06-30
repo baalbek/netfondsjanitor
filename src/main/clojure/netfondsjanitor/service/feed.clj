@@ -45,7 +45,7 @@
   (let [[dx ticker _ _ opn hi lo cls vol market-val] l
         bean ^StockPriceBean (StockPriceBean.)]
     (doto bean
-      (.setDxJoda (parse-date dx))
+      (.setLocalDx (parse-date dx))
       (.setOpn (str->double opn))
       (.setHi (str->double hi))
       (.setLo (str->double lo))
