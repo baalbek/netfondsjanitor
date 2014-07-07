@@ -13,10 +13,11 @@
     </bean>
     -->
 
-    
+
     <!--
     <bean id="downloader" class="netfondsjanitor.etrade.DummyDownloader">
-        <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/html" />
+        <property name="storePath" value="/home/rcs/opt/java/netfondsjanitor/feed/2014/6/25" />
+        <property name="optionSuffix" value="15_17" />
     </bean>
     -->
 

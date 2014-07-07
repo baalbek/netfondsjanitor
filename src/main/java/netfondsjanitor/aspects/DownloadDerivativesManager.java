@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import java.time.LocalTime;
 import java.time.LocalDate;
+import java.util.function.Function;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,6 +32,8 @@ public class DownloadDerivativesManager {
     private String feedStoreDir;
     private String dateFeedStoreDir = null;
 
+    private Function<Object,String> tickerFileNamer;
+
     @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
     public void storeHtmlPagePointcut() {
     }
@@ -42,6 +45,7 @@ public class DownloadDerivativesManager {
 
         Object[] args = jp.getArgs();
 
+        /*
         LocalTime t = LocalTime.now();
         int h = t.getHour();
         int m = t.getMinute();
@@ -51,9 +55,12 @@ public class DownloadDerivativesManager {
         String fileName = String.format("%s/%s-%s_%s.html",getDateFeedStoreDir(),args[0],hs,ms);
 
         log.info(String.format("Saving file to %s",fileName));
+        */
 
+        String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
 
         File out = new File(fileName);
+
         try (FileOutputStream fop = new FileOutputStream(out)) {
             // if file doesn't exists, then create it
             if (!out.exists()) {
