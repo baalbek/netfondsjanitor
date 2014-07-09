@@ -8,6 +8,6 @@ import java.util.function.Function;
 public class SimpleTickerFileNamer implements Function<Object,String> {
     @Override
     public String apply(Object o) {
-        return "HA";
+        return String.format("%s.html", o);
     }
 }

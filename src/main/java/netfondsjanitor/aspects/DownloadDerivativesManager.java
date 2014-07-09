@@ -3,6 +3,7 @@ package netfondsjanitor.aspects;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 import netfondsjanitor.exceptions.EtradeJanitorException;
+import netfondsjanitor.service.SimpleTickerFileNamer;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -13,9 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.time.LocalTime;
 import java.time.LocalDate;
-import java.util.function.Function;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,7 +31,7 @@ public class DownloadDerivativesManager {
     private String feedStoreDir;
     private String dateFeedStoreDir = null;
 
-    private Function<Object,String> tickerFileNamer;
+    private SimpleTickerFileNamer tickerFileNamer;
 
     @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
     public void storeHtmlPagePointcut() {
@@ -57,7 +56,7 @@ public class DownloadDerivativesManager {
         log.info(String.format("Saving file to %s",fileName));
         */
 
-        String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
+        String fileName = String.format("%s/%s",getDateFeedStoreDir(), getTickerFileNamer().apply(args[0]));
 
         File out = new File(fileName);
 
@@ -112,6 +111,14 @@ public class DownloadDerivativesManager {
             f.mkdirs();
         }
         return dateFeedStoreDir;
+    }
+
+    public SimpleTickerFileNamer getTickerFileNamer() {
+        return tickerFileNamer;
+    }
+
+    public void setTickerFileNamer(SimpleTickerFileNamer tickerFileNamer) {
+        this.tickerFileNamer = tickerFileNamer;
     }
 
     //endregion Properties
