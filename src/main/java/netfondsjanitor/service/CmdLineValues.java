@@ -16,7 +16,7 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-x", aliases = { "--xml" }, required = false, usage = "Spring XML file name" )
     private String xml;
 
-    @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Stock tickers")
+    @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
     private String tickers;
 
     @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
@@ -40,6 +40,9 @@ public class CmdLineValues implements JanitorContext {
 
     @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
     private boolean updateDbOptions;
+
+    @Option(name = "-O", aliases = { "--one-time" }, required = false, usage = "One-time download options" )
+    private boolean oneTimeDownloadOptions;
 
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
@@ -133,5 +136,11 @@ public class CmdLineValues implements JanitorContext {
     public int getRollingInterval() {
         return rollingInterval;
     }
+
+    @Override
+    public boolean isOneTimeDownloadOptions() {
+        return oneTimeDownloadOptions;
+    }
+
 
 }

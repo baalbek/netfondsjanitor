@@ -53,10 +53,12 @@ public class DownloadDerivativesManager {
         String ms = m < 10 ? String.format("0%d",m) : String.format("%d",m);
         String fileName = String.format("%s/%s-%s_%s.html",getDateFeedStoreDir(),args[0],hs,ms);
 
-        log.info(String.format("Saving file to %s",fileName));
+
         */
 
         String fileName = String.format("%s/%s",getDateFeedStoreDir(), getTickerFileNamer().apply(args[0]));
+
+        log.info(String.format("Saving file to %s",fileName));
 
         File out = new File(fileName);
 

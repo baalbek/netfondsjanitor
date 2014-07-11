@@ -107,6 +107,8 @@
         (DB/insert-derivatives calls)
         (DB/insert-derivatives puts)))))
 
+;(defn do-onetime-download-options [^EtradeDownloader downloader])
+
 (defn block-task [test wait]
   (while (test)
     (LOG/info "Market not open yet...")
@@ -135,6 +137,12 @@
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
+      (doif .isOneTimeDownloadOptions ctx
+        (let [dl (@s :downloader)
+              opx-tix (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
+          (doseq [t opx-tix]
+            (LOG/info (str "One-time download of " t))
+            (.downloadDerivatives dl t))))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
