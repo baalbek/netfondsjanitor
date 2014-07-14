@@ -8,8 +8,11 @@
     <aop:aspectj-autoproxy />
 
 
+    <bean id="filenamer" class="netfondsjanitor.service.SimpleTickerFileNamer"></bean> 
+
     <bean id="downloadMaintenanceAspect" class="netfondsjanitor.aspects.DownloadDerivativesManager">
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+        <property name="tickerFileNamer" ref="filenamer" />
     </bean>
 
 </beans>

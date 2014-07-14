@@ -44,7 +44,7 @@
 (def factory
   (memoize
     (fn []
-      (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
+      (ClassPathXmlApplicationContext. "dlstockoptions.xml"))))
 
 (defn etrade []
   (.getBean (factory) "etrade"))
@@ -55,8 +55,8 @@
 (defn loc []
   (.getBean (factory) "locator"))
 
-(defn calc []
-  (.getBean (factory) "calculator"))
+(defn dlm []
+  (.getBean (factory) "downloadMaintenanceAspect"))
 
 ;(def tix (binding [*locator* (loc)] (JAN/db-tix)))
 
