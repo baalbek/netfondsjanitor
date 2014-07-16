@@ -2,6 +2,7 @@ package netfondsjanitor.aspects;
 
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+import netfondsjanitor.etrade.DownloadManager;
 import netfondsjanitor.exceptions.EtradeJanitorException;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,8 +14,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.time.LocalTime;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -25,7 +27,7 @@ import java.util.function.Function;
  */
 
 @Aspect
-public class DownloadDerivativesManager {
+public class DownloadDerivativesManager implements DownloadManager {
 
     private Logger log = Logger.getLogger(getClass().getPackage().getName());
 
@@ -34,6 +36,9 @@ public class DownloadDerivativesManager {
 
     private Function<Object,String> tickerFileNamer;
 
+    private Map<Object,HtmlPage> lastDownloads = new HashMap<>();
+
+    //region Pointcuts
     @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
     public void storeHtmlPagePointcut() {
     }
@@ -59,6 +64,8 @@ public class DownloadDerivativesManager {
 
         String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
 
+        lastDownloads.put(args[0], result);
+
         File out = new File(fileName);
 
         try (FileOutputStream fop = new FileOutputStream(out)) {
@@ -66,7 +73,6 @@ public class DownloadDerivativesManager {
             if (!out.exists()) {
                 out.createNewFile();
             }
-            // get the content in bytes
             byte[] contentInBytes = result.getWebResponse().getContentAsString().getBytes();
             if (contentInBytes == null) {
                 log.warn(String.format("Could not get bytes from %s",result.getUrl()));
@@ -83,9 +89,15 @@ public class DownloadDerivativesManager {
 
         return result;
     }
+    //endregion Pointcuts
 
-    //region Private Methods
-    //endregion Private Methods
+    //region Interface DownloadManager
+    @Override
+    public HtmlPage getLastDownloaded(String ticker) {
+        return lastDownloads.get(ticker);
+    }
+
+    //endregion Interface DownloadManager
 
     //region Properties
     public String getFeedStoreDir() {

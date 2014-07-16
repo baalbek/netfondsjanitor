@@ -8,6 +8,7 @@
                [setStockLocator [oahu.financial.StockLocator] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setEtrade [oahu.financial.Etrade] void]
+               [setDownloadManager [netfondsjanitor.etrade.DownloadManager] void]
                ]
     )
   (:use
@@ -19,7 +20,8 @@
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial StockLocator Etrade]
     [oahu.financial.janitors JanitorContext]
-    [oahu.financial.html EtradeDownloader])
+    [oahu.financial.html EtradeDownloader]
+    [netfondsjanitor.etrade.DownloadManager])
   (:require
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
@@ -47,6 +49,8 @@
 (defn -setDownloader [this, ^EtradeDownloader value]
   (let [s (.state this)]
     (swap! s assoc :downloader value)))
+
+(defn -setDownloadManager [this, ^DownloadManager value])
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
@@ -143,6 +147,9 @@
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
+      (doif .isSpotFromDownloadedOptions ctx
+        (let [manager ])
+        nil)
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))

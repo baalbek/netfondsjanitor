@@ -1,6 +1,5 @@
 package netfondsjanitor.service;
 
-import oahu.exceptions.NotImplementedException;
 import oahu.financial.janitors.JanitorContext;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -43,6 +42,9 @@ public class CmdLineValues implements JanitorContext {
 
     @Option(name = "-O", aliases = { "--one-time" }, required = false, usage = "One-time download options" )
     private boolean oneTimeDownloadOptions;
+
+    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database from downloaded derivatives (--one-time)" )
+    private boolean spotFromDownloadedOptions;
 
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
@@ -142,5 +144,8 @@ public class CmdLineValues implements JanitorContext {
         return oneTimeDownloadOptions;
     }
 
-
+    @Override
+    public boolean isSpotFromDownloadedOptions() {
+        return spotFromDownloadedOptions;
+    }
 }
