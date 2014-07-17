@@ -20,12 +20,15 @@
         <property name="stockLocator" ref="locator" />
     </bean>
 
+    <bean id="optionsparser" class="maunakea.financial.DefaultOptionsHtmlParser"></bean>
+
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
         <property name="stockLocator" ref="locator" />
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="downloader" ref="downloader" />
         <property name="etrade" ref="etrade" />
         <property name="downloadManager" ref="downloadMaintenanceAspect" />
+        <property name="optionsHtmlParser" ref="optionsparser" />
     </bean>
 </beans>
 

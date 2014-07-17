@@ -40,7 +40,7 @@ public class DownloadDerivativesManager implements DownloadManager {
 
     private Function<Object,String> tickerFileNamer;
 
-    private Map<Object,HtmlPage> lastDownloads = new HashMap<>();
+    private Map<Object,HtmlPage> lastDownloads = new HashMap<Object,HtmlPage>();
 
     //region Pointcuts
     @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
@@ -67,6 +67,8 @@ public class DownloadDerivativesManager implements DownloadManager {
         */
 
         String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
+
+        log.info(String.format("Saving downloaded %s to %s",args[0], fileName));
 
         lastDownloads.put(args[0], result);
 
@@ -101,6 +103,7 @@ public class DownloadDerivativesManager implements DownloadManager {
         HtmlPage result = lastDownloads.get(ticker);
         if (result == null) {
             String fileName = String.format("file://%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(ticker));
+            log.info(String.format("Restoring saved %s to HtmlPage", fileName));
             URL url = new URL(fileName);
 
             if (webClient == null) {
