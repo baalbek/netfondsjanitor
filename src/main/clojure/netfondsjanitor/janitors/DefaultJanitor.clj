@@ -8,7 +8,7 @@
                [setStockLocator [oahu.financial.StockLocator] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setEtrade [oahu.financial.Etrade] void]
-               [setDownloadManager [netfondsjanitor.etrade.DownloadManager] void]
+               [setDownloadManager [oahu.financial.html.DownloadManager] void]
                ]
     )
   (:use
@@ -16,12 +16,13 @@
   (:import
     [java.io FileNotFoundException]
     [java.time LocalTime]
+    [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial StockLocator Etrade]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
-    [netfondsjanitor.etrade.DownloadManager])
+    [oahu.financial.html DownloadManager])
   (:require
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
@@ -50,7 +51,9 @@
   (let [s (.state this)]
     (swap! s assoc :downloader value)))
 
-(defn -setDownloadManager [this, ^DownloadManager value])
+(defn -setDownloadManager [this, ^DownloadManager value]
+  (let [s (.state this)]
+    (swap! s assoc :manager value)))
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
@@ -95,12 +98,19 @@
   (let [tix-s (db-tix #(= 1 (.getTickerCategory %)))
         stocks (COM/map-java-fn .getSpot etrade tix-s)]
     (DB/with-session StockMapper
-      (doseq [s ^StockPriceBean stocks]
+      (doseq [^StockPriceBean s stocks]
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
             (.insertStockPrice it s)
             ))))))
+
+(defn do-spots-from-downloaded-options [^DownloadManager manager]
+  (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))
+        pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
+    (doseq [[^String ticker, ^HtmlPage page] pages]
+      (println (str ticker ", " page))
+      )))
 
 (defn do-upd-derivatives [^Etrade etrade]
   (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
@@ -147,9 +157,7 @@
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
-      (doif .isSpotFromDownloadedOptions ctx
-        (let [manager ])
-        nil)
+      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :manager)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))

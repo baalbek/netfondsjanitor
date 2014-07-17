@@ -25,6 +25,7 @@
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="downloader" ref="downloader" />
         <property name="etrade" ref="etrade" />
+        <property name="downloadManager" ref="downloadMaintenanceAspect" />
     </bean>
 </beans>
 

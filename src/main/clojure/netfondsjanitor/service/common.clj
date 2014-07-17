@@ -21,3 +21,11 @@
 
 (defmacro map-java-fn [map-fn java-obj lst]
   `(map #(~map-fn ~java-obj %) ~lst))
+
+
+(defmacro map-tuple-java-fn [map-fn java-obj lst]
+  `(let [tupled# (fn [arg#]
+                  (let [result# (~map-fn ~java-obj arg#)]
+                    [arg# result#]))]
+     (map tupled# ~lst)))
+

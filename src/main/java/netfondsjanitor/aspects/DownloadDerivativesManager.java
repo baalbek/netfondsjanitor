@@ -1,8 +1,9 @@
 package netfondsjanitor.aspects;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-import netfondsjanitor.etrade.DownloadManager;
+import oahu.financial.html.DownloadManager;
 import netfondsjanitor.exceptions.EtradeJanitorException;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,8 @@ import java.util.function.Function;
 public class DownloadDerivativesManager implements DownloadManager {
 
     private Logger log = Logger.getLogger(getClass().getPackage().getName());
+
+    private WebClient webClient;
 
     private String feedStoreDir;
     private String dateFeedStoreDir = null;
@@ -93,8 +97,20 @@ public class DownloadDerivativesManager implements DownloadManager {
 
     //region Interface DownloadManager
     @Override
-    public HtmlPage getLastDownloaded(String ticker) {
-        return lastDownloads.get(ticker);
+    public HtmlPage getLastDownloaded(String ticker) throws IOException {
+        HtmlPage result = lastDownloads.get(ticker);
+        if (result == null) {
+            String fileName = String.format("file://%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(ticker));
+            URL url = new URL(fileName);
+
+            if (webClient == null) {
+                webClient = new WebClient();
+                webClient.getOptions().setJavaScriptEnabled(false);
+            }
+
+            result = webClient.getPage(url);
+        }
+        return result;
     }
 
     //endregion Interface DownloadManager
@@ -124,6 +140,14 @@ public class DownloadDerivativesManager implements DownloadManager {
             f.mkdirs();
         }
         return dateFeedStoreDir;
+    }
+
+    public Function<Object, String> getTickerFileNamer() {
+        return tickerFileNamer;
+    }
+
+    public void setTickerFileNamer(Function<Object, String> tickerFileNamer) {
+        this.tickerFileNamer = tickerFileNamer;
     }
 
     //endregion Properties
