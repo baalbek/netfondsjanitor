@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <import resource="classpath:aop1.xml" />
+
+    <bean id="downloader" class="maunakea.financial.NetfondsDownloader">
+        <property name="javaScriptEnabled" value="false" />
+    </bean>
+
+    <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
+
+    <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
+
+    <bean id="etrade" class="maunakea.financial.Netfonds2">
+        <property name="downloader" ref="downloader" />
+        <property name="calculator" ref="calculator" />
+        <property name="stockLocator" ref="locator" />
+    </bean>
+
+    <bean id="optionsparser" class="maunakea.financial.DefaultOptionsHtmlParser"></bean>
+
+    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
+        <property name="stockLocator" ref="locator" />
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+        <property name="downloader" ref="downloader" />
+        <property name="etrade" ref="etrade" />
+        <property name="downloadManager" ref="downloadMaintenanceAspect" />
+        <property name="optionsHtmlParser" ref="optionsparser" />
+    </bean>
+</beans>
+
+
