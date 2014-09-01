@@ -100,8 +100,14 @@
           (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
           (System/exit 0))))))
 
+(defn tcat-in [in-vals v]
+  (let [category (.getTickerCategory v)]
+    (some #{category} in-vals)))
+
+(def tcat-in-1-3 (partial tcat-in [1 3]))
+
 (defn do-spot [^Etrade etrade]
-  (let [tix-s (db-tix #(= 1 (.getTickerCategory %)))
+  (let [tix-s (db-tix tcat-in-1-3) ;(db-tix #(= 1 (.getTickerCategory %)))
         stocks (COM/map-java-fn .getSpot etrade tix-s)]
     (DB/with-session StockMapper
       (doseq [^StockPriceBean s stocks]
@@ -112,7 +118,8 @@
             ))))))
 
 (defn do-spots-from-downloaded-options [^DownloadManager manager, ^OptionsHtmlParser parser]
-  (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))
+  (let [;tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))
+        tix-s (or *user-tix* (db-tix (partial tcat-in [1])))
         pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^HtmlPage page] pages]
@@ -163,7 +170,8 @@
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)
-              opx-tix (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
+              opx-tix (or *user-tix* (db-tix tcat-in-1-3))]
+              ;opx-tix (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
@@ -172,8 +180,9 @@
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
               dl (@s :downloader)
-              opx-tix (db-tix #(= 1 (.getTickerCategory %)))
-              rollopt-run (fn [] 
+              opx-tix (db-tix tcat-in-1-3)
+              ;opx-tix (db-tix #(= 1 (.getTickerCategory %)))
+              rollopt-run (fn []
                             (doseq [t opx-tix]
                               (.downloadDerivatives dl t)))]
             (block-task (time-less-than opening-time) (* 10 60 1000))
