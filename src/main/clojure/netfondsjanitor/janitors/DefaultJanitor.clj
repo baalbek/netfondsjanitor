@@ -7,7 +7,7 @@
                [setFeedStoreDir [String] void]
                [setStockLocator [oahu.financial.StockLocator] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
-               [setEtrade [oahu.financial.Etrade] void]
+               [setEtrade [oahu.financial.EtradeDerivatives] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setOptionsHtmlParser [oahu.financial.html.OptionsHtmlParser] void]
                ]
@@ -106,7 +106,7 @@
 
 (def tcat-in-1-3 (partial tcat-in [1 3]))
 
-(defn do-spot [^Etrade etrade]
+(defn do-spot [^EtradeDownloader etrade]
   (let [tix-s (db-tix tcat-in-1-3) ;(db-tix #(= 1 (.getTickerCategory %)))
         stocks (COM/map-java-fn .getSpot etrade tix-s)]
     (DB/with-session StockMapper
@@ -119,7 +119,7 @@
 
 (defn do-spots-from-downloaded-options [^DownloadManager manager, ^OptionsHtmlParser parser]
   (let [;tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))
-        tix-s (or *user-tix* (db-tix (partial tcat-in [1])))
+        tix-s (or *user-tix* (db-tix (partial tcat-in-1-3)))
         pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^HtmlPage page] pages]
@@ -129,7 +129,7 @@
           (.insertStockPrice it s)
           )))))
 
-(defn do-upd-derivatives [^Etrade etrade]
+(defn do-upd-derivatives [^EtradeDownloader etrade]
   (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
     (doseq [t tix-s]
       (LOG/info (str "Will update derivatives for " t))
