@@ -30,7 +30,7 @@
 
     <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
 
-    <bean id="etrade" class="maunakea.financial.Netfonds2">
+    <bean id="etrade" class="maunakea.financial.NetfondsDerivatives">
         <property name="downloader" ref="downloader" />
         <property name="calculator" ref="calculator" />
         <property name="stockLocator" ref="locator" />

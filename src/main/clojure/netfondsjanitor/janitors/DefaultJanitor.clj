@@ -21,7 +21,7 @@
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
-    [oahu.financial Stock StockLocator Etrade]
+    [oahu.financial Stock StockLocator EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
@@ -45,7 +45,7 @@
   (let [s (.state this)]
     (swap! s assoc :feed value)))
 
-(defn -setEtrade [this, ^Etrade value]
+(defn -setEtrade [this, ^EtradeDerivatives value]
   (let [s (.state this)]
     (swap! s assoc :etrade value)))
 
