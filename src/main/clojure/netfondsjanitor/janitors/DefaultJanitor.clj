@@ -155,6 +155,13 @@
 (defmacro doif [java-prop ctx & body]
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
+
+(defn do-ivharvest []
+  (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))]
+    (println (class tix-s))))
+    ;(doseq [t tix-s]
+    ;  (println t))))
+
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------
@@ -167,6 +174,7 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
+      (doif .isIvHarvest ctx (do-ivharvest))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)
@@ -189,3 +197,5 @@
             (while-task (time-less-than closing-time) (* 60000 (.getRollingInterval ctx)) rollopt-run)
             (System/exit 0)))
         )))
+
+;(do-ivharvest)

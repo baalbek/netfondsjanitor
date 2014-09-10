@@ -33,6 +33,9 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-s", aliases = { "--spot" }, required = false, usage = "Update todays stockprices" )
     private boolean spot;
 
+    @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility ivHarvest" )
+    private boolean ivHarvest;
+
     @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
     private boolean query;
 
@@ -147,5 +150,10 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public boolean isSpotFromDownloadedOptions() {
         return spotFromDownloadedOptions;
+    }
+
+    @Override
+    public boolean isIvHarvest() {
+        return ivHarvest;
     }
 }
