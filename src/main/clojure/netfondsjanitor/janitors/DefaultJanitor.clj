@@ -13,6 +13,7 @@
                ]
     )
   (:use
+    [clojure.string :only [split join]]
     [netfondsjanitor.service.common :only (*user-tix* *feed* *locator*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
@@ -106,7 +107,7 @@
 
 (def tcat-in-1-3 (partial tcat-in [1 3]))
 
-(defn do-spot [^EtradeDownloader etrade]
+(defn do-spot [^EtradeDerivatives etrade]
   (let [tix-s (db-tix tcat-in-1-3) ;(db-tix #(= 1 (.getTickerCategory %)))
         stocks (COM/map-java-fn .getSpot etrade tix-s)]
     (DB/with-session StockMapper
@@ -129,7 +130,7 @@
           (.insertStockPrice it s)
           )))))
 
-(defn do-upd-derivatives [^EtradeDownloader etrade]
+(defn do-upd-derivatives [^EtradeDerivatives etrade]
   (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
     (doseq [t tix-s]
       (LOG/info (str "Will update derivatives for " t))
@@ -156,11 +157,30 @@
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
 
-(defn do-ivharvest []
-  (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))]
-    (println (class tix-s))))
-    ;(doseq [t tix-s]
-    ;  (println t))))
+;(defn do-ivharvest [^EtradeDerivatives etrade, from-date to-date]
+(defn do-ivharvest [^EtradeDerivatives etrade]
+  (let [process-file (fn [f]
+                       (slurp f))
+                       ;(.getCalls etrade (.getName f)))
+        process-dir (fn [[y m d]] 
+                      (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
+                            files (filter #(.isFile %) (file-seq cur-dir))]
+                        (map process-file files)))
+                        ;(doseq [f files] (println f))))
+        part-year (fn [y m d] 
+                    (for [mx (drop m (range 13))
+                          dx (drop d (range 32))]
+                      [y mx dx]))
+        full-year (fn [y] (for [mx (range 13) dx (range 32)] [y mx dx]))
+        pfn (fn [v] (map read-string (split v #"-")))
+        ;[y0 m0 d0] (pfn from-date)
+        ;[y1 m1 d1] (pfn to-date)
+        ;ys (drop 1 (range y0 y1)))
+        ]
+        ;(part-year y0 m0 d0)
+    ;(map process-dir y0)))
+    (process-dir [2014 9 9]))) 
+    
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
@@ -174,7 +194,7 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      (doif .isIvHarvest ctx (do-ivharvest))
+      (doif .isIvHarvest ctx (do-ivharvest (@s :etrade) (.ivHarvestFrom ctx)))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)

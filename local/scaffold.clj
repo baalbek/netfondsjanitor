@@ -1,6 +1,5 @@
 (ns scaffold
   (:import
-    [org.joda.time LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [oahu.financial Etrade StockPrice]
     [oahu.financial.html EtradeDownloader]
@@ -19,7 +18,6 @@
   (:use
     [netfondsjanitor.service.common :only (*feed* *locator*)]
     [clojure.string :only [split join]]))
-
 
 (defn mz [f]
   (let [cache (atom {})]
@@ -63,5 +61,7 @@
 (def tix JAN/db-tix)
 
 (defn my-tix [f] (binding [*locator* (loc)] (JAN/db-tix f)))
+
+(def ivh (partial JAN/do-ivharvest (etrade)))
 
 
