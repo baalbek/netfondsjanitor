@@ -17,7 +17,7 @@
     [netfondsjanitor.service.common :only (*user-tix* *feed* *locator*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
-    [java.io FileNotFoundException]
+    [java.io File FileNotFoundException]
     [java.time LocalTime]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
@@ -27,6 +27,7 @@
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
   (:require
+    [maunakea.financial.htmlutil :as hu]
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
     [netfondsjanitor.service.db :as DB]
@@ -160,8 +161,8 @@
 ;(defn do-ivharvest [^EtradeDerivatives etrade, from-date to-date]
 (defn do-ivharvest [^EtradeDerivatives etrade]
   (let [process-file (fn [f]
-                       (slurp f))
-                       ;(.getCalls etrade (.getName f)))
+                       ;(hu/snip-ticker f))
+                       (.getSpotCallsPuts etrade ^File f))
         process-dir (fn [[y m d]] 
                       (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
                             files (filter #(.isFile %) (file-seq cur-dir))]
