@@ -14,10 +14,11 @@
     [netfondsjanitor.service.db :as DB]
     [netfondsjanitor.service.feed :as FEED]
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
-    [maunakea.financial.Netfonds2 :as N2])
+    [maunakea.financial.htmlutil :as HU])
   (:use
     [netfondsjanitor.service.common :only (*feed* *locator*)]
     [clojure.string :only [split join]]))
+
 
 (defn mz [f]
   (let [cache (atom {})]
@@ -62,6 +63,15 @@
 
 (defn my-tix [f] (binding [*locator* (loc)] (JAN/db-tix f)))
 
-(def ivh (partial JAN/do-ivharvest (etrade)))
+(def redami HU/read-date-time)
+
+(defn spot []
+  (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")
+        snip (HU/snip-ticker f)
+        ;result (HU/spot-from-snip-ticker snip)]
+        ;result (:content (html/select snip [:#toptime]))]
+        ;result (first (:content (first (html/select snip [:#toptime]))))
+        result (HU/spot-from-snip-ticker snip)]
+    result))
 
 
