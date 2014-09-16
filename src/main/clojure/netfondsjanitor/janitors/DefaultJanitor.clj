@@ -159,11 +159,11 @@
     ~@body))
 
 ;(defn do-ivharvest [^EtradeDerivatives etrade, from-date to-date]
-(defn do-ivharvest [^EtradeDerivatives etrade]
+(defn do-ivharvest [^EtradeDerivatives etrade, from-date]
   (let [process-file (fn [f]
                        ;(hu/snip-ticker f))
-                       (.getSpotCallsPuts etrade ^File f))
-        process-dir (fn [[y m d]] 
+                       (.getSpotCallsPuts2 etrade ^File f))
+        process-dir (fn [[y m d]]
                       (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
                             files (filter #(.isFile %) (file-seq cur-dir))]
                         (map process-file files)))

@@ -14,6 +14,7 @@
     [netfondsjanitor.service.db :as DB]
     [netfondsjanitor.service.feed :as FEED]
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
+    [maunakea.financial.NetfondsDerivatives :as DR]
     [maunakea.financial.htmlutil :as HU])
   (:use
     [netfondsjanitor.service.common :only (*feed* *locator*)]
@@ -43,7 +44,7 @@
 (def factory
   (memoize
     (fn []
-      (ClassPathXmlApplicationContext. "dlstockoptions.xml"))))
+      (ClassPathXmlApplicationContext. "demorun.xml"))))
 
 (defn etrade []
   (.getBean (factory) "etrade"))
@@ -51,11 +52,16 @@
 (defn dl []
   (.getBean (factory) "downloader"))
 
+(defn calc []
+  (.getBean (factory) "calculator"))
+
 (defn loc []
   (.getBean (factory) "locator"))
 
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
+
+(def get-derx (partial DR/get-derivatives (loc) (calc) (dl)))
 
 ;(def tix (binding [*locator* (loc)] (JAN/db-tix)))
 
