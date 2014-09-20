@@ -158,8 +158,12 @@
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
 
+
+; SPOT: oid | stock_id | dx | tm | price
+; IV:   oid | spot_id | opx_id | buy | sell | iv_buy | iv_sell
+
 ;(defn do-ivharvest [^EtradeDerivatives etrade, from-date to-date]
-(defn do-ivharvest [^EtradeDerivatives etrade, from-date]
+(defn do-ivharvest [^EtradeDerivatives etrade, from-date, to-date]
   (let [process-file (fn [f]
                        ;(hu/snip-ticker f))
                        (.getSpotCallsPuts2 etrade ^File f))
@@ -195,7 +199,7 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      (doif .isIvHarvest ctx (do-ivharvest (@s :etrade) (.ivHarvestFrom ctx)))
+      (doif .isIvHarvest ctx (do-ivharvest (@s :etrade) (.ivHarvestFrom ctx) (.ivHarvestTo ctx)))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)
