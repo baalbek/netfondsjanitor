@@ -61,23 +61,25 @@
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
-(def get-derx (partial DR/get-derivatives (loc) (calc) (dl)))
+(defn opx []
+  (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")]
+    (.getSpotCallsPuts2 (etrade) f)))
 
-;(def tix (binding [*locator* (loc)] (JAN/db-tix)))
+(comment
+  (def get-derx (partial DR/get-derivatives (loc) (calc) (dl)))
 
-(def tix JAN/db-tix)
+  (def tix JAN/db-tix)
 
-(defn my-tix [f] (binding [*locator* (loc)] (JAN/db-tix f)))
+  (defn my-tix [f] (binding [*locator* (loc)] (JAN/db-tix f)))
 
-(def redami HU/read-date-time)
+  (def redami HU/read-date-time)
 
-(defn spot []
-  (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")
-        snip (HU/snip-ticker f)
-        ;result (HU/spot-from-snip-ticker snip)]
-        ;result (:content (html/select snip [:#toptime]))]
-        ;result (first (:content (first (html/select snip [:#toptime]))))
-        result (HU/spot-from-snip-ticker snip)]
-    result))
-
-
+  (defn spot []
+    (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")
+          snip (HU/snip-ticker f)
+          ;result (HU/spot-from-snip-ticker snip)]
+          ;result (:content (html/select snip [:#toptime]))]
+          ;result (first (:content (first (html/select snip [:#toptime]))))
+          result (HU/spot-from-snip-ticker snip)]
+      result))
+  )
