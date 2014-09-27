@@ -1,7 +1,7 @@
 package netfondsjanitor.aspects;
 
 import oahu.exceptions.BinarySearchException;
-import oahu.financial.Derivative;
+import oahu.financial.DerivativePrice;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -38,15 +38,15 @@ public class ValidateBeansAspect {
 
 
     @Around("getPutsPointcut()")
-    public Collection<Derivative> getPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+    public Collection<DerivativePrice> getPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
 
-        Collection<Derivative> tmp = (Collection<Derivative>)jp.proceed();
+        Collection<DerivativePrice> tmp = (Collection<DerivativePrice>)jp.proceed();
 
-        Collection<Derivative> result = new ArrayList<>();
+        Collection<DerivativePrice> result = new ArrayList<>();
 
         log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
 
-        for (Derivative cb : tmp) {
+        for (DerivativePrice cb : tmp) {
             //CalculatedDerivativeBean cb = (CalculatedDerivativeBean)bean;
 
             if (isOk(cb) == false) continue;
@@ -58,15 +58,15 @@ public class ValidateBeansAspect {
     }
 
     @Around("getCallsPointcut()")
-    public Collection<Derivative> getCallsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+    public Collection<DerivativePrice> getCallsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
 
-        Collection<Derivative> tmp = (Collection<Derivative>)jp.proceed();
+        Collection<DerivativePrice> tmp = (Collection<DerivativePrice>)jp.proceed();
 
-        Collection<Derivative> result = new ArrayList<>();
+        Collection<DerivativePrice> result = new ArrayList<>();
 
         log.info(String.format("%s\nNumber of calls: %d",jp.toString(),tmp.size()));
 
-        for (Derivative cb : tmp) {
+        for (DerivativePrice cb : tmp) {
 
             if (isOk(cb) == false) continue;
 
@@ -76,13 +76,15 @@ public class ValidateBeansAspect {
         return result;
     }
 
-    private boolean isOk(Derivative cb) {
-        String ticker = cb.getTicker();
+    private boolean isOk(DerivativePrice cb) {
+        String ticker = cb.getDerivative().getTicker();
 
+        /*
         if (cb.getParent() == null) {
             log.warn(String.format("%s: parent is null",ticker));
             return false;
         }
+        */
 
         if (cb.getDays() < daysLimit) {
             log.info(String.format("%s has expired within %d days",ticker,daysLimit));
