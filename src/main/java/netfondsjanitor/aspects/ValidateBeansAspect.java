@@ -1,7 +1,9 @@
 package netfondsjanitor.aspects;
 
+import oahu.domain.Tuple3;
 import oahu.exceptions.BinarySearchException;
 import oahu.financial.DerivativePrice;
+import oahu.financial.StockPrice;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -25,17 +27,42 @@ public class ValidateBeansAspect {
     private Double spreadLimit = null;
     private Integer daysLimit = 0;
 
+    @Pointcut("execution(* oahu.financial.EtradeDerivatives.getSpotCallsPuts2(java.io.File))")
+    public void getSpotCallsPuts2Pointcut() {
+    }
 
+    @Around("getSpotCallsPuts2Pointcut()")
+    public Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
+    getSpotCallsPuts2PointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+
+        Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
+                tmp = (Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>)jp.proceed();
+
+
+        Collection<DerivativePrice> calls = tmp.second();
+        Collection<DerivativePrice> validatedCalls = new ArrayList<>();
+        Collection<DerivativePrice> puts = tmp.third();
+
+        //log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
+
+        for (DerivativePrice cb : calls) {
+            if (isOk(cb) == false) continue;
+            validatedCalls.add(cb);
+        }
+
+        Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
+                result = new Tuple3<>(tmp.first(),validatedCalls,tmp.third());
+        return result;
+    }
+
+    /*
     @Pointcut("execution(* oahu.financial.Etrade.getCalls(String))")
     public void getCallsPointcut() {
     }
 
-
     @Pointcut("execution(* oahu.financial.Etrade.getPuts(String))")
     public void getPutsPointcut() {
     }
-
-
 
     @Around("getPutsPointcut()")
     public Collection<DerivativePrice> getPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
@@ -75,6 +102,7 @@ public class ValidateBeansAspect {
 
         return result;
     }
+    //*/
 
     private boolean isOk(DerivativePrice cb) {
         String ticker = cb.getDerivative().getTicker();
@@ -143,10 +171,4 @@ public class ValidateBeansAspect {
         this.daysLimit = daysLimit;
     }
 
-
-    /*
-    @Pointcut("execution(* oahu.financial.Etrade.getSpot(String))")
-    public void getSpotPointcut() {
-    }
-    */
 }
