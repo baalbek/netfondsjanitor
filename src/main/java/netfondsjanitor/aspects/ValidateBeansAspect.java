@@ -42,67 +42,23 @@ public class ValidateBeansAspect {
         Collection<DerivativePrice> calls = tmp.second();
         Collection<DerivativePrice> validatedCalls = new ArrayList<>();
         Collection<DerivativePrice> puts = tmp.third();
+        Collection<DerivativePrice> validatedPuts = new ArrayList<>();
 
         //log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
 
-        for (DerivativePrice cb : calls) {
-            if (isOk(cb) == false) continue;
-            validatedCalls.add(cb);
+        for (DerivativePrice call : calls) {
+            if (isOk(call) == false) continue;
+            validatedCalls.add(call);
+        }
+        for (DerivativePrice put : puts) {
+            if (isOk(put) == false) continue;
+            validatedPuts.add(put);
         }
 
         Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
-                result = new Tuple3<>(tmp.first(),validatedCalls,tmp.third());
+                result = new Tuple3<>(tmp.first(),validatedCalls,validatedPuts);
         return result;
     }
-
-    /*
-    @Pointcut("execution(* oahu.financial.Etrade.getCalls(String))")
-    public void getCallsPointcut() {
-    }
-
-    @Pointcut("execution(* oahu.financial.Etrade.getPuts(String))")
-    public void getPutsPointcut() {
-    }
-
-    @Around("getPutsPointcut()")
-    public Collection<DerivativePrice> getPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
-
-        Collection<DerivativePrice> tmp = (Collection<DerivativePrice>)jp.proceed();
-
-        Collection<DerivativePrice> result = new ArrayList<>();
-
-        log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
-
-        for (DerivativePrice cb : tmp) {
-            //CalculatedDerivativeBean cb = (CalculatedDerivativeBean)bean;
-
-            if (isOk(cb) == false) continue;
-
-            result.add(cb);
-        }
-
-        return result;
-    }
-
-    @Around("getCallsPointcut()")
-    public Collection<DerivativePrice> getCallsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
-
-        Collection<DerivativePrice> tmp = (Collection<DerivativePrice>)jp.proceed();
-
-        Collection<DerivativePrice> result = new ArrayList<>();
-
-        log.info(String.format("%s\nNumber of calls: %d",jp.toString(),tmp.size()));
-
-        for (DerivativePrice cb : tmp) {
-
-            if (isOk(cb) == false) continue;
-
-            result.add(cb);
-        }
-
-        return result;
-    }
-    //*/
 
     private boolean isOk(DerivativePrice cb) {
         String ticker = cb.getDerivative().getTicker();

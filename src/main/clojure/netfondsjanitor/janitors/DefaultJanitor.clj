@@ -158,33 +158,62 @@
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
 
+(defmacro in? [v items]
+  `(some #(= ~v %) ~items))
 
-; SPOT: oid | stock_id | dx | tm | price
-; IV:   oid | spot_id | opx_id | buy | sell | iv_buy | iv_sell
 
-;(defn do-ivharvest [^EtradeDerivatives etrade, from-date to-date]
 (defn do-ivharvest [^EtradeDerivatives etrade, from-date, to-date]
-  (let [process-file (fn [f]
-                       (if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
-                         (println (.first scp))))
-        process-dir (fn [[y m d]]
-                      (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
-                            files (filter #(.isFile %) (file-seq cur-dir))]
-                        (map process-file files)))
-                        ;(doseq [f files] (println f))))
-        part-year (fn [y m d] 
-                    (for [mx (drop m (range 13))
-                          dx (drop d (range 32))]
-                      [y mx dx]))
-        full-year (fn [y] (for [mx (range 13) dx (range 32)] [y mx dx]))
-        pfn (fn [v] (map read-string (split v #"-")))
-        ;[y0 m0 d0] (pfn from-date)
-        ;[y1 m1 d1] (pfn to-date)
-        ;ys (drop 1 (range y0 y1)))
-        ]
-        ;(part-year y0 m0 d0)
-    ;(map process-dir y0)))
-    (process-dir [2014 9 9]))) 
+  (let [correct-date?
+          (fn [d m]
+            (cond
+              (in? m short-months) (<= d 30)
+              (= m 2) (<= d 28)
+              :else true))
+         process-file
+          (fn [^File f]
+            (str (.getPath f) "/" (.getName f)))
+
+
+                       ;(if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
+                       ;  (let [spot (.first scp)
+                       ;         calls (.second scp)
+                       ;         puts (.third scp)]
+                       ;     (DB/with-session DerivativeMapper))))
+
+        process-dir
+          (fn [[y m d]]
+            (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
+                  files (filter #(.isFile %) (file-seq cur-dir))]
+              (map process-file files)))
+        part-year-begin
+          (fn [y m d]
+            (let [a (for [mx (range 1 m)
+                          dx (range 1 32) :when (correct-date? dx mx)]
+                      [y mx dx])
+                  b (for [dx (take d (range 1 32)) :when (correct-date? dx m)]
+                      [y m dx])]
+              (concat a b)))
+        part-year-end
+          (fn [y m d]
+            (let [a (for [dx (drop d (range 32)) :when (correct-date? dx m)]
+                      [y m dx])
+                  b (for [mx (range (+ m 1) 13)
+                          dx (range 1 32) :when (correct-date? dx mx)]
+                      [y mx dx])]
+              (concat a b)))
+        full-year
+          (fn [y]
+            (for [mx (range 1 13) dx (range 1 32) :when (correct-date? dx mx)] [y mx dx]))
+        pfn
+          (fn [v]
+            (map read-string (split v #"-")))
+        [y0 m0 d0] (pfn from-date)
+        [y1 m1 d1] (pfn to-date)
+        ys (drop 1 (range y0 y1))
+      ]
+    ;(map process-dir (part-year y0 m0 d0))
+    (map process-dir (part-year y0 m0 d0))))
+    ;(process-dir [2014 9 9])))
     
 
 ;;;------------------------------------------------------------------------
