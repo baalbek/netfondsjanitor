@@ -161,15 +161,49 @@
 (defmacro in? [v items]
   `(some #(= ~v %) ~items))
 
+(defn flatten-1
+  [x]
+  (filter #(and (sequential? %) (not-any? sequential? %))
+    (rest (tree-seq #(and (sequential? %) (some sequential? %)) seq x))))
 
-(defn do-ivharvest [^EtradeDerivatives etrade, from-date, to-date]
-  (let [correct-date?
+(defn do-ivharvest [^EtradeDerivatives etrade from-date & [to-date]]
+  (let [to-datex (if (nil? to-date) from-date to-date)
+        short-months [4 6 9 11]
+        correct-date?
           (fn [d m]
             (cond
               (in? m short-months) (<= d 30)
               (= m 2) (<= d 28)
               :else true))
-         process-file
+        all-days
+          (fn [y]
+            (fn [m]
+              (for [dx (range 1 32) :when (correct-date? dx m)]
+                [y m dx])))
+        full-year
+          (fn [y]
+            (for [mx (range 1 13) dx (range 1 32) :when (correct-date? dx mx)] [y mx dx]))
+        pm_
+          (fn [range-fn rr y m d]
+            (for [dx (range-fn d rr) :when (correct-date? dx m)]
+              [y m dx]))
+        month-end (partial pm_ drop (range 32))
+        month-begin (partial pm_ take (range 1 32))
+        year-end
+          (fn [y m d]
+            (let [a (month-end y m d)
+                  b (for [mx (range (+ m 1) 13)
+                          dx (range 1 32) :when (correct-date? dx mx)]
+                      [y mx dx])]
+              (concat a b)))
+        year-begin
+          (fn [y m d]
+            (let [a (for [mx (range 1 m)
+                          dx (range 1 32) :when (correct-date? dx mx)]
+                      [y mx dx])
+                  b (month-begin y m d)]
+              (concat a b)))
+        process-file
           (fn [^File f]
             (str (.getPath f) "/" (.getName f)))
 
@@ -185,34 +219,28 @@
             (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
                   files (filter #(.isFile %) (file-seq cur-dir))]
               (map process-file files)))
-        part-year-begin
-          (fn [y m d]
-            (let [a (for [mx (range 1 m)
-                          dx (range 1 32) :when (correct-date? dx mx)]
-                      [y mx dx])
-                  b (for [dx (take d (range 1 32)) :when (correct-date? dx m)]
-                      [y m dx])]
-              (concat a b)))
-        part-year-end
-          (fn [y m d]
-            (let [a (for [dx (drop d (range 32)) :when (correct-date? dx m)]
-                      [y m dx])
-                  b (for [mx (range (+ m 1) 13)
-                          dx (range 1 32) :when (correct-date? dx mx)]
-                      [y mx dx])]
-              (concat a b)))
-        full-year
-          (fn [y]
-            (for [mx (range 1 13) dx (range 1 32) :when (correct-date? dx mx)] [y mx dx]))
         pfn
           (fn [v]
             (map read-string (split v #"-")))
-        [y0 m0 d0] (pfn from-date)
-        [y1 m1 d1] (pfn to-date)
-        ys (drop 1 (range y0 y1))
-      ]
+        [y1 m1 d1] (pfn from-date)
+        [y2 m2 d2] (pfn to-datex)]
+    (cond
+      (and (= y1 y2) (= m1 m2) (= d1 d2))
+        "all same"
+      (= y1 y2)
+        (let [months (drop 1 (range m1 m2))
+              a (month-end y1 m1 d1)
+              b (flatten-1 (map (all-days y1) months))
+              c (month-begin y2 m2 d2)]
+          (concat a b c))
+      :else
+        (let [years (drop 1 (range y1 y2))
+              a (year-end y1 m1 d1)
+              b (flatten-1 (map full-year years))
+              c (year-begin y2 m2 d2)]
+          (concat a b c)))))
     ;(map process-dir (part-year y0 m0 d0))
-    (map process-dir (part-year y0 m0 d0))))
+    ;(map process-dir (part-year y0 m0 d0))))
     ;(process-dir [2014 9 9])))
     
 

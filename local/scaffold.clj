@@ -6,6 +6,8 @@
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockPriceBean DerivativeBean]
     [java.io FileNotFoundException])
+  (:require
+    [netfondsjanitor.janitors.DefaultJanitor :as JAN])
   (:use
     [clojure.string :only [split join]]))
 
@@ -54,74 +56,77 @@
   (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")]
     (.getSpotCallsPuts2 (etrade) f)))
 
+(def iv JAN/do-ivharvest)
 
-(def long-months [1 3 5 7 8 10 12])
+(comment
+  (def long-months [1 3 5 7 8 10 12])
 
-(def short-months [4 6 9 11])
+  (def short-months [4 6 9 11])
 
-(defmacro in? [v items] 
-  `(some #(= ~v %) ~items))
+  (defmacro in? [v items]
+    `(some #(= ~v %) ~items))
   ;`(let [hit# (some #(= ~v %) ~items)]
   ;   (if (nil? hit#) false true)))
 
-(defn correct-date? [d m]
-  (cond 
-    (in? m short-months) (<= d 30)
-    (= m 2) (<= d 28)
-    :else true))
+  (defn correct-date? [d m]
+    (cond
+      (in? m short-months) (<= d 30)
+      (= m 2) (<= d 28)
+      :else true))
 
-;(let [a (for ;[mx (drop m (range 13))
+  ;(let [a (for ;[mx (drop m (range 13))
 
-(defn pm_ [range-fn rr y m d]
-  (for [dx (range-fn d rr) :when (correct-date? dx m)]
-    [y m dx]))
+  (defn pm_ [range-fn rr y m d]
+    (for [dx (range-fn d rr) :when (correct-date? dx m)]
+      [y m dx]))
 
-(def pme (partial pm_ drop (range 32)))
-(def pmb (partial pm_ take (range 1 32)))
+  (def pme (partial pm_ drop (range 32)))
+  (def pmb (partial pm_ take (range 1 32)))
 
-(defn all-days [y]
-  (fn [m]
-    (for [dx (range 1 32) :when (correct-date? dx m)]
-      [y m dx])))
+  (defn all-days [y]
+    (fn [m]
+      (for [dx (range 1 32) :when (correct-date? dx m)]
+        [y m dx])))
 
-(defn full-year [y]
-  (for [mx (range 1 13) dx (range 1 32) :when (correct-date? dx mx)] [y mx dx]))
+  (defn full-year [y]
+    (for [mx (range 1 13) dx (range 1 32) :when (correct-date? dx mx)] [y mx dx]))
 
-(defn pye [y m d]
-  (let [a (pme y m d) 
-        b (for [mx (range (+ m 1) 13)
-                dx (range 1 32) :when (correct-date? dx mx)]
-            [y mx dx])]
-    (concat a b)))
-        
-(defn pyb [y m d]
-  (let [a (for [mx (range 1 m)
-                dx (range 1 32) :when (correct-date? dx mx)]
-            [y mx dx])
-        b (pmb y m d)] 
-    (concat a b)))
+  (defn pye [y m d]
+    (let [a (pme y m d)
+          b (for [mx (range (+ m 1) 13)
+                  dx (range 1 32) :when (correct-date? dx mx)]
+              [y mx dx])]
+      (concat a b)))
 
-(defn flatten-1 
-  [x]
-  (filter #(and (sequential? %) (not-any? sequential? %))
-    (rest (tree-seq #(and (sequential? %) (some sequential? %)) seq x))))
+  (defn pyb [y m d]
+    (let [a (for [mx (range 1 m)
+                  dx (range 1 32) :when (correct-date? dx mx)]
+              [y mx dx])
+          b (pmb y m d)]
+      (concat a b)))
 
-(defn test-pyx [y1 m1 d1 y2 m2 d2]
-  (cond  
-    (and (= y1 y2) (= m1 m2) (= d1 d2)) 
+  (defn flatten-1
+    [x]
+    (filter #(and (sequential? %) (not-any? sequential? %))
+      (rest (tree-seq #(and (sequential? %) (some sequential? %)) seq x))))
+
+  (defn test-pyx [y1 m1 d1 y2 m2 d2]
+    (cond
+      (and (= y1 y2) (= m1 m2) (= d1 d2))
       "all same"
-    (= y1 y2) 
+      (= y1 y2)
       (let [months (drop 1 (range m1 m2))
-            a (pme y1 m1 d1) 
+            a (pme y1 m1 d1)
             b (flatten-1 (map (all-days y1) months))
             c (pmb y2 m2 d2)]
         (concat a b c))
-    :else 
-      (let [years (drop 1 (range y1 y2))
-            a (pye y1 m1 d1)
-            b (flatten-1 (map full-year years))
-            c (pyb y2 m2 d2)]
-        (concat a b c))))
+      :else (let [years (drop 1 (range y1 y2))
+                  a (pye y1 m1 d1)
+                  b (flatten-1 (map full-year years))
+                  c (pyb y2 m2 d2)]
+              (concat a b c))))
+
+  )
 
 
 
