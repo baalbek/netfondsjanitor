@@ -13,6 +13,7 @@
                ]
     )
   (:use
+    [clojure.algo.monads :only [domonad maybe-m]]
     [clojure.string :only [split join]]
     [netfondsjanitor.service.common :only (*user-tix* *feed* *locator*)])
   (:import
@@ -166,8 +167,12 @@
   (filter #(and (sequential? %) (not-any? sequential? %))
     (rest (tree-seq #(and (sequential? %) (some sequential? %)) seq x))))
 
-(defn do-ivharvest [^EtradeDerivatives etrade from-date & [to-date]]
+(defn do-ivharvest [^EtradeDerivatives etrade
+                    tix
+                    from-date
+                    & [to-date]]
   (let [to-datex (if (nil? to-date) from-date to-date)
+        tix-re (re-pattern "(\\S*)\\.html$")
         short-months [4 6 9 11]
         correct-date?
           (fn [d m]
@@ -205,7 +210,25 @@
               (concat a b)))
         process-file
           (fn [^File f]
-            (str (.getPath f) "/" (.getName f)))
+            (LOG/info (str "(IvHarvest) Trying file: " (.getPath f)))
+            (domonad maybe-m
+              [
+                cur-tix (re-matches tix-re (.getName f))
+                hit (in? (second cur-tix) tix)
+                scp (.getSpotCallsPuts2 etrade ^File f)
+                spot (.first scp)
+                calls (.second scp)
+                puts (.third scp)
+              ]
+              (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)))))
+
+           ; (if-let [fname (re-matches tix-re (.getName f))]
+           ;   (LOG/info (str "(IvHarvest) Processing file: " (.getPath f)))
+           ;   (if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
+           ;      (let [spot (.first scp)
+           ;            calls (.second scp)
+           ;            puts (.third scp)]
+           ;         (doseq [cx calls] (println (.getIvBuy cx)))))))
 
 
                        ;(if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
@@ -218,31 +241,29 @@
           (fn [[y m d]]
             (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
                   files (filter #(.isFile %) (file-seq cur-dir))]
-              (map process-file files)))
+              (doseq [cur-file files] (process-file cur-file))))
         pfn
           (fn [v]
             (map read-string (split v #"-")))
         [y1 m1 d1] (pfn from-date)
         [y2 m2 d2] (pfn to-datex)]
-    (cond
-      (and (= y1 y2) (= m1 m2) (= d1 d2))
-        "all same"
-      (= y1 y2)
-        (let [months (drop 1 (range m1 m2))
-              a (month-end y1 m1 d1)
-              b (flatten-1 (map (all-days y1) months))
-              c (month-begin y2 m2 d2)]
-          (concat a b c))
-      :else
-        (let [years (drop 1 (range y1 y2))
-              a (year-end y1 m1 d1)
-              b (flatten-1 (map full-year years))
-              c (year-begin y2 m2 d2)]
-          (concat a b c)))))
-    ;(map process-dir (part-year y0 m0 d0))
-    ;(map process-dir (part-year y0 m0 d0))))
-    ;(process-dir [2014 9 9])))
-    
+    (let [items (cond
+                  (and (= y1 y2) (= m1 m2) (= d1 d2))
+                    [[y1 m1 d1]]
+                  (= y1 y2)
+                    (let [months (drop 1 (range m1 m2))
+                          a (month-end y1 m1 d1)
+                          b (flatten-1 (map (all-days y1) months))
+                          c (month-begin y2 m2 d2)]
+                      (concat a b c))
+                  :else
+                    (let [years (drop 1 (range y1 y2))
+                          a (year-end y1 m1 d1)
+                          b (flatten-1 (map full-year years))
+                          c (year-begin y2 m2 d2)]
+                      (concat a b c)))]
+      (LOG/info (str "(IvHarvest) Processing files from: " from-date " to: " to-datex))
+      (doseq [cur-dir items] (process-dir cur-dir)))))
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
@@ -256,7 +277,9 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      (doif .isIvHarvest ctx (do-ivharvest (@s :etrade) (.ivHarvestFrom ctx) (.ivHarvestTo ctx)))
+      (doif .isIvHarvest ctx
+        (let [opx-tix (or *user-tix* (db-tix tcat-in-1-3))]
+          (do-ivharvest (@s :etrade) opx-tix (.ivHarvestFrom ctx) (.ivHarvestTo ctx))))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)
