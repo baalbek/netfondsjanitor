@@ -220,7 +220,11 @@
                 calls (.second scp)
                 puts (.third scp)
               ]
-              (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)))))
+              (do
+                (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)))
+                (DB/with-session DerivativeMapper
+                  (.insertSpot it spot))
+                )))
 
            ; (if-let [fname (re-matches tix-re (.getName f))]
            ;   (LOG/info (str "(IvHarvest) Processing file: " (.getPath f)))
