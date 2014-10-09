@@ -5,7 +5,7 @@
     :implements [oahu.financial.janitors.Janitor]
     :methods [
                [setFeedStoreDir [String] void]
-               [setStockLocator [oahu.financial.StockLocator] void]
+               ;[setStockLocator [oahu.financial.StockLocator] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setEtrade [oahu.financial.EtradeDerivatives] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
@@ -23,7 +23,7 @@
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
-    [oahu.financial Stock StockLocator EtradeDerivatives]
+    [oahu.financial Stock EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
@@ -220,26 +220,17 @@
                 calls (.second scp)
                 puts (.third scp)
               ]
-              (do
-                (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)))
+              (try
+                (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
+                               ", date: " (.getDx spot)
+                               ", time: " (.getSqlTime spot)))
                 (DB/with-session DerivativeMapper
-                  (.insertSpot it spot))
-                )))
-
-           ; (if-let [fname (re-matches tix-re (.getName f))]
-           ;   (LOG/info (str "(IvHarvest) Processing file: " (.getPath f)))
-           ;   (if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
-           ;      (let [spot (.first scp)
-           ;            calls (.second scp)
-           ;            puts (.third scp)]
-           ;         (doseq [cx calls] (println (.getIvBuy cx)))))))
-
-
-                       ;(if-let [scp (.getSpotCallsPuts2 etrade ^File f)]
-                       ;  (let [spot (.first scp)
-                       ;         calls (.second scp)
-                       ;         puts (.third scp)]
-                       ;     (DB/with-session DerivativeMapper))))
+                  (do
+                    ;(.insertSpot it spot)
+                    (doseq [c calls]
+                      (println (.getDerivativeId c)))))
+                      ;(.insertDerivativePrice it c))))
+                (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))
 
         process-dir
           (fn [[y m d]]
@@ -308,3 +299,15 @@
         )))
 
 ;(do-ivharvest)
+
+;(use '[clojure.contrib.monads :only [defmonad domonad]])
+
+;(defmonad error-m 
+;    [m-result identity
+;     m-bind   (fn [m f] (if (has-failed? m)
+;                         m
+;                         (f m)))])
+;
+;
+;
+;http://brehaut.net/blog/2011/error_monads

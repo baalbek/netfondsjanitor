@@ -10,7 +10,7 @@
         <property name="javaScriptEnabled" value="false" />
     </bean>
 
-    <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
+    <bean id="locator" class="ranoraraku.models.impl.LocatorImpl" ></bean>
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
 

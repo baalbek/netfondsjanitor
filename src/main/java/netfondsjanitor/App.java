@@ -1,9 +1,6 @@
 package netfondsjanitor;
 
 import oahu.financial.janitors.Janitor;
-import oahu.financial.Stock;
-import oahu.financial.StockLocator;
-import oahu.financial.janitors.JanitorContext;
 import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import netfondsjanitor.service.CmdLineValues;
@@ -11,9 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class App {
     public static void main(String[] args) {
@@ -27,7 +22,7 @@ public class App {
 
             /*List<String> tickers = opts.getTickers();
             if (tickers == null) {
-                StockLocator locator = factory.getBean("locator",StockLocator.class);
+                Locator locator = factory.getBean("locator",Locator.class);
                 List<Stock> stox = locator.getTickers();
                 tickers = stox.stream().map(Stock::getTicker).collect(Collectors.toList());
             }*/

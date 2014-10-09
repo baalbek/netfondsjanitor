@@ -28,7 +28,7 @@
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
 
-    <bean id="locator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
+    <bean id="locator" class="ranoraraku.models.impl.LocatorImpl" ></bean>
 
     <bean id="etrade" class="maunakea.financial.NetfondsDerivatives">
         <property name="downloader" ref="downloader" />

@@ -26,7 +26,7 @@
 
     <bean id="html-derivative-factory" class="maunakea.financial.HtmlCalculatedDerivativeBeanFactory" ></bean>
 
-    <bean id="stocklocator" class="ranoraraku.models.impl.StockLocatorImpl" ></bean>
+    <bean id="stocklocator" class="ranoraraku.models.impl.LocatorImpl" ></bean>
 
     <bean id="html-stock-factory" class="maunakea.financial.DefaultHtmlStockPriceFactory" >
         <property name="stockLocator" ref="stocklocator" />

@@ -1,4 +1,5 @@
 (ns netfondsjanitor.service.feed
+  (:import [oahu.financial Locator])
   (:use
     [clojure.string :only (join split)]
     [netfondsjanitor.service.common :only (*feed* *locator*)])
