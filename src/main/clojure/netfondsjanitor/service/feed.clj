@@ -64,7 +64,8 @@
         ;cur-dx (max-dx (.findId *locator* ticker))
         cur-filter (if (nil? stock)
                      (fn [_] true)
-                     (let [cur-dx (DB/get-max-dx (.getOid stock))]
+                     (let [max-dx (DB/get-max-dx)
+                           cur-dx (max-dx (.getOid stock))]
                         (partial line-filter cur-dx)))
         lx (parse-file
              ticker

@@ -41,29 +41,53 @@
 (defn -init []
   [[] (atom {})])
 
+(defn set-property [this k v]
+  (let [s (.state this)]
+    (swap! s assoc k v)))
+
 (defn -setStockMarketRepos [this, ^StockMarketRepository value]
-  (let [s (.state this)]
-    (swap! s assoc :repos value)))
+  (set-property this :repos value))
 
-(defn -setFeedStoreDir [this, ^String value]
-  (let [s (.state this)]
-    (swap! s assoc :feed value)))
+(defn -setFeedStoreDir [this, ^StockMarketRepository value]
+  (set-property this :feed value))
 
-(defn -setEtrade [this, ^EtradeDerivatives value]
-  (let [s (.state this)]
-    (swap! s assoc :etrade value)))
+(defn -setEtrade [this, ^StockMarketRepository value]
+  (set-property this :etrade value))
 
-(defn -setDownloader [this, ^EtradeDownloader value]
-  (let [s (.state this)]
-    (swap! s assoc :downloader value)))
+(defn -setDownloader [this, ^StockMarketRepository value]
+  (set-property this :downloader value))
 
-(defn -setDownloadManager [this, ^DownloadManager value]
-  (let [s (.state this)]
-    (swap! s assoc :manager value)))
+(defn -setDownloadManager [this, ^StockMarketRepository value]
+  (set-property this :manager value))
 
-(defn -setOptionsHtmlParser [this, ^OptionsHtmlParser value]
-  (let [s (.state this)]
-    (swap! s assoc :opxhtmlparser value)))
+(defn -setOptionsHtmlParser [this, ^StockMarketRepository value]
+  (set-property this :opxhtmlparser value))
+
+(comment
+  (defn -setStockMarketRepos [this, ^StockMarketRepository value]
+    (let [s (.state this)]
+      (swap! s assoc :repos value)))
+
+  (defn -setFeedStoreDir [this, ^String value]
+    (let [s (.state this)]
+      (swap! s assoc :feed value)))
+
+  (defn -setEtrade [this, ^EtradeDerivatives value]
+    (let [s (.state this)]
+      (swap! s assoc :etrade value)))
+
+  (defn -setDownloader [this, ^EtradeDownloader value]
+    (let [s (.state this)]
+      (swap! s assoc :downloader value)))
+
+  (defn -setDownloadManager [this, ^DownloadManager value]
+    (let [s (.state this)]
+      (swap! s assoc :manager value)))
+
+  (defn -setOptionsHtmlParser [this, ^OptionsHtmlParser value]
+    (let [s (.state this)]
+      (swap! s assoc :opxhtmlparser value)))
+  )
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
@@ -300,11 +324,9 @@
             (System/exit 0)))
         )))
 
-;(do-ivharvest)
-
 ;(use '[clojure.contrib.monads :only [defmonad domonad]])
 
-;(defmonad error-m 
+;(defmonad error-m
 ;    [m-result identity
 ;     m-bind   (fn [m f] (if (has-failed? m)
 ;                         m
