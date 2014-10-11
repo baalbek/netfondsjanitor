@@ -1,15 +1,15 @@
 (ns netfondsjanitor.service.feed
-  (:import [oahu.financial Locator])
   (:use
     [clojure.string :only (join split)]
-    [netfondsjanitor.service.common :only (*feed* *locator*)])
+    [netfondsjanitor.service.common :only (*feed* *repos*)])
   (:require
     [netfondsjanitor.service.db :as DB]
     [clojure.java.io :as IO])
   (:import
     [java.time LocalDate]
     [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial Stock StockLocator]
+    [oahu.financial.repository StockMarketRepository]
+    [oahu.financial Stock]
     [ranoraraku.beans StockPriceBean]))
 
 ;  (with-open [wrtr (writer "/tmp/test.txt")]
@@ -59,23 +59,24 @@
 
 
 (defn get-lines [ticker]
-  (let [
-        max-dx (DB/get-max-dx)
-        cur-dx (max-dx (.findId *locator* ticker))
-        cur-filter (if (nil? cur-dx)
+  (let [stock (.findStock *repos* ticker)
+        ;max-dx (DB/get-max-dx)
+        ;cur-dx (max-dx (.findId *locator* ticker))
+        cur-filter (if (nil? stock)
                      (fn [_] true)
-                     (partial line-filter cur-dx))
+                     (let [cur-dx (DB/get-max-dx (.getOid stock))]
+                        (partial line-filter cur-dx)))
         lx (parse-file
              ticker
              str->list
              cur-filter)]
-    (map (partial line->stockpricebean (.locateStock *locator* ticker)) lx)))
+    (map (partial line->stockpricebean stock) lx)))
 
 (defn get-all-lines [ticker]
-  (let [
+  (let [stock (.findStock *repos* ticker)
         cur-filter (fn [_] true)
         lx (parse-file
              ticker
              str->list
              cur-filter)]
-    (map (partial line->stockpricebean (.locateStock *locator* ticker)) lx)))
+    (map (partial line->stockpricebean stock) lx)))

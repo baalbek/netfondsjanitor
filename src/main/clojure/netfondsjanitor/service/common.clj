@@ -7,7 +7,7 @@
 
 (def ^:dynamic *feed*)
 
-(def ^:dynamic *locator*)
+(def ^:dynamic *repos*)
 
 (def ^:dynamic *user-tix*)
 

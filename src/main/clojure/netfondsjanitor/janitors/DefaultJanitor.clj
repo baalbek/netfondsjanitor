@@ -5,7 +5,7 @@
     :implements [oahu.financial.janitors.Janitor]
     :methods [
                [setFeedStoreDir [String] void]
-               ;[setStockLocator [oahu.financial.StockLocator] void]
+               [setStockMarketRepos [oahu.financial.repository.StockMarketRepository] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setEtrade [oahu.financial.EtradeDerivatives] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
@@ -15,7 +15,7 @@
   (:use
     [clojure.algo.monads :only [domonad maybe-m]]
     [clojure.string :only [split join]]
-    [netfondsjanitor.service.common :only (*user-tix* *feed* *locator*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
     [java.io File FileNotFoundException]
@@ -23,6 +23,7 @@
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
+    [oahu.financial.repository StockMarketRepository]
     [oahu.financial Stock EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
@@ -40,9 +41,9 @@
 (defn -init []
   [[] (atom {})])
 
-(defn -setStockLocator [this, ^StockLocator value]
+(defn -setStockMarketRepos [this, ^StockMarketRepository value]
   (let [s (.state this)]
-    (swap! s assoc :locator value)))
+    (swap! s assoc :repos value)))
 
 (defn -setFeedStoreDir [this, ^String value]
   (let [s (.state this)]
@@ -71,9 +72,10 @@
 (def db-tix (memoize 
   (fn [f]
     (println (str "db-tix first time " f))
-    (let [tix (if (nil? f)
-                (.getTickers *locator*)
-                (filter f (.getTickers *locator*)))
+    (let [stocks (.getStocks *repos*)
+          tix (if (nil? f)
+                stocks
+                (filter f stocks))
           tix-s (map #(.getTicker %) tix)]
       tix-s))))
       ;[tix tix-s]))))
@@ -126,7 +128,7 @@
         pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^HtmlPage page] pages]
-        (let [^Stock stock (.locateStock *locator* ticker)
+        (let [^Stock stock (.findStock *repos* ticker)
               ^StockPriceBean s (.parseSpot parser page)]
           (.setStock s stock)
           (.insertStockPrice it s)
@@ -266,7 +268,7 @@
 (defn -run [this, ^JanitorContext ctx]
   (let [s (.state this)]
     (binding [*feed* (@s :feed)
-              *locator* (@s :locator)
+              *repos* (@s :repos)
               *user-tix* (.getTickers ctx)]
       (doif .isQuery ctx (let [tix-s (db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))

@@ -7,7 +7,10 @@
     [ranoraraku.beans StockPriceBean DerivativeBean]
     [java.io FileNotFoundException])
   (:require
-    [netfondsjanitor.janitors.DefaultJanitor :as JAN])
+    [netfondsjanitor.janitors.DefaultJanitor :as JAN]
+    [maunakea.financial
+      [htmlutil :as HU]
+      [NetfondsDerivatives :as ND]])
   (:use
     [clojure.string :only [split join]]))
 
@@ -46,17 +49,31 @@
 (defn calc []
   (.getBean (factory) "calculator"))
 
-(defn loc []
-  (.getBean (factory) "locator"))
+(defn repos []
+  (.getBean (factory) "repos"))
 
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
-(defn opx []
-  (let [f (clojure.java.io/file "../feed/2014/9/10/OBX.html")]
-    (.getSpotCallsPuts2 (etrade) f)))
+(defn html [ticker]
+  (clojure.java.io/file (str "../feed/2014/9/10/" ticker ".html")))
+
+(defn opx [ticker]
+  (.getSpotCallsPuts2 (etrade) (html ticker)))
 
 (def iv JAN/do-ivharvest)
+
+(defn dprices [ticker]
+  (ND/get-dprices (repos) (calc) (html ticker)))
+
+(def snip-tick HU/snip-ticker)
+
+(defn snips [ticker]
+  (HU/opx-snips (HU/snip-ticker (html ticker))))
+
+(defn opnames [ticker]
+  (let [opx (snips ticker)]
+    (remove #(nil? %) (map HU/opx-name opx))))
 
 (comment
   (def long-months [1 3 5 7 8 10 12])

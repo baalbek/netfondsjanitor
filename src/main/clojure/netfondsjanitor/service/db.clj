@@ -50,7 +50,6 @@
                  (.selectMaxDate it))]
     (maxdx->map result)))
 
-
 (comment
   (defmacro make [v & body]
     (let [value-sym (gensym)]

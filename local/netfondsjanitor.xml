@@ -28,16 +28,20 @@
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
 
+    <!--
     <bean id="locator" class="ranoraraku.models.impl.LocatorImpl" ></bean>
+    -->
+    <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" ></bean>
 
     <bean id="etrade" class="maunakea.financial.NetfondsDerivatives">
         <property name="downloader" ref="downloader" />
         <property name="calculator" ref="calculator" />
-        <property name="stockLocator" ref="locator" />
+        <!-- property name="stockLocator" ref="locator" /  -->
+        <property name="stockMarketRepos" ref="repos" />
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
-        <property name="stockLocator" ref="locator" />
+        <property name="stockMarketRepos" ref="repos" />
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="downloader" ref="downloader" />
         <property name="etrade" ref="etrade" />
