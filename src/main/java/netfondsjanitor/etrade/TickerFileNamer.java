@@ -8,9 +8,10 @@ import java.util.function.Function;
  */
 public class TickerFileNamer implements Function<String,String> {
     private String index;
+
     @Override
     public String apply(String ticker) {
-        return String.format("%s-%s.html",ticker,index);
+        return index == null ? String.format("%s.html",ticker) : String.format("%s-%s.html",ticker,index);
     }
 
     public String getIndex() {

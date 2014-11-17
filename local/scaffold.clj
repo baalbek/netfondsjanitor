@@ -1,16 +1,11 @@
 (ns scaffold
   (:import
-    [org.springframework.context.support ClassPathXmlApplicationContext]
-    [oahu.financial Etrade StockPrice]
-    [oahu.financial.html EtradeDownloader]
-    [ranoraraku.models.mybatis StockMapper DerivativeMapper]
-    [ranoraraku.beans StockPriceBean DerivativeBean]
-    [java.io FileNotFoundException])
+    [org.springframework.context.support ClassPathXmlApplicationContext])
   (:require
+    [maunakea.financial.htmlutil :as HU]
+    [maunakea.financial.repository.NetfondsDerivatives :as ND]
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
-    [maunakea.financial
-      [htmlutil :as HU]
-      [NetfondsDerivatives :as ND]])
+    [netfondsjanitor.service.db :as DB])
   (:use
     [clojure.string :only [split join]]))
 
@@ -56,24 +51,31 @@
   (.getBean (factory) "downloadMaintenanceAspect"))
 
 (defn html [ticker]
-  (clojure.java.io/file (str "../feed/2014/9/10/" ticker ".html")))
+  (clojure.java.io/file (str "../feed/2014/9/30/" ticker ".html")))
 
 (defn opx [ticker]
   (.getSpotCallsPuts2 (etrade) (html ticker)))
 
 (def iv JAN/do-ivharvest)
 
-(defn dprices [ticker]
-  (ND/get-dprices (repos) (calc) (html ticker)))
+(comment snip-tick HU/snip-ticker)
 
-(def snip-tick HU/snip-ticker)
+(def opx-exp HU/opx-exp)
 
 (defn snips [ticker]
   (HU/opx-snips (HU/snip-ticker (html ticker))))
 
-(defn opnames [ticker]
+(def cpd HU/create-callput-def)
+
+(comment opnames [ticker]
   (let [opx (snips ticker)]
     (remove #(nil? %) (map HU/opx-name opx))))
+
+(comment dprices [ticker]
+  (ND/get-dprices (repos) (calc) (html ticker)))
+
+(defn callput-defs [ticker]
+  (ND/get-callput-defs (repos) (dl) ticker))
 
 (comment
   (def long-months [1 3 5 7 8 10 12])

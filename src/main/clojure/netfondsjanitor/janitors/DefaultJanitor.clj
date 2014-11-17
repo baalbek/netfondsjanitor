@@ -7,7 +7,7 @@
                [setFeedStoreDir [String] void]
                [setStockMarketRepos [oahu.financial.repository.StockMarketRepository] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
-               [setEtrade [oahu.financial.EtradeDerivatives] void]
+               [setEtrade [oahu.financial.repository.EtradeDerivatives] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setOptionsHtmlParser [oahu.financial.html.OptionsHtmlParser] void]
                ]
@@ -24,7 +24,8 @@
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial.repository StockMarketRepository]
-    [oahu.financial Stock EtradeDerivatives]
+    [oahu.financial Stock]
+    [oahu.financial.repository EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
@@ -159,7 +160,7 @@
           )))))
 
 (defn do-upd-derivatives [^EtradeDerivatives etrade]
-  (let [tix-s (or *user-tix* (db-tix #(= 1 (.getTickerCategory %))))]
+  (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))] ;#(= 1 (.getTickerCategory %))))]
     (doseq [t tix-s]
       (LOG/info (str "Will update derivatives for " t))
       (let [calls (.getCalls etrade t)
