@@ -33,7 +33,8 @@
 (def factory
   (memoize
     (fn []
-      (ClassPathXmlApplicationContext. "demorun.xml"))))
+      (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
+;(ClassPathXmlApplicationContext. "demorun.xml"))))
 
 (defn etrade []
   (.getBean (factory) "etrade"))

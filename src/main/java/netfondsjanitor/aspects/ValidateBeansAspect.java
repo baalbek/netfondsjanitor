@@ -27,7 +27,7 @@ public class ValidateBeansAspect {
     private Double spreadLimit = null;
     private Integer daysLimit = 0;
 
-    @Pointcut("execution(* oahu.financial.EtradeDerivatives.getSpotCallsPuts2(java.io.File))")
+    @Pointcut("execution(* oahu.financial.repository.EtradeDerivatives.getSpotCallsPuts2(java.io.File))")
     public void getSpotCallsPuts2Pointcut() {
     }
 

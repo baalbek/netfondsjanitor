@@ -163,10 +163,14 @@
   (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))] ;#(= 1 (.getTickerCategory %))))]
     (doseq [t tix-s]
       (LOG/info (str "Will update derivatives for " t))
-      (let [calls (.getCalls etrade t)
-            puts (.getPuts etrade t)]
-        (DB/insert-derivatives calls)
-        (DB/insert-derivatives puts)))))
+      (let [derivx (.getCallPutDefs etrade t)]
+        (DB/insert-derivatives derivx)))))
+
+(comment
+  (let [calls (.getCalls etrade t)
+        puts (.getPuts etrade t)]
+    (DB/insert-derivatives calls)
+    (DB/insert-derivatives puts)))
 
 ;(defn do-onetime-download-options [^EtradeDownloader downloader])
 
