@@ -24,7 +24,7 @@
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans StockBean StockPriceBean DerivativeBean]
     [oahu.financial.repository StockMarketRepository]
-    [oahu.financial Stock]
+    [oahu.financial Stock StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
@@ -198,10 +198,11 @@
   (filter #(and (sequential? %) (not-any? sequential? %))
     (rest (tree-seq #(and (sequential? %) (some sequential? %)) seq x))))
 
-(defn do-ivharvest [^EtradeDerivatives etrade
-                    tix
-                    from-date
-                    & [to-date]]
+(defn do-harvest-files-with [on-process-file
+                       ^EtradeDerivatives etrade
+                       tix
+                       from-date
+                       & [to-date]]
   (let [to-datex (if (nil? to-date) from-date to-date)
         tix-re (re-pattern "(\\S*)\\.html$")
         short-months [4 6 9 11]
@@ -241,7 +242,7 @@
               (concat a b)))
         process-file
           (fn [^File f]
-            (LOG/info (str "(IvHarvest) Trying file: " (.getPath f)))
+            (LOG/info (str "(Harvest) Trying file: " (.getPath f)))
             (domonad maybe-m
               [
                 cur-tix (re-matches tix-re (.getName f))
@@ -251,17 +252,8 @@
                 calls (.second scp)
                 puts (.third scp)
               ]
-              (try
-                (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
-                               ", date: " (.getDx spot)
-                               ", time: " (.getSqlTime spot)))
-                (DB/with-session DerivativeMapper
-                  (do
-                    ;(.insertSpot it spot)
-                    (doseq [c calls]
-                      (println (.getDerivativeId c)))))
-                      ;(.insertDerivativePrice it c))))
-                (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))
+              (on-process-file f spot calls puts)
+              ))
 
         process-dir
           (fn [[y m d]]
@@ -288,9 +280,26 @@
                           b (flatten-1 (map full-year years))
                           c (year-begin y2 m2 d2)]
                       (concat a b c)))]
-      (LOG/info (str "(IvHarvest) Processing files from: " from-date " to: " to-datex))
+      (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex))
       (doseq [cur-dir items] (process-dir cur-dir)))))
 
+
+(defn iv-harvest [^File f,
+                  ^StockPrice spot,
+                  calls,
+                  puts]
+
+  (try
+    (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
+                ", date: " (.getDx spot)
+                ", time: " (.getSqlTime spot)))
+    (DB/with-session DerivativeMapper
+      (do
+        ;(.insertSpot it spot)
+        (doseq [c calls]
+          (println (str "Option id: " (.getDerivativeId c))))))
+    ;(.insertDerivativePrice it c))))
+    (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------
@@ -305,7 +314,7 @@
       (doif .isSpot ctx (do-spot (@s :etrade)))
       (doif .isIvHarvest ctx
         (let [opx-tix (or *user-tix* (db-tix tcat-in-1-3))]
-          (do-ivharvest (@s :etrade) opx-tix (.ivHarvestFrom ctx) (.ivHarvestTo ctx))))
+          (do-harvest-files-with iv-harvest (@s :etrade) opx-tix (.ivHarvestFrom ctx) (.ivHarvestTo ctx))))
       (doif .isUpdateDbOptions ctx (do-upd-derivatives (@s :etrade)))
       (doif .isOneTimeDownloadOptions ctx
         (let [dl (@s :downloader)

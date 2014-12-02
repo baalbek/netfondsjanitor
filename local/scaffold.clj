@@ -57,7 +57,9 @@
 (defn opx [ticker]
   (.getSpotCallsPuts2 (etrade) (html ticker)))
 
-(def iv JAN/do-ivharvest)
+(def harvest JAN/do-harvest-files-with)
+
+(def iv-harvest JAN/iv-harvest)
 
 (comment snip-tick HU/snip-ticker)
 
