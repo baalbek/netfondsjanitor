@@ -306,7 +306,10 @@
                            ^StockPrice spot,
                            calls,
                            puts]
-  )
+  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)
+              ", date: " (.getDx spot)
+              ", time: " (.getSqlTime spot)))
+  (DB/insert-derivatives (concat calls puts)))
 
 (comment do-upd-derivatives [^EtradeDerivatives etrade]
   (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))] ;#(= 1 (.getTickerCategory %))))]
