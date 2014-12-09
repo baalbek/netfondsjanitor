@@ -249,13 +249,19 @@
                 [
                   cur-tix (re-matches tix-re (.getName f))
                   hit (in? (second cur-tix) tix)
-                  scp (.getSpotCallsPuts2 etrade ^File f)
-                  spot (.first scp)
-                  calls (.second scp)
-                  puts (.third scp)
-                ]
-                (on-process-file f spot calls puts)
-                ))
+                  ]
+                (on-process-file f etrade)))
+
+              ;(domonad maybe-m
+              ;  [
+              ;    cur-tix (re-matches tix-re (.getName f))
+              ;    hit (in? (second cur-tix) tix)
+              ;    scp (.getSpotCallsPuts2 etrade ^File f)
+              ;    spot (.first scp)
+              ;    calls (.second scp)
+              ;    puts (.third scp)
+              ;  ]
+              ;  (on-process-file f spot calls puts)))
 
           process-dir
             (fn [[y m d]]
@@ -286,30 +292,37 @@
         (doseq [cur-dir items] (process-dir cur-dir))))))
 
 (defn iv-harvest [^File f,
-                  ^StockPrice spot,
-                  calls,
-                  puts]
-
-  (try
-    (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
-                ", date: " (.getDx spot)
-                ", time: " (.getSqlTime spot)))
-    (DB/with-session DerivativeMapper
-      (do
-        ;(.insertSpot it spot)
-        (doseq [c calls]
-          (println (str "Option id: " (.getDerivativeId c))))))
-    ;(.insertDerivativePrice it c))))
-    (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))
+                  ^EtradeDerivatives etrade]
+  (domonad maybe-m
+    [
+      scp (.getSpotCallsPuts2 etrade ^File f)
+      spot (.first scp)
+      calls (.second scp)
+      puts (.third scp)
+    ]
+    (let [calls-puts (concat calls puts)]
+      (try
+        (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
+                    ", date: " (.getDx spot)
+                    ", time: " (.getSqlTime spot)))
+        (DB/with-session DerivativeMapper
+          (do
+            ;(.insertSpot it spot)
+            (doseq [c calls-puts]
+              (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType))))))
+        ;(.insertDerivativePrice it c))))
+        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))))
 
 (defn harvest-derivatives [^File f,
-                           ^StockPrice spot,
-                           calls,
-                           puts]
-  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)
-              ", date: " (.getDx spot)
-              ", time: " (.getSqlTime spot)))
-  (DB/insert-derivatives (concat calls puts)))
+                           ^EtradeDerivatives etrade]
+  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
+  (let [call-put-defs (.getCallPutDefs2 etrade f)]
+    (DB/insert-derivatives call-put-defs)))
+
+
+;              ", date: " (.getDx spot)
+;              ", time: " (.getSqlTime spot)))
+;  (DB/insert-derivatives (concat calls puts)))
 
 (comment do-upd-derivatives [^EtradeDerivatives etrade]
   (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))] ;#(= 1 (.getTickerCategory %))))]

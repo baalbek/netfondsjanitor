@@ -61,6 +61,8 @@
 
 (def iv-harvest JAN/iv-harvest)
 
+(def harvest-deriv JAN/harvest-derivatives)
+
 (comment snip-tick HU/snip-ticker)
 
 (def opx-exp HU/opx-exp)
