@@ -307,10 +307,10 @@
                     ", time: " (.getSqlTime spot)))
         (DB/with-session DerivativeMapper
           (do
-            ;(.insertSpot it spot)
+            (.insertSpot it spot)
             (doseq [c calls-puts]
-              (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType))))))
-        ;(.insertDerivativePrice it c))))
+              (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
+              (.insertDerivativePrice it c))))
         (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))))
 
 (defn harvest-derivatives [^File f,
