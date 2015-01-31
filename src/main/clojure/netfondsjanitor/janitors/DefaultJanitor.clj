@@ -308,6 +308,10 @@
   (let [call-put-defs (.getCallPutDefs2 etrade f)]
     (DB/insert-derivatives call-put-defs)))
 
+(defn harvest-test-run [^File f,
+                        ^EtradeDerivatives etrade]
+  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
+  )
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------

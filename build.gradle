@@ -32,6 +32,8 @@ ext.minor = '0'
 
 version = "$major.$minor.1"
 
+ext.myLibName = "netfondsjanitor-${version}.jar"
+
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
@@ -86,25 +88,41 @@ task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
 
-task cj(type: Copy) {
-    into 'dist' from new File("$libsDir/netfondsjanitor-${version}.jar")
+enum LibContext {
+    BARE,DIST,FULL_PATH
 }
 
-task clj2dist(type: Copy) {
-    from 'src/main/clojure'
-    into 'dist'
-    include '**/*.clj'
-}
-
-task ifwindows {
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        //FileTree cljFiles = fileTree(dir: 'src/main/clojure')
+String myDepLibName(String pname, LibContext ctx) {
+    switch (ctx) {
+        case LibContext.BARE:
+            project(':' + pname).tasks['jar'].archiveName
+            break
+        case LibContext.DIST:
+            'dist/' + project(':' + pname).tasks['jar'].archiveName
+            break
+        case LibContext.FULL_PATH:
+            project(':' + pname).tasks['jar'].archivePath
+            break
     }
 }
 
-task local(dependsOn: [build, cj])
+task copyRcsLibs(type: Copy) {
+    into 'dist' from new File("$libsDir/$myLibName")
+    into 'dist' from new File(myDepLibName('oahu',LibContext.FULL_PATH))
+    into 'dist' from new File(myDepLibName('maunakea',LibContext.FULL_PATH))
+    into 'dist' from new File(myDepLibName('vega',LibContext.FULL_PATH))
+}
 
-task localwin(dependsOn: [local,clj2dist])
+task deleteRcsLibs(type: Delete) {
+    delete  "dist/$myLibName",
+            myDepLibName('oahu',LibContext.DIST),
+            myDepLibName('maunakea',LibContext.DIST),
+            myDepLibName('vega',LibContext.DIST)
+}
+
+task buildAndCopy(dependsOn: build) {
+    into 'dist' from new File("$libsDir/$myLibName")
+}
 
 buildscript {
     repositories {

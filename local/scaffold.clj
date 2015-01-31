@@ -63,6 +63,12 @@
 
 (def harvest-deriv JAN/harvest-derivatives)
 
+(def from-date "2015-1-9")
+(def to-date "2015-1-15")
+
+(defn test-run [tix]
+  (harvest JAN/harvest-test-run (etrade) tix from-date to-date))
+
 (comment snip-tick HU/snip-ticker)
 
 (def opx-exp HU/opx-exp)
