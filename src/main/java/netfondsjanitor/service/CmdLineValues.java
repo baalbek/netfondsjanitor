@@ -36,7 +36,7 @@ public class CmdLineValues implements JanitorContext {
 
     @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility ivHarvest" )
     private boolean ivHarvest;
-    @Option(name = "-A", aliases = { "--ivharvestFrom" }, required = false, usage = "Implied volatility ivHarvest to date (yyyy-mm-dd)" )
+    @Option(name = "-A", aliases = { "--ivharvestFrom" }, required = false, usage = "Implied volatility ivHarvest start date (yyyy-mm-dd)" )
     //private LocalDate ivHarvestFrom;
     private String ivHarvestFrom;
     @Option(name = "-B", aliases = { "--ivharvestTo" }, required = false, usage = "Implied volatility ivHarvest end date (yyyy-mm-dd)" )

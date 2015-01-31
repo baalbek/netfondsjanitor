@@ -6,15 +6,37 @@ group = 'rcstadheim'
 
 archivesBaseName = 'netfondsjanitor'
 
-version = '4.0'
- 
+ext.springVersion = '4.1.4.RELEASE'
+ext.htmlunitVersion = '2.15'
+ext.junitVersion = '4.11'
+ext.log4jVersion = '1.2.17'
+ext.aspectjVersion = '1.8.4'
+ext.mybatisVersion = '3.2.8'
+ext.mongoVersion = '2.12.5'
+ext.postgresVersion = '9.1-901.jdbc4'
+ext.commonsLangVersion = '20030203.000129'
+ext.enliveVersion = '1.1.5'
+ext.coltVersion = '1.2.0'
+ext.arg4jVersion = '2.0.28'
+
+//-------------------- clojure ---------------------
+ext.clojureVersion = '1.6.0'
+ext.clojureContribVersion = '1.2.0'
+ext.algoMonadsVersion = '0.1.5'
+ext.clojuresqueVersion = '1.5.8'
+ext.numericTowerVersion = '0.0.2'
+
+
+ext.major = '5'
+ext.minor = '0'
+
+version = "$major.$minor.1"
+
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
 aotCompile = true
-
-ext.springVersion = '4.0.0.RELEASE'
 
 repositories {
     mavenCentral()
@@ -27,18 +49,23 @@ dependencies {
     compile project(':oahu')
     compile project(':maunakea')
     compile project(':vega')
-    compile 'junit:junit:4.11' 
-    compile 'org.aspectj:aspectjrt:1.7.4'
-    compile 'org.aspectj:aspectjtools:1.7.4'
-    compile 'org.aspectj:aspectjweaver:1.7.4'
+    //------------------- aspectj -------------------
+    compile "org.aspectj:aspectjrt:$aspectjVersion"
+    compile "org.aspectj:aspectjtools:$aspectjVersion"
+    compile "org.aspectj:aspectjweaver:$aspectjVersion"
+    //------------------- spring -------------------
     compile "org.springframework:spring-core:$springVersion"
     compile "org.springframework:spring-context:$springVersion"
     compile "org.springframework:spring-aop:$springVersion"
-    compile 'enlive:enlive:1.1.5'
-    compile 'org.clojure:clojure:1.5.1'
-    compile 'org.clojure:clojure-contrib:1.2.0'
-    compile 'org.clojure:algo.monads:0.1.5'
-    compile 'args4j:args4j:2.0.28'
+    //------------------- clojure-------------------
+    runtime "org.clojure:clojure:$clojureVersion"
+    runtime "org.clojure:clojure-contrib:$clojureContribVersion"
+    //------------------- diverse -------------------
+    compile "junit:junit:$junitVersion"
+    compile "log4j:log4j:$log4jVersion"
+    compile "args4j:args4j:$arg4jVersion"
+    compile "enlive:enlive:$enliveVersion"
+    compile "org.clojure:algo.monads:$algoMonadsVersion"
 }
 
 

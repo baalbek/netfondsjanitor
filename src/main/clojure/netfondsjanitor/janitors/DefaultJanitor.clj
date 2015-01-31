@@ -252,17 +252,6 @@
                   ]
                 (on-process-file f etrade)))
 
-              ;(domonad maybe-m
-              ;  [
-              ;    cur-tix (re-matches tix-re (.getName f))
-              ;    hit (in? (second cur-tix) tix)
-              ;    scp (.getSpotCallsPuts2 etrade ^File f)
-              ;    spot (.first scp)
-              ;    calls (.second scp)
-              ;    puts (.third scp)
-              ;  ]
-              ;  (on-process-file f spot calls puts)))
-
           process-dir
             (fn [[y m d]]
               (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
@@ -318,18 +307,6 @@
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
   (let [call-put-defs (.getCallPutDefs2 etrade f)]
     (DB/insert-derivatives call-put-defs)))
-
-
-;              ", date: " (.getDx spot)
-;              ", time: " (.getSqlTime spot)))
-;  (DB/insert-derivatives (concat calls puts)))
-
-(comment do-upd-derivatives [^EtradeDerivatives etrade]
-  (let [tix-s (or *user-tix* (db-tix tcat-in-1-3))] ;#(= 1 (.getTickerCategory %))))]
-    (doseq [t tix-s]
-      (LOG/info (str "Will update derivatives for " t))
-      (let [derivx (.getCallPutDefs etrade t)]
-        (DB/insert-derivatives derivx)))))
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
