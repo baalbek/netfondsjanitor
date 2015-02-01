@@ -4,6 +4,7 @@
   (:require
     [maunakea.financial.htmlutil :as HU]
     [maunakea.financial.repository.NetfondsDerivatives :as ND]
+    [netfondsjanitor.janitors.harvester :as HARV]
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
     [netfondsjanitor.service.db :as DB])
   (:use
@@ -57,17 +58,24 @@
 (defn opx [ticker]
   (.getSpotCallsPuts2 (etrade) (html ticker)))
 
-(def harvest JAN/do-harvest-files-with)
+(def harvest HARV/do-harvest-files-with)
 
-(def iv-harvest JAN/iv-harvest)
+(def iv-harvest HARV/iv-harvest)
 
-(def harvest-deriv JAN/harvest-derivatives)
+(def ifd HARV/items-between-dates)
+(def yb HARV/year-begin)
+(def ye HARV/year-end)
+(def mb HARV/month-begin)
+(def me HARV/month-end)
+(def ad HARV/all-days)
+
+(def harvest-deriv HARV/harvest-derivatives)
 
 (def from-date "2015-1-9")
 (def to-date "2015-1-15")
 
 (defn test-run [tix]
-  (harvest JAN/harvest-test-run (etrade) tix from-date to-date))
+  (harvest HARV/harvest-test-run (etrade) tix from-date to-date))
 
 (comment snip-tick HU/snip-ticker)
 

@@ -29,3 +29,22 @@
                     [arg# result#]))]
      (map tupled# ~lst)))
 
+(defmacro in? [v items]
+  `(some #(= ~v %) ~items))
+
+(def db-tix
+  (memoize
+    (fn [f]
+      (println (str "db-tix first time " f))
+      (let [stocks (.getStocks *repos*)
+            tix (if (nil? f)
+                  stocks
+                  (filter f stocks))
+            tix-s (map #(.getTicker %) tix)]
+        tix-s))))
+
+(defn tcat-in [in-vals v]
+  (let [category (.getTickerCategory v)]
+    (some #{category} in-vals)))
+
+(def tcat-in-1-3 (partial tcat-in [1 3]))
