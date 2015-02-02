@@ -36,12 +36,15 @@ public class CmdLineValues implements JanitorContext {
 
     @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility ivHarvest" )
     private boolean ivHarvest;
+
     @Option(name = "-A", aliases = { "--ivharvestFrom" }, required = false, usage = "Implied volatility ivHarvest start date (yyyy-mm-dd)" )
-    //private LocalDate ivHarvestFrom;
     private String ivHarvestFrom;
+
     @Option(name = "-B", aliases = { "--ivharvestTo" }, required = false, usage = "Implied volatility ivHarvest end date (yyyy-mm-dd)" )
-    //private LocalDate ivHarvestTo;
     private String ivHarvestTo;
+
+    @Option(name = "-e", aliases = { "--test-run" }, required = false, usage = "Harvest test run" )
+    private boolean harvestTestRun;
 
     @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
     private boolean query;
@@ -160,6 +163,11 @@ public class CmdLineValues implements JanitorContext {
     }
 
     @Override
+    public boolean isHarvestTestRun() {
+        return harvestTestRun;
+    }
+
+    @Override
     public boolean isIvHarvest() {
         return ivHarvest;
     }
@@ -170,5 +178,10 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public String ivHarvestTo() {
         return ivHarvestTo;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("xml: %s",getXml());
     }
 }

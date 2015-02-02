@@ -107,7 +107,7 @@
     (let [tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
           from-date (.ivHarvestFrom ctx)
           to-date (.ivHarvestTo ctx)]
-      (do-harvest-files-with on-process-file etrade from-date to-date)))
+      (do-harvest-files-with on-process-file etrade tix from-date to-date)))
   ([on-process-file
     ^EtradeDerivatives etrade
     tix

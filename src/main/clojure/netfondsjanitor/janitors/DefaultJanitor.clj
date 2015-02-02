@@ -115,14 +115,6 @@
           (.insertStockPrice it s)
           )))))
 
-(comment
-  (let [calls (.getCalls etrade t)
-        puts (.getPuts etrade t)]
-    (DB/insert-derivatives calls)
-    (DB/insert-derivatives puts)))
-
-;(defn do-onetime-download-options [^EtradeDownloader downloader])
-
 (defn block-task [test wait]
   (while (test)
     (LOG/info "Market not open yet...")
@@ -144,6 +136,7 @@
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------
 (defn -run [this, ^JanitorContext ctx]
+  (LOG/info (.toString ctx))
   (let [s (.state this)]
     (binding [*feed* (@s :feed)
               *repos* (@s :repos)
@@ -152,6 +145,8 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
+      (doif .isHarvestTestRun ctx
+        (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx))
       (doif .isIvHarvest ctx
         (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx))
       (doif .isUpdateDbOptions ctx
