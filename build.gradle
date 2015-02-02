@@ -114,14 +114,20 @@ task copyRcsLibs(type: Copy) {
     into 'dist' from new File(myDepLibName('oahu',LibContext.FULL_PATH))
     into 'dist' from new File(myDepLibName('maunakea',LibContext.FULL_PATH))
     into 'dist' from new File(myDepLibName('vega',LibContext.FULL_PATH))
+    into 'dist' from new File(myDepLibName('ranoraraku',LibContext.FULL_PATH))
 }
 
 task deleteRcsLibs(type: Delete) {
     description 'Deletes all local (rcs) jar files from dist'
-    delete  "dist/$myLibName",
+    println myDepLibName('oahu',LibContext.DIST)
+    println myDepLibName('maunakea',LibContext.DIST)
+    println myDepLibName('vega',LibContext.DIST)
+    println myDepLibName('ranoraraku',LibContext.DIST)
+    delete "$libsDir/$myLibName",
             myDepLibName('oahu',LibContext.DIST),
             myDepLibName('maunakea',LibContext.DIST),
-            myDepLibName('vega',LibContext.DIST)
+            myDepLibName('vega',LibContext.DIST),
+            myDepLibName('ranoraraku',LibContext.DIST)
 }
 
 task buildAndCopy(type: Copy, dependsOn: build) {
