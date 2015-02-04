@@ -34,6 +34,10 @@ version = "$major.$minor.2"
 
 ext.myLibName = "netfondsjanitor-${version}.jar"
 
+configurations {
+    sshAntTask
+}
+
 sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
@@ -68,8 +72,16 @@ dependencies {
     compile "args4j:args4j:$arg4jVersion"
     compile "enlive:enlive:$enliveVersion"
     compile "org.clojure:algo.monads:$algoMonadsVersion"
+    sshAntTask 'org.apache.ant:ant-jsch:1.9.4'
+    sshAntTask 'com.jcraft:jsch:0.1.51'
 }
 
+task configureSshAntTask {
+    description = 'Scp task'
+    ant.taskdef(name: 'scp',
+            classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp',
+            classpath: configurations.sshAntTask.asPath)
+}
 
 String clazzPath() {
     ((configurations.runtime.files.collect { f ->
@@ -94,6 +106,14 @@ enum LibContext {
     BARE,DIST,FULL_PATH
 }
 
+def scp2hilo(Closure fset) {
+    ant.scp(todir: 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist',
+            password: 'q2uebec9',
+            verbose: 'true') {
+        fset()
+    }
+}
+
 String myDepLibName(String pname, LibContext ctx) {
     switch (ctx) {
         case LibContext.BARE:
@@ -105,6 +125,34 @@ String myDepLibName(String pname, LibContext ctx) {
         case LibContext.FULL_PATH:
             project(':' + pname).tasks['jar'].archivePath
             break
+    }
+}
+
+task hilo <<  {
+    scp2hilo {
+        ant.fileset(dir: 'dist') {
+            include(name: myLibName)
+        }
+    }
+}
+
+task hilofull << {
+    scp2hilo {
+        ant.fileset(dir: 'dist') {
+            include(name: myDepLibName('oahu',LibContext.BARE))
+            include(name: myDepLibName('maunakea',LibContext.BARE))
+            include(name: myDepLibName('ranoraraku',LibContext.BARE))
+            include(name: myDepLibName('vega',LibContext.BARE))
+            include(name: myLibName)
+        }
+    }
+}
+
+task hilofullest << {
+    scp2hilo {
+        ant.fileset(dir: 'dist') {
+            include(name: "*.jar")
+        }
     }
 }
 
