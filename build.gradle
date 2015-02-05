@@ -30,7 +30,7 @@ ext.numericTowerVersion = '0.0.2'
 ext.major = '5'
 ext.minor = '0'
 
-version = "$major.$minor.2"
+version = "${major}.${minor}.SNAPSHOT"
 
 ext.myLibName = "netfondsjanitor-${version}.jar"
 
