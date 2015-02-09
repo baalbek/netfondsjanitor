@@ -8,8 +8,6 @@
                [setStockMarketRepos [oahu.financial.repository.StockMarketRepository] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setEtrade [oahu.financial.repository.EtradeDerivatives] void]
-               [setDownloadManager [oahu.financial.html.DownloadManager] void]
-               [setOptionsHtmlParser [oahu.financial.html.OptionsHtmlParser] void]
                ]
     )
   (:use
@@ -22,7 +20,7 @@
     [ranoraraku.models.mybatis StockMapper]
     [ranoraraku.beans StockPriceBean]
     [oahu.financial.repository StockMarketRepository]
-    [oahu.financial Stock]
+    [oahu.financial Stock StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
@@ -45,23 +43,25 @@
   (let [s (.state this)]
     (swap! s assoc k v)))
 
-(defn -setStockMarketRepos [this, ^StockMarketRepository value]
+(defn -setStockMarketRepos [this value]
   (set-property this :repos value))
 
-(defn -setFeedStoreDir [this, ^StockMarketRepository value]
+(defn -setFeedStoreDir [this value]
   (set-property this :feed value))
 
-(defn -setEtrade [this, ^StockMarketRepository value]
+(defn -setEtrade [this value]
   (set-property this :etrade value))
 
-(defn -setDownloader [this, ^StockMarketRepository value]
+(defn -setDownloader [this value]
   (set-property this :downloader value))
 
-(defn -setDownloadManager [this, ^StockMarketRepository value]
-  (set-property this :manager value))
+(comment
+  (defn -setDownloadManager [this value]
+    (set-property this :manager value))
 
-(defn -setOptionsHtmlParser [this, ^StockMarketRepository value]
-  (set-property this :opxhtmlparser value))
+  (defn -setOptionsHtmlParser [this value]
+    (set-property this :opxhtmlparser value))
+  )
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
@@ -103,14 +103,15 @@
             (.insertStockPrice it s)
             ))))))
 
-(defn do-spots-from-downloaded-options [^DownloadManager manager, ^OptionsHtmlParser parser]
+(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeDerivatives etrade]
   (let [
         tix-s (or *user-tix* (COM/db-tix (partial COM/tcat-in-1-3)))
         pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^HtmlPage page] pages]
         (let [^Stock stock (.findStock *repos* ticker)
-              ^StockPriceBean s (.parseSpot parser page)]
+              ;^StockPriceBean s (.parseSpot parser page)]
+              ^StockPrice s (.getSpot2 etrade page)]
           (.setStock s stock)
           (.insertStockPrice it s)
           )))))
@@ -157,7 +158,7 @@
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
-      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :manager) (@s :opxhtmlparser)))
+      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :manager) (@s :etrade)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))

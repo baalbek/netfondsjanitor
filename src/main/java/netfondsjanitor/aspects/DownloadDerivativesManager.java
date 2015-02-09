@@ -99,7 +99,7 @@ public class DownloadDerivativesManager implements DownloadManager {
 
     //region Interface DownloadManager
     @Override
-    public HtmlPage getLastDownloaded(String ticker) throws IOException {
+    public HtmlPage getLastDownloadedHtmlPage(String ticker) throws IOException {
         HtmlPage result = lastDownloads.get(ticker);
         if (result == null) {
             String fileName = String.format("file://%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(ticker));
@@ -114,6 +114,10 @@ public class DownloadDerivativesManager implements DownloadManager {
             result = webClient.getPage(url);
         }
         return result;
+    }
+    @Override
+    public File getLastDownloadedFile(String ticker) throws IOException {
+        return null;
     }
 
     //endregion Interface DownloadManager
@@ -152,6 +156,7 @@ public class DownloadDerivativesManager implements DownloadManager {
     public void setTickerFileNamer(Function<Object, String> tickerFileNamer) {
         this.tickerFileNamer = tickerFileNamer;
     }
+
 
     //endregion Properties
 
