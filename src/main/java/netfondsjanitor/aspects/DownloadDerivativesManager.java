@@ -51,24 +51,13 @@ public class DownloadDerivativesManager implements DownloadManager {
     public Object store2htmlPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
         HtmlPage result = (HtmlPage)jp.proceed();
 
-
         Object[] args = jp.getArgs();
 
-        /*
-        LocalTime t = LocalTime.now();
-        int h = t.getHour();
-        int m = t.getMinute();
+        //String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
+        String ticker = (String)args[0];
+        String fileName = getFileNameForTicker(ticker,false);
 
-        String hs = h < 10 ? String.format("0%d",h) : String.format("%d",h);
-        String ms = m < 10 ? String.format("0%d",m) : String.format("%d",m);
-        String fileName = String.format("%s/%s-%s_%s.html",getDateFeedStoreDir(),args[0],hs,ms);
-
-        log.info(String.format("Saving file to %s",fileName));
-        */
-
-        String fileName = String.format("%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(args[0]));
-
-        log.info(String.format("Saving downloaded %s to %s",args[0], fileName));
+        log.info(String.format("Saving downloaded %s to %s",ticker, fileName));
 
         lastDownloads.put(args[0], result);
 
@@ -102,7 +91,7 @@ public class DownloadDerivativesManager implements DownloadManager {
     public HtmlPage getLastDownloadedHtmlPage(String ticker) throws IOException {
         HtmlPage result = lastDownloads.get(ticker);
         if (result == null) {
-            String fileName = String.format("file://%s/%s",getDateFeedStoreDir(),tickerFileNamer.apply(ticker));
+            String fileName = getFileNameForTicker(ticker,true);
             log.info(String.format("Restoring saved %s to HtmlPage", fileName));
             URL url = new URL(fileName);
 
@@ -115,12 +104,19 @@ public class DownloadDerivativesManager implements DownloadManager {
         }
         return result;
     }
+
     @Override
     public File getLastDownloadedFile(String ticker) throws IOException {
-        return null;
+        return new File(getFileNameForTicker(ticker,false));
     }
-
     //endregion Interface DownloadManager
+
+    //region Private Methods
+    private String getFileNameForTicker(String ticker, Boolean isHtmlPage) {
+        String formatString = isHtmlPage == true ? "file://%s/%s" : "%s/%s";
+        return String.format(formatString,getDateFeedStoreDir(),tickerFileNamer.apply(ticker));
+    }
+    //endregion Private Methods
 
     //region Properties
     public String getFeedStoreDir() {

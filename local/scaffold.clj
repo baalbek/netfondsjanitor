@@ -2,6 +2,7 @@
   (:import
     [org.springframework.context.support ClassPathXmlApplicationContext])
   (:require
+    [net.cgrand.enlive-html :as html]
     [maunakea.financial.htmlutil :as HU]
     [maunakea.financial.repository.NetfondsDerivatives :as ND]
     [netfondsjanitor.janitors.harvester :as HARV]
@@ -52,8 +53,14 @@
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
+(def tix HU/ticker-from-snip-derivatives)
+
+(def sel html/select)
+
 (defn html [ticker]
   (clojure.java.io/file (str "../feed/2015/2/9/" ticker ".html")))
+
+(def get-spot ND/get-spot)
 
 (defn opx [ticker]
   (.getSpotCallsPuts2 (etrade) (html ticker)))
@@ -61,6 +68,7 @@
 (def harvest HARV/do-harvest-files-with)
 
 (def iv-harvest HARV/iv-harvest)
+
 
 (def ifd HARV/items-between-dates)
 (def yb HARV/year-begin)
@@ -77,12 +85,15 @@
 (defn test-run [tix]
   (harvest HARV/harvest-test-run (etrade) tix from-date to-date))
 
-(comment snip-tick HU/snip-ticker)
-
 (def opx-exp HU/opx-exp)
 
+(def snip-d HU/snip-derivatives)
+
+(defn snix [ticker]
+  (HU/snip-derivatives (html ticker)))
+
 (defn snips [ticker]
-  (HU/opx-snips (HU/snip-ticker (html ticker))))
+  (HU/opx-snips (HU/snip-derivatives (html ticker))))
 
 (def cpd HU/create-callput-def)
 
