@@ -60,8 +60,6 @@
 (defn html [ticker]
   (clojure.java.io/file (str "../feed/2015/2/9/" ticker ".html")))
 
-(def get-spot ND/get-spot)
-
 (defn opx [ticker]
   (.getSpotCallsPuts2 (etrade) (html ticker)))
 

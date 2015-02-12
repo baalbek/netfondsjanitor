@@ -158,7 +158,6 @@ task hilofullest << {
 
 task copyRcsLibs(type: Copy) {
     description 'Copies all local (rcs) jar files into dist'
-    into 'dist' from new File("$libsDir/$myLibName")
     into 'dist' from new File(myDepLibName('oahu',LibContext.FULL_PATH))
     into 'dist' from new File(myDepLibName('maunakea',LibContext.FULL_PATH))
     into 'dist' from new File(myDepLibName('vega',LibContext.FULL_PATH))
@@ -171,8 +170,7 @@ task deleteRcsLibs(type: Delete) {
     println myDepLibName('maunakea',LibContext.DIST)
     println myDepLibName('vega',LibContext.DIST)
     println myDepLibName('ranoraraku',LibContext.DIST)
-    delete "$libsDir/$myLibName",
-            myDepLibName('oahu',LibContext.DIST),
+    delete  myDepLibName('oahu',LibContext.DIST),
             myDepLibName('maunakea',LibContext.DIST),
             myDepLibName('vega',LibContext.DIST),
             myDepLibName('ranoraraku',LibContext.DIST)
