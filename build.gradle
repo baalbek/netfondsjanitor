@@ -44,6 +44,8 @@ targetCompatibility = 1.8
 
 aotCompile = true
 
+warnOnReflection = true
+
 repositories {
     mavenCentral()
     maven {

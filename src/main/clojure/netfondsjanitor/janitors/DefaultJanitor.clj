@@ -7,6 +7,7 @@
                [setFeedStoreDir [String] void]
                [setStockMarketRepos [oahu.financial.repository.StockMarketRepository] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
+               [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setEtrade [oahu.financial.repository.EtradeDerivatives] void]
                ]
     )
@@ -14,7 +15,7 @@
     [netfondsjanitor.service.common :only (*user-tix* *feed* *repos*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
-    [java.io FileNotFoundException]
+    [java.io File FileNotFoundException]
     [java.time LocalTime]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper]
@@ -55,9 +56,10 @@
 (defn -setDownloader [this value]
   (set-property this :downloader value))
 
+(defn -setDownloadManager [this value]
+  (set-property this :manager value))
+
 (comment
-  (defn -setDownloadManager [this value]
-    (set-property this :manager value))
 
   (defn -setOptionsHtmlParser [this value]
     (set-property this :opxhtmlparser value))
@@ -100,20 +102,20 @@
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            (.insertStockPrice it s)
+            (.insertStockPrice ^StockMapper it s)
             ))))))
 
 (defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeDerivatives etrade]
   (let [
         tix-s (or *user-tix* (COM/db-tix (partial COM/tcat-in-1-3)))
-        pages (COM/map-tuple-java-fn .getLastDownloaded manager tix-s)]
+        pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)
+        ]
     (DB/with-session StockMapper
-      (doseq [[^String ticker, ^HtmlPage page] pages]
-        (let [^Stock stock (.findStock *repos* ticker)
-              ;^StockPriceBean s (.parseSpot parser page)]
-              ^StockPrice s (.getSpot2 etrade page)]
-          (.setStock s stock)
+      (doseq [[^String ticker, ^File page] pages]
+        (let [^StockPrice s (.getSpot2 etrade page ticker)]
+          (LOG/info (str "Inserting stock price: " s ))
           (.insertStockPrice it s)
+          ;(println "Here we are: " (-> s .getStock .getTicker) ",opn: " (.getOpn s) ", hi: " (.getHi s) ", lo: " (.getLo s) ", cls: " (.getCls s))
           )))))
 
 (defn block-task [test wait]
@@ -153,7 +155,7 @@
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isOneTimeDownloadOptions ctx
-        (let [dl (@s :downloader)
+        (let [^EtradeDownloader dl (@s :downloader)
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
@@ -162,7 +164,7 @@
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
-              dl (@s :downloader)
+              ^EtradeDownloader dl (@s :downloader)
               opx-tix (COM/db-tix COM/tcat-in-1-3)
               rollopt-run (fn []
                             (doseq [t opx-tix]

@@ -9,6 +9,7 @@
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
     [netfondsjanitor.service.db :as DB])
   (:use
+    [netfondsjanitor.service.common :only (*user-tix* *repos*)]
     [clojure.string :only [split join]]))
 
 
@@ -53,6 +54,13 @@
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
+(def ddd JAN/do-spots-from-downloaded-options)
+
+(defn test-ddd [] 
+  (binding [*user-tix* nil
+            *repos* (repos)]
+    (ddd (dlm) (etrade))))
+
 (def tix HU/ticker-from-snip-derivatives)
 
 (def sel html/select)
@@ -94,6 +102,7 @@
   (HU/opx-snips (HU/snip-derivatives (html ticker))))
 
 (def cpd HU/create-callput-def)
+
 
 (comment opnames [ticker]
   (let [opx (snips ticker)]
