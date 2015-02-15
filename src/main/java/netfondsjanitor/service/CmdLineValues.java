@@ -16,26 +16,36 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-x", aliases = { "--xml" }, required = false, usage = "Spring XML file name" )
     private String xml;
 
-    @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
-    private String tickers;
-
-    @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
-    private String open;
 
     @Option(name = "-c", aliases = { "--close" }, required = false, usage = "Closing time for the market (hh:mm). Default: 17:20")
     private String close;
 
-    @Option(name = "-p", aliases = { "--paper" }, required = false, usage = "Download paper history" )
-    private boolean paperHistory;
+    @Option(name = "-e", aliases = { "--harvest-test" }, required = false, usage = "Harvest test run" )
+    private boolean harvestTestRun;
 
     @Option(name = "-f", aliases = { "--feed" }, required = false, usage = "Update stockprices from feed" )
     private boolean feed;
 
-    @Option(name = "-s", aliases = { "--spot" }, required = false, usage = "Update todays stockprices" )
-    private boolean spot;
+    @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
+    private boolean help;
 
     @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility ivHarvest" )
     private boolean ivHarvest;
+
+    @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
+    private String open;
+
+    @Option(name = "-p", aliases = { "--paper" }, required = false, usage = "Download paper history" )
+    private boolean paperHistory;
+
+    @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
+    private boolean query;
+
+    @Option(name = "-s", aliases = { "--spot" }, required = false, usage = "Update todays stockprices" )
+    private boolean spot;
+
+    @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
+    private String tickers;
 
     @Option(name = "-A", aliases = { "--ivharvestFrom" }, required = false, usage = "Implied volatility ivHarvest start date (yyyy-mm-dd)" )
     private String ivHarvestFrom;
@@ -43,30 +53,23 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-B", aliases = { "--ivharvestTo" }, required = false, usage = "Implied volatility ivHarvest end date (yyyy-mm-dd)" )
     private String ivHarvestTo;
 
-    @Option(name = "-e", aliases = { "--test-run" }, required = false, usage = "Harvest test run" )
-    private boolean harvestTestRun;
-
-    @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
-    private boolean query;
-
-
-    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
-    private boolean updateDbOptions;
+    @Option(name = "-D", aliases = { "--test-run" }, required = false, usage = "If set, will perform test run" )
+    private boolean testRun;
 
     @Option(name = "-O", aliases = { "--one-time" }, required = false, usage = "One-time download options" )
     private boolean oneTimeDownloadOptions;
 
-    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database from downloaded derivatives (--one-time)" )
-    private boolean spotFromDownloadedOptions;
-
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
+
+    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database from downloaded derivatives (--one-time)" )
+    private boolean spotFromDownloadedOptions;
 
     @Option(name = "-T", aliases = { "--rolling-interval" }, required = false, usage = "Rolling download time interval in minutes. Default: 30" )
     private int rollingInterval = 30;
 
-    @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
-    private boolean help;
+    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
+    private boolean updateDbOptions;
 
 
     public CmdLineValues(String... args) throws CmdLineException  {
@@ -155,6 +158,11 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public boolean isOneTimeDownloadOptions() {
         return oneTimeDownloadOptions;
+    }
+
+    @Override
+    public boolean isTestRun() {
+        return testRun;
     }
 
     @Override

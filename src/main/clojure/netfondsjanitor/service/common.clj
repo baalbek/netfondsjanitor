@@ -11,6 +11,7 @@
 
 (def ^:dynamic *user-tix*)
 
+(def ^:dynamic *test-run*)
 
 (defn str->date [arg]
   (if-let [v (re-find #"(\d+):(\d+)" arg)]

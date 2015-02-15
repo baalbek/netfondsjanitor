@@ -12,7 +12,7 @@
                ]
     )
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
     [java.io File FileNotFoundException]
@@ -110,13 +110,15 @@
         tix-s (or *user-tix* (COM/db-tix (partial COM/tcat-in-1-3)))
         pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)
         ]
+    (if (= *test-run* true)
+      (println "Test run")
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^File page] pages]
         (let [^StockPrice s (.getSpot2 etrade page ticker)]
           (LOG/info (str "Inserting stock price: " s ))
-          (.insertStockPrice it s)
+          ;(.insertStockPrice it s)
           ;(println "Here we are: " (-> s .getStock .getTicker) ",opn: " (.getOpn s) ", hi: " (.getHi s) ", lo: " (.getLo s) ", cls: " (.getCls s))
-          )))))
+          ))))))
 
 (defn block-task [test wait]
   (while (test)
@@ -143,7 +145,8 @@
   (let [s (.state this)]
     (binding [*feed* (@s :feed)
               *repos* (@s :repos)
-              *user-tix* (.getTickers ctx)]
+              *user-tix* (.getTickers ctx)
+              *test-run* (.isTestRun ctx)]
       (doif .isQuery ctx (let [tix-s (COM/db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))

@@ -109,7 +109,14 @@ enum LibContext {
 }
 
 def scp2hilo(Closure fset) {
-    ant.scp(todir: 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist',
+    ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist'
+    if (project.hasProperty('target')==true) {
+        if (ext.target == 'rel') {
+            ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/netfondsjanitor'
+        }
+    }
+    println "Copying to hilo with target ${ext.hiloTarget}"
+    ant.scp(todir: ext.hiloTarget,
             password: 'q2uebec9',
             verbose: 'true') {
         fset()
