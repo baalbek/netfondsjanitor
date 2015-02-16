@@ -20,9 +20,6 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-c", aliases = { "--close" }, required = false, usage = "Closing time for the market (hh:mm). Default: 17:20")
     private String close;
 
-    @Option(name = "-e", aliases = { "--harvest-test" }, required = false, usage = "Harvest test run" )
-    private boolean harvestTestRun;
-
     @Option(name = "-f", aliases = { "--feed" }, required = false, usage = "Update stockprices from feed" )
     private boolean feed;
 
@@ -168,11 +165,6 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public boolean isSpotFromDownloadedOptions() {
         return spotFromDownloadedOptions;
-    }
-
-    @Override
-    public boolean isHarvestTestRun() {
-        return harvestTestRun;
     }
 
     @Override

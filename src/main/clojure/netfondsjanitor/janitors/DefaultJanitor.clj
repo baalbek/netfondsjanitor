@@ -111,12 +111,14 @@
         pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)
         ]
     (if (= *test-run* true)
-      (println "Test run")
+      (doseq [[^String ticker, ^File page] pages]
+        (let [^StockPrice s (.getSpot2 etrade page ticker)]
+          (println "Test run for: " ticker ", page: " page ", ticker from html: " (-> s .getStock .getTicker))))
     (DB/with-session StockMapper
       (doseq [[^String ticker, ^File page] pages]
         (let [^StockPrice s (.getSpot2 etrade page ticker)]
           (LOG/info (str "Inserting stock price: " s ))
-          ;(.insertStockPrice it s)
+          (.insertStockPrice it s)
           ;(println "Here we are: " (-> s .getStock .getTicker) ",opn: " (.getOpn s) ", hi: " (.getHi s) ", lo: " (.getLo s) ", cls: " (.getCls s))
           ))))))
 
@@ -151,10 +153,12 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      (doif .isHarvestTestRun ctx
-        (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx))
+      ;(doif .isHarvestTestRun ctx
+      ;  (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx))
       (doif .isIvHarvest ctx
-        (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx))
+        (if (= *test-run* true)
+          (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx)
+          (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx)))
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isOneTimeDownloadOptions ctx
