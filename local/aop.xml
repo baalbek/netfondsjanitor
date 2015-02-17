@@ -9,7 +9,6 @@
 
 
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
-        <!-- property name="spreadLimit" value="5.0" / -->
         <property name="daysLimit" value="10" />
     </bean>
 

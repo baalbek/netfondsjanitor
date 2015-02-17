@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <aop:aspectj-autoproxy />
+
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateIvHarvestBeansAspect">
+        <!--
+        <property name="daysLimit" value="10" />
+        -->
+    </bean>
+
+    <bean id="calculator" class="vega.financial.calculator.BlackScholes"></bean>
+
+    <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" ></bean>
+
+    <bean id="etrade" class="maunakea.financial.repository.NetfondsDerivatives">
+        <property name="calculator" ref="calculator" />
+        <property name="stockMarketRepos" ref="repos" />
+    </bean>
+
+    <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
+        <property name="stockMarketRepos" ref="repos" />
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
+        <property name="etrade" ref="etrade" />
+    </bean>
+</beans>
+
+
