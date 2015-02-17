@@ -41,6 +41,9 @@ public abstract class AbstractValidateBeans {
         return result;
     }
 
+    protected String getTickerFor(DerivativePrice cb) {
+        return cb.getDerivative().getTicker();
+    }
 
     protected abstract boolean isOk(DerivativePrice cb);
 

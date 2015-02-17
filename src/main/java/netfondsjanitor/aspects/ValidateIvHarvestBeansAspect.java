@@ -31,15 +31,14 @@ public class ValidateIvHarvestBeansAspect extends AbstractValidateBeans {
     }
 
     protected boolean isOk(DerivativePrice cb) {
-        String ticker = cb.getDerivative().getTicker();
 
         if (cb.getBuy() <= 0) {
-            log.info(String.format("%s: buy <= 0.0",ticker));
+            log.warn(String.format("%s: buy <= 0.0",getTickerFor(cb)));
             return false;
         }
 
         if (cb.getSell() <= 0) {
-            log.info(String.format("%s: sell <= 0.0",ticker));
+            log.warn(String.format("%s: sell <= 0.0",getTickerFor(cb)));
             return false;
         }
         return true;

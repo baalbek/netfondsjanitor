@@ -37,7 +37,6 @@ public class ValidateBeansAspect extends AbstractValidateBeans {
     }
 
     protected boolean isOk(DerivativePrice cb) {
-        String ticker = cb.getDerivative().getTicker();
 
         /*
         if (cb.getParent() == null) {
@@ -47,41 +46,41 @@ public class ValidateBeansAspect extends AbstractValidateBeans {
         */
 
         if (cb.getDays() < daysLimit) {
-            log.info(String.format("%s has expired within %d days",ticker,daysLimit));
+            log.info(String.format("%s has expired within %d days",getTickerFor(cb),daysLimit));
             return false;
         }
 
         if (cb.getBuy() <= 0) {
-            log.info(String.format("%s: buy <= 0.0",ticker));
+            log.warn(String.format("%s: buy <= 0.0",getTickerFor(cb) ));
             return false;
         }
 
         if (cb.getSell() <= 0) {
-            log.info(String.format("%s: sell <= 0.0",ticker));
+            log.warn(String.format("%s: sell <= 0.0",getTickerFor(cb)));
             return false;
         }
 
         if (spreadLimit != null) {
             double spread = cb.getSell() - cb.getBuy();
             if (spread > spreadLimit.doubleValue()) {
-                log.info(String.format("%s: spread (%.2f) larger than allowed (%.2f)",ticker,spread,spreadLimit));
+                log.info(String.format("%s: spread (%.2f) larger than allowed (%.2f)",getTickerFor(cb),spread,spreadLimit));
                 return false;
             }
         }
 
         try {
             if (cb.getIvSell() <= 0) {
-                log.info(String.format("%s: ivSell <= 0.0",ticker));
+                log.info(String.format("%s: ivSell <= 0.0",getTickerFor(cb)));
                 return false;
             }
 
             if (cb.getIvBuy() <= 0) {
-                log.info(String.format("%s: ivBuy <= 0.0",ticker));
+                log.info(String.format("%s: ivBuy <= 0.0",getTickerFor(cb)));
                 return false;
             }
         }
         catch (BinarySearchException ex) {
-            log.warn(String.format("%s: %s",ticker,ex.getMessage()));
+            log.warn(String.format("%s: %s",getTickerFor(cb),ex.getMessage()));
             return false;
         }
         return true;
