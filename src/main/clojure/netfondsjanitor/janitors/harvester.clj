@@ -6,7 +6,7 @@
   (:use
     [clojure.string :only [split join]]
     [clojure.algo.monads :only [domonad maybe-m]]
-    [netfondsjanitor.service.common :only (*user-tix*)])
+    [netfondsjanitor.service.common :only (*user-tix* *test-run*)])
   (:require
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
@@ -133,12 +133,14 @@
         (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
                     ", date: " (.getDx spot)
                     ", time: " (.getSqlTime spot)))
-        (DB/with-session DerivativeMapper
-          (do
-            (.insertSpot it spot)
-            (doseq [c calls-puts]
-              (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
-              (.insertDerivativePrice it c))))
+        (if (= *test-run* true)
+          (LOG/info (str "[Test Run] Number of calls: " (count calls) ", puts: " (count puts)))
+          (DB/with-session DerivativeMapper
+            (do
+              (.insertSpot it spot)
+              (doseq [c calls-puts]
+                (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
+                (.insertDerivativePrice it c)))))
         (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))))
 
 (defn harvest-derivatives [^File f,

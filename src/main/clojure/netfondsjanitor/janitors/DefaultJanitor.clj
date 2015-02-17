@@ -153,12 +153,11 @@
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
       (doif .isSpot ctx (do-spot (@s :etrade)))
-      ;(doif .isHarvestTestRun ctx
-      ;  (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx))
       (doif .isIvHarvest ctx
-        (if (= *test-run* true)
-          (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx)
-          (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx)))
+        (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx))
+        ;(if (= *test-run* true)
+        ;  (HARV/do-harvest-files-with HARV/harvest-test-run (@s :etrade) ctx)
+        ;  (HARV/do-harvest-files-with HARV/iv-harvest (@s :etrade) ctx)))
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isOneTimeDownloadOptions ctx
