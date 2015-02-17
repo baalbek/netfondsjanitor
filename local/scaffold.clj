@@ -1,6 +1,10 @@
 (ns scaffold
   (:import
-    [org.springframework.context.support ClassPathXmlApplicationContext])
+    [java.time LocalDate LocalTime]
+    [org.springframework.context.support ClassPathXmlApplicationContext]
+    [oahu.financial Stock]
+    [ranoraraku.models.mybatis DerivativeMapper]
+    [ranoraraku.beans StockPriceBean])
   (:require
     [net.cgrand.enlive-html :as html]
     [maunakea.financial.htmlutil :as HU]
@@ -32,6 +36,30 @@
 
 ;(defn hn-headlines []
 ;  (map html/text (html/select (fetch-url *base-url*) [:td.title :a])))
+
+;String getCompanyName();
+;String getTicker();
+;int getTickerCategory();
+;jint getOid();
+;List<StockPrice> getPrices();
+;List<Derivative> getDerivatives();
+
+
+(defn stock-impl []
+  (reify Stock
+    (getCompanyName [this] "TEST")
+    (getTicker [this] "TEST")
+    (getTickerCategory [this] 1)
+    (getOid [this] 3)
+    (getPrices [this] nil)
+    (getDerivatives [this] nil)))
+
+(defn spot-id []
+  (let [s (StockPriceBean. (LocalDate/of 2015 2 2) (LocalTime/of 18 00) 0 0 0 0 0)]
+    (.setStock s (stock-impl))
+    (DB/with-session DerivativeMapper
+      ;(.insertSpot it s))))
+      (.findSpotId it ^StockPriceBean s))))
 
 (def factory
   (memoize
