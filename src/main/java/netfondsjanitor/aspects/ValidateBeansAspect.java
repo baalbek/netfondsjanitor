@@ -10,7 +10,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -21,7 +20,7 @@ import java.util.Collection;
  */
 
 @Aspect
-public class ValidateBeansAspect {
+public class ValidateBeansAspect extends AbstractValidateBeans {
     Logger log = Logger.getLogger(getClass().getPackage().getName());
 
     private Double spreadLimit = null;
@@ -34,33 +33,10 @@ public class ValidateBeansAspect {
     @Around("getSpotCallsPuts2Pointcut()")
     public Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
     getSpotCallsPuts2PointcutMethod(ProceedingJoinPoint jp) throws Throwable {
-
-        Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
-                tmp = (Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>)jp.proceed();
-
-
-        Collection<DerivativePrice> calls = tmp.second();
-        Collection<DerivativePrice> validatedCalls = new ArrayList<>();
-        Collection<DerivativePrice> puts = tmp.third();
-        Collection<DerivativePrice> validatedPuts = new ArrayList<>();
-
-        //log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
-
-        for (DerivativePrice call : calls) {
-            if (isOk(call) == false) continue;
-            validatedCalls.add(call);
-        }
-        for (DerivativePrice put : puts) {
-            if (isOk(put) == false) continue;
-            validatedPuts.add(put);
-        }
-
-        Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
-                result = new Tuple3<>(tmp.first(),validatedCalls,validatedPuts);
-        return result;
+        return exec(jp);
     }
 
-    private boolean isOk(DerivativePrice cb) {
+    protected boolean isOk(DerivativePrice cb) {
         String ticker = cb.getDerivative().getTicker();
 
         /*
