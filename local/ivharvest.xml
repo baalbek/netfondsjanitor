@@ -7,8 +7,9 @@
 
     <aop:aspectj-autoproxy />
 
-    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateIvHarvestBeansAspect">
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
         <!--
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateIvHarvestBeansAspect">
         <property name="daysLimit" value="10" />
         -->
     </bean>

@@ -1,6 +1,7 @@
 package netfondsjanitor.aspects;
 
 import oahu.domain.Tuple3;
+import oahu.exceptions.BinarySearchException;
 import oahu.financial.DerivativePrice;
 import oahu.financial.StockPrice;
 import org.apache.log4j.Logger;
@@ -31,14 +32,19 @@ public class ValidateIvHarvestBeansAspect extends AbstractValidateBeans {
     }
 
     protected boolean isOk(DerivativePrice cb) {
+        try {
+            if (cb.getBuy() <= 0) {
+                log.warn(String.format("%s: buy <= 0.0",getTickerFor(cb)));
+                return false;
+            }
 
-        if (cb.getBuy() <= 0) {
-            log.warn(String.format("%s: buy <= 0.0",getTickerFor(cb)));
-            return false;
+            if (cb.getSell() <= 0) {
+                log.warn(String.format("%s: sell <= 0.0",getTickerFor(cb)));
+                return false;
+            }
         }
-
-        if (cb.getSell() <= 0) {
-            log.warn(String.format("%s: sell <= 0.0",getTickerFor(cb)));
+        catch (BinarySearchException ex) {
+            log.warn(String.format("%s: %s",getTickerFor(cb),ex.getMessage()));
             return false;
         }
         return true;
