@@ -1,6 +1,7 @@
 (ns netfondsjanitor.janitors.harvester
   (:import
     [java.io File]
+    [org.apache.ibatis.exceptions PersistenceException]
     [oahu.financial StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [ranoraraku.models.mybatis DerivativeMapper])
@@ -148,6 +149,9 @@
     (if (= *test-run* true)
       (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
       (try
+        (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
+                    ", date: " (.getDx spot)
+                    ", time: " (.getSqlTime spot)))
         (DB/with-session DerivativeMapper
           (do
             (.insertSpot it spot)
@@ -158,8 +162,8 @@
             (if (.equals err-code "23505")
               (DB/with-session DerivativeMapper
                 (insert-iv-existing-spot spot calls puts it))
-              (LOG/error (str (.getMessage e)))))
-        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))))
+              (LOG/error (str (.getMessage e))))))
+        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))))
 
 (comment
     (let [calls-puts (concat calls puts)]
