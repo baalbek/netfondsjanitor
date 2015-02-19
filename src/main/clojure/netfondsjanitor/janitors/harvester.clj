@@ -1,6 +1,7 @@
 (ns netfondsjanitor.janitors.harvester
   (:import
     [java.io File]
+    [oahu.financial StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [ranoraraku.models.mybatis DerivativeMapper])
   (:use
@@ -119,15 +120,48 @@
         (binding [*process-file* (process-file tix etrade on-process-file)]
           (doseq [cur-dir items] (process-dir cur-dir))))))
 
+
+(defn insert-iv [calls puts ctx]
+  (let [calls-puts (concat calls puts)]
+    (doseq [c calls-puts]
+      (LOG/info (str "New Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
+      (.insertDerivativePrice ctx c))))
+
+(defn insert-iv-existing-spot [spot calls puts ctx]
+  (let [oid (.findSpotId ctx spot)]
+    (.setOid spot oid)
+    (let [num-iv (.countIvForSpot ctx spot)]
+      (if (= num-iv 0)
+        (do
+          (LOG/info (str "Inserting new iv for existing spot [oid " (.getOid spot) "]"))
+          (insert-iv calls puts ctx))))))
+
 (defn iv-harvest [^File f,
                   ^EtradeDerivatives etrade]
   (domonad maybe-m
     [
       scp (.getSpotCallsPuts2 etrade ^File f)
-      spot (.first scp)
+      ^StockPrice spot (.first scp)
       calls (.second scp)
       puts (.third scp)
       ]
+    (if (= *test-run* true)
+      (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
+      (try
+        (DB/with-session DerivativeMapper
+          (do
+            (.insertSpot it spot)
+            (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
+            (insert-iv calls puts it)))
+        (catch PersistenceException e
+          (let [err-code (.getSQLState (.getCause e))]
+            (if (.equals err-code "23505")
+              (DB/with-session DerivativeMapper
+                (insert-iv-existing-spot spot calls puts it))
+              (LOG/error (str (.getMessage e)))))
+        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))))
+
+(comment
     (let [calls-puts (concat calls puts)]
       (try
         (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
@@ -141,7 +175,7 @@
               (doseq [c calls-puts]
                 (println (str "Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
                 (.insertDerivativePrice it c)))))
-        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))))
+        (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))
 
 (defn harvest-derivatives [^File f,
                            ^EtradeDerivatives etrade]

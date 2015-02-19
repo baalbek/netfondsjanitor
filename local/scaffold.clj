@@ -54,12 +54,21 @@
     (getPrices [this] nil)
     (getDerivatives [this] nil)))
 
-(defn spot-id []
-  (let [s (StockPriceBean. (LocalDate/of 2015 2 2) (LocalTime/of 18 00) 0 0 0 0 0)]
+(defn create-spot []
+  (let [s (StockPriceBean. (LocalDate/of 2014 9 30) (LocalTime/of 17 59) 0 0 0 0 0)]
     (.setStock s (stock-impl))
-    (DB/with-session DerivativeMapper
-      ;(.insertSpot it s))))
-      (.findSpotId it ^StockPriceBean s))))
+    s))
+
+(defn count-iv []
+  (DB/with-session DerivativeMapper
+    (let [s (create-spot)]
+          ;oid (.findSpotId s)
+      (.setOid s 43)
+      (.countIvForSpot it s))))
+
+(defn use-case []
+  (try
+  (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e))))))
 
 (def factory
   (memoize
