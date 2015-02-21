@@ -15,7 +15,6 @@ public abstract class AbstractValidateBeans {
 
     public Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
     exec(ProceedingJoinPoint jp) throws Throwable {
-
         Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
                 tmp = (Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>)jp.proceed();
 
