@@ -170,9 +170,11 @@
 
 (defn harvest-derivatives [^File f,
                            ^EtradeDerivatives etrade]
-  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
-  (let [call-put-defs (.getCallPutDefs2 etrade f)]
-    (DB/insert-derivatives call-put-defs)))
+  (try
+    (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
+    (let [call-put-defs (.getCallPutDefs2 etrade f)]
+      (DB/insert-derivatives call-put-defs))
+  (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
 (defn harvest-test-run [^File f,
                         ^EtradeDerivatives etrade]
