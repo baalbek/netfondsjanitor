@@ -2,6 +2,7 @@
   (:import
     [java.io File]
     [org.apache.ibatis.exceptions PersistenceException]
+    [oahu.financial.janitors JanitorContext]
     [oahu.financial StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [ranoraraku.models.mybatis DerivativeMapper]
@@ -107,7 +108,7 @@
 (defn do-harvest-files-with
   ([on-process-file
     ^EtradeDerivatives etrade
-    ctx]
+    ^JanitorContext ctx]
     (let [tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
           from-date (.ivHarvestFrom ctx)
           to-date (.ivHarvestTo ctx)]
@@ -174,8 +175,14 @@
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
     (let [call-put-defs (.getCallPutDefs2 etrade f)]
-      (DB/insert-derivatives call-put-defs))
+      (if (= *test-run* true)
+        (doseq [d call-put-defs]
+          (LOG/info (str "Would insert  " (.getOpTypeStr d) ": " (.getTicker d))))
+        (DB/insert-derivatives call-put-defs)))
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
+
+(defn harvest-list-derivatives [^File f,
+                           ^EtradeDerivatives etrade])
 
 (defn harvest-list-file [^File f,
                         ^EtradeDerivatives etrade]
