@@ -9,7 +9,7 @@
   (:use
     [clojure.string :only [split join]]
     [clojure.algo.monads :only [domonad maybe-m]]
-    [netfondsjanitor.service.common :only (*user-tix* *test-run*)])
+    [netfondsjanitor.service.common :only (*user-tix* *test-run* *feed*)])
   (:require
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
@@ -72,7 +72,8 @@
 (def ^:dynamic *process-file*)
 
 (defn process-dir [[y m d]]
-  (let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
+  ;(let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
+  (let [cur-dir (clojure.java.io/file (join "/" [*feed* y m d]))
         files (filter #(.isFile %) (file-seq cur-dir))]
     (doseq [cur-file files] (*process-file* cur-file))))
 
@@ -176,7 +177,7 @@
       (DB/insert-derivatives call-put-defs))
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
-(defn harvest-test-run [^File f,
+(defn harvest-list-file [^File f,
                         ^EtradeDerivatives etrade]
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
   )

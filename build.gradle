@@ -28,7 +28,7 @@ ext.numericTowerVersion = '0.0.2'
 
 
 ext.major = '5'
-ext.minor = '0'
+ext.minor = '1'
 
 version = "${major}.${minor}.SNAPSHOT"
 
@@ -57,6 +57,7 @@ dependencies {
     compile project(':oahu')
     compile project(':maunakea')
     compile project(':vega')
+    compile project(':ranoraraku')
     //------------------- aspectj -------------------
     compile "org.aspectj:aspectjrt:$aspectjVersion"
     compile "org.aspectj:aspectjtools:$aspectjVersion"
@@ -137,7 +138,16 @@ String myDepLibName(String pname, LibContext ctx) {
     }
 }
 
-task hilo <<  {
+task printMyDepLibName << {
+    println myDepLibName('oahu',LibContext.BARE)
+    println myDepLibName('oahu',LibContext.DIST)
+    println myDepLibName('oahu',LibContext.FULL_PATH)
+}
+
+def deps = ['oahu','maunakea','ranoraraku','vega']
+
+task hilo (description: 'Scp jars: maunaloa',
+        group: 'Hilo') <<  {
     scp2hilo {
         ant.fileset(dir: 'dist') {
             include(name: myLibName)
@@ -145,19 +155,21 @@ task hilo <<  {
     }
 }
 
-task hilofull << {
+task hilofull (description: 'Scp jars: all RCS jars',
+        group: 'Hilo') <<  {
     scp2hilo {
         ant.fileset(dir: 'dist') {
-            include(name: myDepLibName('oahu',LibContext.BARE))
-            include(name: myDepLibName('maunakea',LibContext.BARE))
-            include(name: myDepLibName('ranoraraku',LibContext.BARE))
-            include(name: myDepLibName('vega',LibContext.BARE))
+            depLibs.each { s ->
+                include(name: myDepLibName(s,LibContext.BARE))
+            }
             include(name: myLibName)
         }
     }
 }
 
-task hilofullest << {
+task hilofullest (description: 'Scp jars: THE WORKS',
+        group: 'Hilo') <<  {
+    group 'Hilo'
     scp2hilo {
         ant.fileset(dir: 'dist') {
             include(name: "*.jar")
@@ -167,28 +179,27 @@ task hilofullest << {
 
 task copyRcsLibs(type: Copy) {
     description 'Copies all local (rcs) jar files into dist'
-    into 'dist' from new File(myDepLibName('oahu',LibContext.FULL_PATH))
-    into 'dist' from new File(myDepLibName('maunakea',LibContext.FULL_PATH))
-    into 'dist' from new File(myDepLibName('vega',LibContext.FULL_PATH))
-    into 'dist' from new File(myDepLibName('ranoraraku',LibContext.FULL_PATH))
+    group 'rcsbuild'
+    deps.each { s ->
+        def curLibName = myDepLibName(s, LibContext.FULL_PATH)
+        into 'dist' from new File(curLibName)
+    }
 }
 
+/*
 task deleteRcsLibs(type: Delete) {
     description 'Deletes all local (rcs) jar files from dist'
-    println myDepLibName('oahu',LibContext.DIST)
-    println myDepLibName('maunakea',LibContext.DIST)
-    println myDepLibName('vega',LibContext.DIST)
-    println myDepLibName('ranoraraku',LibContext.DIST)
-    delete  myDepLibName('oahu',LibContext.DIST),
-            myDepLibName('maunakea',LibContext.DIST),
-            myDepLibName('vega',LibContext.DIST),
-            myDepLibName('ranoraraku',LibContext.DIST)
+    deps.each { s ->
+        def curLibName = myDepLibName(s, LibContext.DIST)
+        delete  curLibName
+    }
 }
 
 task buildAndCopy(type: Copy, dependsOn: build) {
     description 'Builds netfondsjanitor jar and copies into dist'
     into 'dist' from new File("$libsDir/$myLibName")
 }
+*/
 
 buildscript {
     repositories {
@@ -200,4 +211,10 @@ buildscript {
     dependencies {
         classpath 'clojuresque:clojuresque:1.5.8'
     }
+}
+
+task buildAndCopy(type: Copy, dependsOn: build) {
+    description 'Builds maunaloa jar and copies into dist'
+    group 'rcsbuild'
+    into 'dist' from new File("$libsDir/$myLibName")
 }

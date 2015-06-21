@@ -68,6 +68,8 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
     private boolean updateDbOptions;
 
+    @Option(name = "-F", aliases = { "--ivharvest-files" }, required = false, usage = "List which files ivharvest will process for the supplied args")
+    private boolean isIvHarvestFiles;
 
     public CmdLineValues(String... args) throws CmdLineException  {
         CmdLineParser parser = new CmdLineParser(this);
@@ -183,5 +185,10 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public String toString() {
         return String.format("xml: %s",getXml());
+    }
+
+    @Override
+    public boolean isIvHarvestFiles() {
+        return isIvHarvestFiles;
     }
 }
