@@ -26,8 +26,11 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-h", aliases = { "--help" }, required = false, usage = "Print usage and quit" )
     private boolean help;
 
-    @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility ivHarvest" )
+    @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility harvest" )
     private boolean ivHarvest;
+
+    @Option(name = "-X", aliases = { "--opxharvest" }, required = false, usage = "Option price harvest" )
+    private boolean _isOptionPriceHarvest;
 
     @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
     private String open;
@@ -44,11 +47,11 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
     private String tickers;
 
-    @Option(name = "-A", aliases = { "--ivharvestFrom" }, required = false, usage = "Implied volatility ivHarvest start date (yyyy-mm-dd)" )
-    private String ivHarvestFrom;
+    @Option(name = "-A", aliases = { "--harvestFrom" }, required = false, usage = "Harvest (iv of option price) start date (yyyy-mm-dd)" )
+    private String harvestFrom;
 
-    @Option(name = "-B", aliases = { "--ivharvestTo" }, required = false, usage = "Implied volatility ivHarvest end date (yyyy-mm-dd)" )
-    private String ivHarvestTo;
+    @Option(name = "-B", aliases = { "--harvestTo" }, required = false, usage = "Harvest (iv or option price) end date (yyyy-mm-dd)" )
+    private String harvestTo;
 
     @Option(name = "-D", aliases = { "--test-run" }, required = false, usage = "If set, will perform test run" )
     private boolean testRun;
@@ -68,8 +71,8 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
     private boolean updateDbOptions;
 
-    @Option(name = "-F", aliases = { "--ivharvest-files" }, required = false, usage = "List which files ivharvest will process for the supplied args")
-    private boolean isIvHarvestFiles;
+    @Option(name = "-F", aliases = { "--harvest-files" }, required = false, usage = "List which files harvest (iv or option price) will process for the supplied args")
+    private boolean _isListHarvestFiles;
 
     public CmdLineValues(String... args) throws CmdLineException  {
         CmdLineParser parser = new CmdLineParser(this);
@@ -170,16 +173,20 @@ public class CmdLineValues implements JanitorContext {
     }
 
     @Override
+    public boolean isOptionPriceHarvest() {
+        return _isOptionPriceHarvest;
+    }
+    @Override
     public boolean isIvHarvest() {
         return ivHarvest;
     }
     @Override
-    public String ivHarvestFrom() {
-        return ivHarvestFrom;
+    public String harvestFrom() {
+        return harvestFrom;
     }
     @Override
-    public String ivHarvestTo() {
-        return ivHarvestTo;
+    public String harvestTo() {
+        return harvestTo;
     }
 
     @Override
@@ -188,7 +195,7 @@ public class CmdLineValues implements JanitorContext {
     }
 
     @Override
-    public boolean isIvHarvestFiles() {
-        return isIvHarvestFiles;
+    public boolean isListHarvestFiles() {
+        return _isListHarvestFiles;
     }
 }

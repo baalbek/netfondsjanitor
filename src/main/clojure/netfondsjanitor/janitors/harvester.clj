@@ -3,9 +3,10 @@
     [java.io File]
     [org.apache.ibatis.exceptions PersistenceException]
     [oahu.financial.janitors JanitorContext]
-    [oahu.financial StockPrice]
+    [oahu.financial DerivativePrice StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [ranoraraku.models.mybatis DerivativeMapper]
+    [ranoraraku.beans DerivativePriceBean]
     [oahu.exceptions HtmlConversionException])
   (:use
     [clojure.string :only [split join]]
@@ -75,7 +76,7 @@
 (defn process-dir [[y m d]]
   ;(let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
   (let [cur-dir (clojure.java.io/file (join "/" [*feed* y m d]))
-        files (filter #(.isFile %) (file-seq cur-dir))]
+        files (filter #(.isFile ^File %) (file-seq cur-dir))]
     (doseq [cur-file files] (*process-file* cur-file))))
 
 (defn items-between-dates [from-date to-date]
@@ -110,8 +111,8 @@
     ^EtradeDerivatives etrade
     ^JanitorContext ctx]
     (let [tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
-          from-date (.ivHarvestFrom ctx)
-          to-date (.ivHarvestTo ctx)]
+          from-date (.harvestFrom ctx)
+          to-date (.harvestTo ctx)]
       (do-harvest-files-with on-process-file etrade tix from-date to-date)))
   ([on-process-file
     ^EtradeDerivatives etrade
@@ -127,23 +128,23 @@
       ;(catch HtmlConversionException hex (LOG/error (str "(Harvest) " (.getMessage hex)))))))
 
 
-(defn insert-iv [calls puts ctx]
+(defn insert [calls puts ctx]
   (let [calls-puts (concat calls puts)]
-    (doseq [c calls-puts]
+    (doseq [^DerivativePriceBean c calls-puts]
       (LOG/info (str "New Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
-      (.insertDerivativePrice ctx c))))
+      (.insertDerivativePrice ^DerivativeMapper ctx c))))
 
-(defn insert-iv-existing-spot [spot calls puts ctx]
-  (let [oid (.findSpotId ctx spot)]
-    (.setOid spot oid)
-    (let [num-iv (.countIvForSpot ctx spot)]
-      (if (= num-iv 0)
+(defn insert-existing-spot [spot calls puts ctx]
+  (let [oid (.findSpotId ^DerivativeMapper ctx ^StockPrice spot)]
+    (.setOid ^StockPrice spot oid)
+    (let [num-prices (.countOpxPricesForSpot ^DerivativeMapper ctx ^StockPrice spot)]
+      (if (= num-prices 0)
         (do
-          (LOG/info (str "Inserting new iv for existing spot [oid " (.getOid spot) "]"))
-          (insert-iv calls puts ctx))
-        (LOG/info (str "Iv already inserted (" num-iv ") for existing spot [oid " (.getOid spot) "]"))))))
+          (LOG/info (str "Inserting new option price for existing spot [oid " (.getOid ^StockPrice spot) "]"))
+          (insert calls puts ^DerivativeMapper ctx))
+        (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]"))))))
 
-(defn iv-harvest [^File f,
+(defn harvest [^File f,
                   ^EtradeDerivatives etrade]
   (try
     (let [scp (.getSpotCallsPuts2 etrade ^File f)
@@ -153,19 +154,19 @@
       (if (= *test-run* true)
         (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
         (try
-          (LOG/info (str "(IvHarvest) Hit on file: " (.getPath f)
+          (LOG/info (str "(harvest) Hit on file: " (.getPath f)
                       ", date: " (.getDx spot)
                       ", time: " (.getSqlTime spot)))
           (DB/with-session DerivativeMapper
             (do
               (.insertSpot it spot)
               (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
-              (insert-iv calls puts it)))
+              (insert calls puts it)))
           (catch PersistenceException e
             (let [err-code (.getSQLState (.getCause e))]
               (if (.equals err-code "23505")
                 (DB/with-session DerivativeMapper
-                  (insert-iv-existing-spot spot calls puts it))
+                  (insert-existing-spot spot calls puts it))
                 (LOG/error (str (.getMessage e))))))
           (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))
     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))

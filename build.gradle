@@ -110,7 +110,8 @@ enum LibContext {
 }
 
 def scp2hilo(Closure fset) {
-    ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist'
+    //ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist'
+    ext.hiloTarget = 'rcs@hilo:/home/rcs/tmp3'
     if (project.hasProperty('target')==true) {
         if (ext.target == 'rel') {
             ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/netfondsjanitor'
@@ -144,7 +145,7 @@ task printMyDepLibName << {
     println myDepLibName('oahu',LibContext.FULL_PATH)
 }
 
-def deps = ['oahu','maunakea','ranoraraku','vega']
+def depLibs = ['oahu','maunakea','ranoraraku','vega']
 
 task hilo (description: 'Scp jars: maunaloa',
         group: 'Hilo') <<  {
@@ -180,7 +181,7 @@ task hilofullest (description: 'Scp jars: THE WORKS',
 task copyRcsLibs(type: Copy) {
     description 'Copies all local (rcs) jar files into dist'
     group 'rcsbuild'
-    deps.each { s ->
+    depLibs.each { s ->
         def curLibName = myDepLibName(s, LibContext.FULL_PATH)
         into 'dist' from new File(curLibName)
     }
@@ -189,7 +190,7 @@ task copyRcsLibs(type: Copy) {
 /*
 task deleteRcsLibs(type: Delete) {
     description 'Deletes all local (rcs) jar files from dist'
-    deps.each { s ->
+    depLibs.each { s ->
         def curLibName = myDepLibName(s, LibContext.DIST)
         delete  curLibName
     }
