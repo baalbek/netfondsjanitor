@@ -144,7 +144,7 @@
           (insert calls puts ^DerivativeMapper ctx))
         (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]"))))))
 
-(defn harvest [^File f,
+(defn harvest-spots-and-optionprices [^File f,
                   ^EtradeDerivatives etrade]
   (try
     (let [scp (.getSpotCallsPuts2 etrade ^File f)
@@ -178,7 +178,7 @@
     (let [call-put-defs (.getCallPutDefs2 etrade f)]
       (if (= *test-run* true)
         (doseq [d call-put-defs]
-          (LOG/info (str "Would insert  " (.getOpTypeStr d) ": " (.getTicker d))))
+          (LOG/info (str "(Test run) Would insert  " (.getOpTypeStr d) ": " (.getTicker d))))
         (DB/insert-derivatives call-put-defs)))
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 

@@ -156,7 +156,7 @@
       (doif .isListHarvestFiles ctx
         (HARV/do-harvest-files-with HARV/harvest-list-file (@s :etrade) ctx))
       (doif .isOptionPriceHarvest ctx
-        (HARV/do-harvest-files-with HARV/harvest (@s :etrade) ctx))
+        (HARV/do-harvest-files-with HARV/harvest-spots-and-optionprices (@s :etrade) ctx))
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isOneTimeDownloadOptions ctx

@@ -7,7 +7,6 @@ import org.kohsuke.args4j.Option;
 
 import java.util.Arrays;
 import java.util.List;
-import java.time.LocalDate;
 
 public class CmdLineValues implements JanitorContext {
     /*@Argument(required = true, index = 1, metaVar = "XML",
@@ -29,7 +28,7 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-i", aliases = { "--ivharvest" }, required = false, usage = "Implied volatility harvest" )
     private boolean ivHarvest;
 
-    @Option(name = "-X", aliases = { "--opxharvest" }, required = false, usage = "Option price harvest" )
+    @Option(name = "-X", aliases = { "--opxharvest" }, required = false, usage = "Spot/option price harvest (spot and optionprice tables)" )
     private boolean _isOptionPriceHarvest;
 
     @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
@@ -41,7 +40,7 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-q", aliases = { "--query" }, required = false, usage = "Show active tickers and quit" )
     private boolean query;
 
-    @Option(name = "-s", aliases = { "--spot" }, required = false, usage = "Update todays stockprices" )
+    @Option(name = "-s", aliases = { "--spot" }, required = false, usage = "Download and Update todays stockprices (stockprice table)" )
     private boolean spot;
 
     @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
@@ -62,13 +61,13 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
 
-    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database from downloaded derivatives (--one-time)" )
+    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database (stockprice table) from downloaded derivatives (--one-time)" )
     private boolean spotFromDownloadedOptions;
 
     @Option(name = "-T", aliases = { "--rolling-interval" }, required = false, usage = "Rolling download time interval in minutes. Default: 30" )
     private int rollingInterval = 30;
 
-    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options")
+    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options (optionx table)")
     private boolean updateDbOptions;
 
     @Option(name = "-F", aliases = { "--harvest-files" }, required = false, usage = "List which files harvest (iv or option price) will process for the supplied args")
