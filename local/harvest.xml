@@ -11,7 +11,7 @@
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateIvHarvestBeansAspect">
         <property name="daysLimit" value="10" />
         -->
-    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
+    <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateHarvestBeansAspect">
     </bean>
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes">
@@ -23,6 +23,7 @@
     <bean id="etrade" class="maunakea.financial.repository.NetfondsDerivatives">
         <property name="calculator" ref="calculator" />
         <property name="stockMarketRepos" ref="repos" />
+        <property name="derivativePriceType" value="2" />
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">

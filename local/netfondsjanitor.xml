@@ -37,6 +37,7 @@
         <property name="downloader" ref="downloader" />
         <property name="calculator" ref="calculator" />
         <property name="stockMarketRepos" ref="repos" />
+        <property name="derivativePriceType" value="1" />
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
