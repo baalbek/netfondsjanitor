@@ -1,5 +1,4 @@
 (ns netfondsjanitor.janitors.harvester
-  (:import [ranoraraku.beans.options DerivativePriceBean])
   (:import
     [java.io File]
     [org.apache.ibatis.exceptions PersistenceException]
@@ -7,7 +6,6 @@
     [oahu.financial DerivativePrice StockPrice]
     [oahu.financial.repository EtradeDerivatives]
     [ranoraraku.models.mybatis DerivativeMapper]
-    [ranoraraku.beans DerivativePriceBean]
     [oahu.exceptions HtmlConversionException]
     [ranoraraku.beans.options DerivativePriceBean])
   (:use

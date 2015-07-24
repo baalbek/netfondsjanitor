@@ -5,7 +5,7 @@
     [oahu.financial StockPrice]
     [maunakea.util MyBatisUtils]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
-    [ranoraraku.beans DerivativeBean]
+    [ranoraraku.beans.options  DerivativeBean]
     [org.apache.ibatis.session SqlSession])
   (:require
     [netfondsjanitor.service.logservice :as LOG]))
