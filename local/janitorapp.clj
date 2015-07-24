@@ -1,4 +1,5 @@
 (ns netfondsjanitor.janitorapp
+  (:import [ranoraraku.beans.options DerivativeBean])
   (:import
     [org.joda.time LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
@@ -88,7 +89,7 @@
                           ["-h" "--[no-]help" "Print cmd line options and quit" :default false]
                           ["-x" "--xml" "Spring xml filename" :default "netfondsjanitor.xml"]
                           ["-i" "--[no-]ivharvest" "Harvesting implied volatility" :default false]
-                          ["-d" "--[no-]derivatives" "Update database with new options" :default false]
+                          ["-d" "--[no-]derivatives" "Update options with new options" :default false]
                           ["-s" "--[no-]spot" "Update todays stockprices" :default false]
                           ["-p" "--[no-]paper" "Download paper history" :default false]
                           ["-f" "--[no-]feed" "Update stockprices from feed" :default false]
@@ -99,7 +100,7 @@
                           ["-U" "--open" "Opening time for the market (hh:mm)" :default "9:30"]
                           ["-C" "--close" "Closing time for the market (hh:mm)" :default "17:20"]
                           ["-S" "--[no-]stats" "Calculate statistics." :default false]
-                          ["-t" "--tickers" "If -S, select which tickers. Default: from database" :default nil]
+                          ["-t" "--tickers" "If -S, select which tickers. Default: from options" :default nil]
                           )
         parsed-args (first parsed-args-vec)
         check-arg (fn [& args]

@@ -61,13 +61,13 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-R", aliases = { "--rolling" }, required = false, usage = "Rolling download of options" )
     private boolean rollingOptions;
 
-    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in database (stockprice table) from downloaded derivatives (--one-time)" )
+    @Option(name = "-S", aliases = { "--spot-dl-opx" }, required = false, usage = "Update spots in options (stockprice table) from downloaded derivatives (--one-time)" )
     private boolean spotFromDownloadedOptions;
 
     @Option(name = "-T", aliases = { "--rolling-interval" }, required = false, usage = "Rolling download time interval in minutes. Default: 30" )
     private int rollingInterval = 30;
 
-    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update database with new options (optionx table)")
+    @Option(name = "-U", aliases = { "--upd-options" }, required = false, usage = "Update options with new options (optionx table)")
     private boolean updateDbOptions;
 
     @Option(name = "-F", aliases = { "--harvest-files" }, required = false, usage = "List which files harvest (iv or option price) will process for the supplied args")

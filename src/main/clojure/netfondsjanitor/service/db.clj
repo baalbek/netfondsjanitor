@@ -1,4 +1,5 @@
 (ns netfondsjanitor.service.db
+  (:import [ranoraraku.beans.options DerivativeBean])
   (:import
     [java.time LocalDate]
     [oahu.financial StockPrice]
