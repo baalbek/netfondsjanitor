@@ -1,6 +1,6 @@
 package netfondsjanitor.aspects;
 
-import oahu.domain.Tuple3;
+import oahu.dto.Tuple3;
 import oahu.financial.DerivativePrice;
 import oahu.financial.StockPrice;
 import org.aspectj.lang.ProceedingJoinPoint;

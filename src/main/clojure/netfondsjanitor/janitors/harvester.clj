@@ -1,6 +1,7 @@
 (ns netfondsjanitor.janitors.harvester
   (:import
     [java.io File]
+    [java.time LocalDate]
     [org.apache.ibatis.exceptions PersistenceException]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial DerivativePrice StockPrice]
@@ -79,10 +80,14 @@
         files (filter #(.isFile ^File %) (file-seq cur-dir))]
     (doseq [cur-file files] (*process-file* cur-file))))
 
-(defn items-between-dates [from-date to-date]
+(defn items-between-dates [^LocalDate from-date
+                           ^LocalDate to-date]
   (let [pfn
           (fn [v]
-            (map read-string (split v #"-")))
+            ;(map read-string (split v #"-")))
+            [(.getYear v)
+            (.getValue (.getMonth v))
+            (.getDayOfMonth v)])
         [y1 m1 d1] (pfn from-date)
         [y2 m2 d2] (pfn to-date)
         items (cond

@@ -5,12 +5,22 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
 public class CmdLineValues implements JanitorContext {
     /*@Argument(required = true, index = 1, metaVar = "XML",
             usage = "Spring XML file name")*/
+
+    /*
+    DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-M-d");
+    DateTimeFormatter formatter = new DateTimeFormatterBuilder().append( formatter1 ).append(formatter2).toFormatter();
+    //*/
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-M-d");
 
     @Option(name = "-x", aliases = { "--xml" }, required = false, usage = "Spring XML file name" )
     private String xml;
@@ -180,12 +190,12 @@ public class CmdLineValues implements JanitorContext {
         return ivHarvest;
     }
     @Override
-    public String harvestFrom() {
-        return harvestFrom;
+    public LocalDate harvestFrom() {
+        return LocalDate.parse(harvestFrom, formatter);
     }
     @Override
-    public String harvestTo() {
-        return harvestTo;
+    public LocalDate harvestTo() {
+        return LocalDate.parse(harvestTo, formatter);
     }
 
     @Override

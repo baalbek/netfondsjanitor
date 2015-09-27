@@ -29,6 +29,7 @@
   (:require
     [maunakea.financial.htmlutil :as hu]
     [netfondsjanitor.janitors.harvester :as HARV]
+    [netfondsjanitor.janitors.dbharvester :as DB-HARV]
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
     [netfondsjanitor.service.db :as DB]
@@ -159,6 +160,8 @@
         (HARV/do-harvest-files-with HARV/harvest-spots-and-optionprices (@s :etrade) ctx))
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
+      (doif .isIvHarvest ctx
+        (DB-HARV/do-harvest ctx))
       (doif .isOneTimeDownloadOptions ctx
         (let [^EtradeDownloader dl (@s :downloader)
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
