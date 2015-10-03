@@ -9,6 +9,7 @@
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setEtrade [oahu.financial.repository.EtradeDerivatives] void]
+               [setCalculator [oahu.financial.OptionCalculator] void]
                ]
     )
   (:use
@@ -21,12 +22,13 @@
     [ranoraraku.models.mybatis StockMapper]
     [ranoraraku.beans StockPriceBean]
     [oahu.financial.repository StockMarketRepository]
-    [oahu.financial Stock StockPrice]
+    [oahu.financial Stock StockPrice OptionCalculator]
     [oahu.financial.repository EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
   (:require
+    [maunakea.util :as hx]
     [maunakea.financial.htmlutil :as hu]
     [netfondsjanitor.janitors.harvester :as HARV]
     [netfondsjanitor.janitors.dbharvester :as DB-HARV]
@@ -41,30 +43,35 @@
 (defn -init []
   [[] (atom {})])
 
-(defn set-property [this k v]
-  (let [s (.state this)]
-    (swap! s assoc k v)))
-
-(defn -setStockMarketRepos [this value]
-  (set-property this :repos value))
-
-(defn -setFeedStoreDir [this value]
-  (set-property this :feed value))
-
-(defn -setEtrade [this value]
-  (set-property this :etrade value))
-
-(defn -setDownloader [this value]
-  (set-property this :downloader value))
-
-(defn -setDownloadManager [this value]
-  (set-property this :manager value))
-
 (comment
 
-  (defn -setOptionsHtmlParser [this value]
-    (set-property this :opxhtmlparser value))
+  (defn set-property [this k v]
+    (let [s (.state this)]
+      (swap! s assoc k v)))
+
+  (defn -setStockMarketRepos [this value]
+    (set-property this :repos value))
+
+  (defn -setFeedStoreDir [this value]
+    (set-property this :feed value))
+
+  (defn -setEtrade [this value]
+    (set-property this :etrade value))
+
+  (defn -setDownloader [this value]
+    (set-property this :downloader value))
+
+  (defn -setDownloadManager [this value]
+    (set-property this :manager value))
   )
+
+(hx/defprop :set "stockMarketRepos")
+(hx/defprop :set "feedStoreDir")
+(hx/defprop :set "etrade")
+(hx/defprop :set "downloader")
+(hx/defprop :set "downloadManager")
+(hx/defprop :set "calculator")
+
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Cloure methods ---------------------------
@@ -146,8 +153,8 @@
 (defn -run [this, ^JanitorContext ctx]
   (LOG/info (.toString ctx))
   (let [s (.state this)]
-    (binding [*feed* (@s :feed)
-              *repos* (@s :repos)
+    (binding [*feed* (@s :feedstoredir)
+              *repos* (@s :stockmarketrepos)
               *user-tix* (.getTickers ctx)
               *test-run* (.isTestRun ctx)]
       (doif .isQuery ctx (let [tix-s (COM/db-tix nil)] (doseq [t tix-s] (println t))))
@@ -161,14 +168,15 @@
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isIvHarvest ctx
-        (DB-HARV/do-harvest ctx))
+        ;(println "Class *user-tix* " (class *user-tix*)))
+        (DB-HARV/do-harvest ctx (@s :calculator)))
       (doif .isOneTimeDownloadOptions ctx
         (let [^EtradeDownloader dl (@s :downloader)
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
-      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :manager) (@s :etrade)))
+      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etrade)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
