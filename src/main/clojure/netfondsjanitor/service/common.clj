@@ -13,6 +13,8 @@
 
 (def ^:dynamic *test-run*)
 
+(def ^:dynamic *calculator*)
+
 (defn str->date [arg]
   (if-let [v (re-find #"(\d+):(\d+)" arg)]
     (let [hours (nth v 1)

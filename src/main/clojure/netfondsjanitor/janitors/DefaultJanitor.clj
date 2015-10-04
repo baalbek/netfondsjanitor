@@ -13,7 +13,7 @@
                ]
     )
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator*)])
   (:import
     [oahu.financial.html OptionsHtmlParser]
     [java.io File FileNotFoundException]
@@ -168,8 +168,8 @@
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isIvHarvest ctx
-        ;(println "Class *user-tix* " (class *user-tix*)))
-        (DB-HARV/do-harvest ctx (@s :calculator)))
+        (binding [*calculator* (@s :calculator)]
+          (DB-HARV/do-harvest ctx)))
       (doif .isOneTimeDownloadOptions ctx
         (let [^EtradeDownloader dl (@s :downloader)
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
