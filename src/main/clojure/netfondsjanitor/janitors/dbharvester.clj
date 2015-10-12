@@ -1,18 +1,25 @@
 (ns netfondsjanitor.janitors.dbharvester
   (:import
+    [ranoraraku.models.mybatis DerivativeMapper]
+    [ranoraraku.beans.options SpotOptionPriceBean]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.repository StockMarketRepository]
     [oahu.financial OptionCalculator])
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *test-run* *repos* *calculator*)]))
+    [netfondsjanitor.service.common :only (*user-tix* *test-run* *repos* *calculator*)])
+  (:require
+    [netfondsjanitor.service.db :as DB]))
 
 
 (defn insert-blackscholes [options]
-  (with-session DerivativeMapper
-    (doseq [x options]
-      (try
-        (.insertBlackScholes it (.getPriceId x) (.ivBuy x *calculator*) (.ivSell x *calculator*))
-        (catch Exception ex (prn "Price id: " (.getPriceId x) ": " ex))))))
+  (if (= *test-run* true) 
+    (doseq [^SpotOptionPriceBean x options]
+      (println "Test run: insert " (.getOpxName x) " - " (.getPriceId x)))
+    (DB/with-session DerivativeMapper
+      (doseq [^SpotOptionPriceBean x options]
+        (try
+          (.insertBlackScholes it (.getPriceId x) (.ivBuy x *calculator*) (.ivSell x *calculator*))
+          (catch Exception ex (prn "Price id: " (.getPriceId x) ": " ex)))))))
 
 (defn do-harvest [^JanitorContext ctx]
   (let [from-date (.harvestFrom ctx)
