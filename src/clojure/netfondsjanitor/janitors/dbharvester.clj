@@ -14,7 +14,13 @@
 (defn insert-blackscholes [options]
   (if (= *test-run* true) 
     (doseq [^SpotOptionPriceBean x options]
-      (println "Test run: insert " (.getOpxName x) " - " (.getPriceId x)))
+      (try
+        (println "Test run: insert " 
+                (.getOpxName x) " - " 
+                (.getPriceId x) " - ivBuy: " 
+                (.ivBuy x *calculator*) " - ivSell: " 
+                (.ivSell x *calculator*))
+        (catch Exception ex (prn "Price id: " (.getPriceId x) ": " ex))))
     (DB/with-session DerivativeMapper
       (doseq [^SpotOptionPriceBean x options]
         (try

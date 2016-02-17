@@ -1,26 +1,23 @@
 apply plugin: 'java'
 
-apply plugin: 'clojure'
-
 group = 'rcstadheim'
 
 archivesBaseName = 'netfondsjanitor'
 
-ext.springVersion = '4.1.7.RELEASE'
-ext.htmlunitVersion = '2.15'
+ext.springVersion = '4.2.3.RELEASE'
+ext.htmlunitVersion = '2.18'
 ext.junitVersion = '4.11'
 ext.log4jVersion = '1.2.17'
-ext.aspectjVersion = '1.8.4'
+ext.aspectjVersion = '1.8.8'
 ext.mybatisVersion = '3.3.0'
 ext.mongoVersion = '2.12.5'
-ext.postgresVersion = '9.4-1201-jdbc41'  // '9.1-901.jdbc4'
-ext.commonsLangVersion = '20030203.000129'
-ext.enliveVersion = '1.1.5'
+ext.postgresVersion = '9.4-1206-jdbc41'  // '9.1-901.jdbc4'
 ext.coltVersion = '1.2.0'
 ext.arg4jVersion = '2.0.28'
+ext.commonsLangVersion = '20030203.000129'
 
 //-------------------- clojure ---------------------
-ext.clojureVersion = '1.6.0'
+ext.clojureVersion = '1.7.0'
 ext.clojureContribVersion = '1.2.0'
 ext.algoMonadsVersion = '0.1.5'
 ext.clojuresqueVersion = '1.5.8'
@@ -42,14 +39,28 @@ sourceCompatibility = 1.8
 
 targetCompatibility = 1.8
 
-aotCompile = true
-
-warnOnReflection = true
-
 repositories {
     mavenCentral()
     maven {
         url 'http://clojars.org/repo'
+    }
+}
+sourceSets {
+    main {
+        java {
+            srcDir "src/java"
+        }
+        resources {
+            srcDir "src/resources"
+        }
+    }
+    test {
+        java {
+            srcDir "test/java"
+        }
+        resources {
+            srcDir "test/resources"
+        }
     }
 }
 
@@ -73,17 +84,8 @@ dependencies {
     compile "junit:junit:$junitVersion"
     compile "log4j:log4j:$log4jVersion"
     compile "args4j:args4j:$arg4jVersion"
-    compile "enlive:enlive:$enliveVersion"
     compile "org.clojure:algo.monads:$algoMonadsVersion"
-    sshAntTask 'org.apache.ant:ant-jsch:1.9.4'
-    sshAntTask 'com.jcraft:jsch:0.1.51'
-}
-
-task configureSshAntTask {
-    description = 'Scp task'
-    ant.taskdef(name: 'scp',
-            classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp',
-            classpath: configurations.sshAntTask.asPath)
+    compile "net.sourceforge.htmlunit:htmlunit:$htmlunitVersion"
 }
 
 String clazzPath() {
@@ -92,130 +94,31 @@ String clazzPath() {
     }) << ".").join(" ")
 }
 
+
+task coypJavaDeps(type: Copy) {
+    into 'dist' from configurations.runtime
+}
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath group: 'rcstadheim', name: 'palenque',
+                version: '1.0'
+    }
+}
+
+apply plugin: 'rcstadheim.palenque'
+
+task winLeinDeps(type: rcstadheim.palenque.LeinDepsTask) {
+    useLibsSymlink = false
+}
+
 jar {
     manifest {
         attributes 'Main-Class': 'netfondsjanitor.App'
         attributes 'Class-Path': clazzPath()
     }
-}
-
-task copyDeps(type: Copy) {
-    description 'Copies all dependent jar files including netfondsjanitor jar'
-    into 'dist' from configurations.runtime
-    into 'dist' from new File("$libsDir/$myLibName")
-}
-
-enum LibContext {
-    BARE,DIST,FULL_PATH
-}
-
-def scp2hilo(Closure fset) {
-    //ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/develop/netfondsjanitor/dist'
-    ext.hiloTarget = 'rcs@hilo:/home/rcs/tmp3'
-    if (project.hasProperty('target')==true) {
-        if (ext.target == 'rel') {
-            ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/netfondsjanitor'
-        }
-    }
-    println "Copying to hilo with target ${ext.hiloTarget}"
-    ant.scp(todir: ext.hiloTarget,
-            password: 'q2uebec9',
-            verbose: 'true') {
-        fset()
-    }
-}
-
-String myDepLibName(String pname, LibContext ctx) {
-    switch (ctx) {
-        case LibContext.BARE:
-            project(':' + pname).tasks['jar'].archiveName
-            break
-        case LibContext.DIST:
-            'dist/' + project(':' + pname).tasks['jar'].archiveName
-            break
-        case LibContext.FULL_PATH:
-            project(':' + pname).tasks['jar'].archivePath
-            break
-    }
-}
-
-task printMyDepLibName << {
-    println myDepLibName('oahu',LibContext.BARE)
-    println myDepLibName('oahu',LibContext.DIST)
-    println myDepLibName('oahu',LibContext.FULL_PATH)
-}
-
-def depLibs = ['oahu','maunakea','ranoraraku','vega']
-
-task hilo (description: 'Scp jars: maunaloa',
-        group: 'Hilo') <<  {
-    scp2hilo {
-        ant.fileset(dir: 'dist') {
-            include(name: myLibName)
-        }
-    }
-}
-
-task hilofull (description: 'Scp jars: all RCS jars',
-        group: 'Hilo') <<  {
-    scp2hilo {
-        ant.fileset(dir: 'dist') {
-            depLibs.each { s ->
-                include(name: myDepLibName(s,LibContext.BARE))
-            }
-            include(name: myLibName)
-        }
-    }
-}
-
-task hilofullest (description: 'Scp jars: THE WORKS',
-        group: 'Hilo') <<  {
-    group 'Hilo'
-    scp2hilo {
-        ant.fileset(dir: 'dist') {
-            include(name: "*.jar")
-        }
-    }
-}
-
-task copyRcsLibs(type: Copy) {
-    description 'Copies all local (rcs) jar files into dist'
-    group 'rcsbuild'
-    depLibs.each { s ->
-        def curLibName = myDepLibName(s, LibContext.FULL_PATH)
-        into 'dist' from new File(curLibName)
-    }
-}
-
-/*
-task deleteRcsLibs(type: Delete) {
-    description 'Deletes all local (rcs) jar files from dist'
-    depLibs.each { s ->
-        def curLibName = myDepLibName(s, LibContext.DIST)
-        delete  curLibName
-    }
-}
-
-task buildAndCopy(type: Copy, dependsOn: build) {
-    description 'Builds netfondsjanitor jar and copies into dist'
-    into 'dist' from new File("$libsDir/$myLibName")
-}
-*/
-
-buildscript {
-    repositories {
-        maven {
-            url 'http://clojars.org/repo'
-        }
-    }
-
-    dependencies {
-        classpath 'clojuresque:clojuresque:1.5.8'
-    }
-}
-
-task buildAndCopy(type: Copy, dependsOn: build) {
-    description 'Builds maunaloa jar and copies into dist'
-    group 'rcsbuild'
-    into 'dist' from new File("$libsDir/$myLibName")
+    from ("target/classes") include "**/*.class"
 }

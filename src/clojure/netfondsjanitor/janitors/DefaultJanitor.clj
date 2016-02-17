@@ -43,28 +43,6 @@
 (defn -init []
   [[] (atom {})])
 
-(comment
-
-  (defn set-property [this k v]
-    (let [s (.state this)]
-      (swap! s assoc k v)))
-
-  (defn -setStockMarketRepos [this value]
-    (set-property this :repos value))
-
-  (defn -setFeedStoreDir [this value]
-    (set-property this :feed value))
-
-  (defn -setEtrade [this value]
-    (set-property this :etrade value))
-
-  (defn -setDownloader [this value]
-    (set-property this :downloader value))
-
-  (defn -setDownloadManager [this value]
-    (set-property this :manager value))
-  )
-
 (hx/defprop :set "stockMarketRepos")
 (hx/defprop :set "feedStoreDir")
 (hx/defprop :set "etrade")
