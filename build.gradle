@@ -45,6 +45,7 @@ repositories {
         url 'http://clojars.org/repo'
     }
 }
+/*
 sourceSets {
     main {
         java {
@@ -63,11 +64,12 @@ sourceSets {
         }
     }
 }
+*/
 
 dependencies {
     compile project(':oahu')
     compile project(':maunakea')
-    compile project(':vega')
+    compile project(':vegaq')
     compile project(':ranoraraku')
     //------------------- aspectj -------------------
     compile "org.aspectj:aspectjrt:$aspectjVersion"
@@ -86,6 +88,8 @@ dependencies {
     compile "args4j:args4j:$arg4jVersion"
     compile "org.clojure:algo.monads:$algoMonadsVersion"
     compile "net.sourceforge.htmlunit:htmlunit:$htmlunitVersion"
+    //------------------- Colt -------------------
+    runtime "colt:colt:$coltVersion"
 }
 
 String clazzPath() {

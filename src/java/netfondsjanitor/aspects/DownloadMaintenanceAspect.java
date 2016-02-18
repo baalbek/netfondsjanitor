@@ -25,6 +25,7 @@ import oahu.annotations.StoreHtmlPage;
 @Aspect
 public class DownloadMaintenanceAspect {
 
+    private int jax;
     private Logger log = Logger.getLogger(getClass().getPackage().getName());
 
     private String htmlFileStoreDir;
@@ -32,23 +33,9 @@ public class DownloadMaintenanceAspect {
 
     private String feedStoreDir;
 
-    //@Pointcut("execution(* oahu.financial.EtradeDownloader.download*(String))")
-    //public void downloadPointcut() {
-    //}
-    //
 
-    /*
-    @AfterReturning(pointcut = "downloadPointcut()", returning="retVal")
-    public void downloadPointcutMethod(JoinPoint jp, Object retval) {
-        System.out.println(retval);
-    }
-    */
-
-    //@Around("@annotation(com.x.y.MethodExecutionTime)")
-
-    //@Pointcut("@annotation(oahu.annotations.StoreHtmlPage)")
-    @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..)) && @annotation(annot)")
-    public void storeHtmlPagePointcut(StoreHtmlPage annot) {
+    @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
+    public void storeHtmlPagePointcut() {
     }
 
     private void htmlPage2file(HtmlPage pg, ProceedingJoinPoint jp, String storeFormat) {
@@ -125,13 +112,14 @@ public class DownloadMaintenanceAspect {
         }
     }
 
-    @Around("storeHtmlPagePointcut(annot)")
-    public Object store2htmlPointcutMethod(ProceedingJoinPoint jp, StoreHtmlPage annot) throws Throwable {
+    @Around("storeHtmlPagePointcut()")
+    public Object store2htmlPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
         Object result = jp.proceed();
-        int storeFormat = annot.storeFormat();
-        switch (storeFormat) {
+        htmlPage2file((HtmlPage)result,jp,"html");
+        /*
+        int storeFormatInt = storeFormat.storeFormat();
+        switch (storeFormatInt) {
             case StoreHtmlPage.HTML:
-                htmlPage2file((HtmlPage)result,jp,"html");
                 log.info(String.format("Store will be performed for type: %d (html)", storeFormat));
                 break;
             case StoreHtmlPage.XML:
@@ -146,6 +134,7 @@ public class DownloadMaintenanceAspect {
                 log.warn(String.format("No store will be performed for type %d!", storeFormat));
                 break;
         }
+        */
         return result;
     }
 

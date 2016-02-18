@@ -24,7 +24,7 @@
     		"src/resources"
 		    "/home/rcs/opt/java/oahu/build/libs/oahu-5.1.5.jar"
 		    "/home/rcs/opt/java/maunakea/build/libs/maunakea-5.1.2.jar"
-		    "/home/rcs/opt/java/vega/build/libs/vega-5.1.0.jar"
+		    "/home/rcs/opt/java/vega/build/libs/vegaq-5.1.1.jar"
 		    "/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-5.1.5.jar"
 		    "libs/org.aspectj/aspectjrt/1.8.8/7c5b26f24375685e34a50c2d765ebc40a96a5280/aspectjrt-1.8.8.jar"
 		    "libs/org.aspectj/aspectjtools/1.8.8/7c6527b530b0289d36163f82f04db20b3be838c5/aspectjtools-1.8.8.jar"
