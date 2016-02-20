@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import oahu.annotations.StoreHtmlPage;
+import oahu.annotations.StoreTxtPage;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,6 +34,10 @@ public class DownloadMaintenanceAspect {
 
     private String feedStoreDir;
 
+
+    @Pointcut("execution(@oahu.annotations.StoreTxtPage * *(..))")
+    public void storeTxtPagePointcut() {
+    }
 
     @Pointcut("execution(@oahu.annotations.StoreHtmlPage * *(..))")
     public void storeHtmlPagePointcut() {
@@ -110,6 +115,13 @@ public class DownloadMaintenanceAspect {
         catch (IOException e) {
             log.warn(String.format("Could not save: %s", fn));
         }
+    }
+
+    @Around("storeTxtPagePointcut()")
+    public Object store2txtPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+        Object result = jp.proceed();
+        textPage2file((TextPage)result, jp);
+        return result;
     }
 
     @Around("storeHtmlPagePointcut()")

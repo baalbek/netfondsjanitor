@@ -195,7 +195,12 @@ public class CmdLineValues implements JanitorContext {
     }
     @Override
     public LocalDate harvestTo() {
-        return LocalDate.parse(harvestTo, formatter);
+        if (harvestTo == null) {
+            return harvestFrom();
+        }
+        else {
+            return LocalDate.parse(harvestTo, formatter);
+        }
     }
 
     @Override

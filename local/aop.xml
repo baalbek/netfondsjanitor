@@ -18,6 +18,8 @@
         <property name="htmlFileStoreFormat" value="html" />
     </bean>
 
+    <!--
     <bean id="downloadManager" class="netfondsjanitor.aspects.DownloadDerivativesManager">
     </bean>
+    -->
 </beans>

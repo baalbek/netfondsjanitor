@@ -13,6 +13,7 @@ import java.util.Collection;
  */
 public abstract class AbstractValidateBeans {
 
+    @SuppressWarnings("unchecked")
     public Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
     exec(ProceedingJoinPoint jp) throws Throwable {
         Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
@@ -27,11 +28,11 @@ public abstract class AbstractValidateBeans {
         //log.info(String.format("%s\nNumber of puts: %d",jp.toString(),tmp.size()));
 
         for (DerivativePrice call : calls) {
-            if (isOk(call) == false) continue;
+            if (!isOk(call)) continue;
             validatedCalls.add(call);
         }
         for (DerivativePrice put : puts) {
-            if (isOk(put) == false) continue;
+            if (!isOk(put)) continue;
             validatedPuts.add(put);
         }
 
