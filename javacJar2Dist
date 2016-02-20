@@ -1,0 +1,9 @@
+#!/bin/bash
+
+lein javac
+
+gradle jar
+
+cp build/libs/netfondsjanitor-5.1.SNAPSHOT.jar dist/
+
+exit 0
