@@ -28,8 +28,8 @@
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
   (:require
-    [maunakea.util :as hx]
-    [maunakea.financial.htmlutil :as hu]
+    [kilauea.util :as hx]
+    [kilauea.financial.htmlutil :as hu]
     [netfondsjanitor.janitors.harvester :as HARV]
     [netfondsjanitor.janitors.dbharvester :as DB-HARV]
     [netfondsjanitor.service.common :as COM]
@@ -143,6 +143,8 @@
         (HARV/do-harvest-files-with HARV/harvest-list-file (@s :etrade) ctx))
       (doif .isOptionPriceHarvest ctx
         (HARV/do-harvest-files-with HARV/harvest-spots-and-optionprices (@s :etrade) ctx))
+      (doif .isRedoOptionPriceHarvest ctx
+        (HARV/do-harvest-files-with HARV/redo-harvest-spots-and-optionprices (@s :etrade) ctx))
       (doif .isUpdateDbOptions ctx
         (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
       (doif .isIvHarvest ctx

@@ -41,6 +41,9 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-X", aliases = { "--opxharvest" }, required = false, usage = "Spot/option price harvest (spot and optionprice tables)" )
     private boolean _isOptionPriceHarvest;
 
+    @Option(name = "-E", aliases = { "--redoOpxharvest" }, required = false, usage = "Redo spot/option price harvest (spot and optionprice tables)" )
+    private boolean _isRedoOptionPriceHarvest;
+
     @Option(name = "-o", aliases = { "--open" }, required = false, usage = "Opening time for the market (hh:mm). Default: 9:30")
     private String open;
 
@@ -185,6 +188,12 @@ public class CmdLineValues implements JanitorContext {
     public boolean isOptionPriceHarvest() {
         return _isOptionPriceHarvest;
     }
+
+    @Override
+    public boolean isRedoOptionPriceHarvest() {
+        return _isRedoOptionPriceHarvest;
+    }
+
     @Override
     public boolean isIvHarvest() {
         return ivHarvest;

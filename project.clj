@@ -26,6 +26,7 @@
 		    "/home/rcs/opt/java/maunakea/build/libs/maunakea-5.1.2.jar"
 		    "/home/rcs/opt/java/vega/build/libs/vegaq-5.1.1.jar"
 		    "/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-5.1.5.jar"
+				"/home/rcs/opt/java/kilauea/build/libs/kilauea-5.1.2.jar"
 		    "libs/org.aspectj/aspectjrt/1.8.8/7c5b26f24375685e34a50c2d765ebc40a96a5280/aspectjrt-1.8.8.jar"
 		    "libs/org.aspectj/aspectjtools/1.8.8/7c6527b530b0289d36163f82f04db20b3be838c5/aspectjtools-1.8.8.jar"
 		    "libs/org.aspectj/aspectjweaver/1.8.8/969c8d3d3d56db1e1c8721a03ef07d0c9ac3a2e4/aspectjweaver-1.8.8.jar"

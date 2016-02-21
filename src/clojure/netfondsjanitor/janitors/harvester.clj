@@ -149,6 +149,9 @@
           (insert calls puts ^DerivativeMapper ctx))
         (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]"))))))
 
+(defn redo-harvest-spots-and-optionprices [^File f,
+                                   ^EtradeDerivatives etrade])
+
 (defn harvest-spots-and-optionprices [^File f,
                   ^EtradeDerivatives etrade]
   (try

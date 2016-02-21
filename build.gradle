@@ -15,6 +15,7 @@ ext.postgresVersion = '9.4-1206-jdbc41'  // '9.1-901.jdbc4'
 ext.coltVersion = '1.2.0'
 ext.arg4jVersion = '2.0.28'
 ext.commonsLangVersion = '20030203.000129'
+ext.enliveVersion = '1.1.5'
 
 //-------------------- clojure ---------------------
 ext.clojureVersion = '1.7.0'
@@ -71,6 +72,7 @@ dependencies {
     compile project(':maunakea')
     compile project(':vegaq')
     compile project(':ranoraraku')
+    runtime project(':kilauea')
     //compile project(':kilauea')
     //------------------- aspectj -------------------
     compile "org.aspectj:aspectjrt:$aspectjVersion"
