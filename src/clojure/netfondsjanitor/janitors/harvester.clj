@@ -150,7 +150,33 @@
         (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]"))))))
 
 (defn redo-harvest-spots-and-optionprices [^File f,
-                                   ^EtradeDerivatives etrade])
+                                           ^EtradeDerivatives etrade]
+  (let [scp (.getSpotCallsPuts2 etrade ^File f)
+        ^StockPrice spot (.first scp)]
+    (DB/with-session DerivativeMapper
+      (if-let [spot-oid (.findSpotId ^DerivativeMapper it ^StockPrice spot)]
+        (do
+          (.setOid spot spot-oid)
+          (println (.getOid (.getStockPrice (first (.second scp)))))
+          spot-oid)))))
+
+
+(comment
+  (try
+    (let [scp (.getSpotCallsPuts2 etrade ^File f)
+          ^StockPrice spot (.first scp)
+          calls (.second scp)
+          puts (.third scp)
+          calls-puts (concat calls puts)
+          spot-oid (.findSpotId ^DerivativeMapper it ^StockPrice spot)]
+      (if-not (nil? spot-oid)
+        (doseq [^DerivativePriceBean c calls-puts]
+          (try
+            (LOG/info (str "Trying redo Option id: " (.getDerivativeId c) ", option type: " (-> c .getDerivative .getOpType)))
+            (DB/with-session DerivativeMapper
+              (do
+                (.insertDerivativePrice ^DerivativeMapper it c)
+        (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))))))))
 
 (defn harvest-spots-and-optionprices [^File f,
                   ^EtradeDerivatives etrade]

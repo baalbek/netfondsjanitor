@@ -1,7 +1,7 @@
 (ns scaffold2
   (:import
     [java.sql Date]
-    [java.time LocalDate]
+    [java.time LocalDate LocalTime]
     [java.io File]
     [java.util ArrayList]
     [org.apache.ibatis.exceptions PersistenceException]
@@ -77,3 +77,8 @@
   (let [result (ArrayList.)]
     (.add result "NHY")
     result))
+
+(defn create-spot []
+  (let [dx (LocalDate/of 2014 1 1)
+        tx (LocalTime/of 18 0 0)]
+    tx))
