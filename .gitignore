@@ -21,4 +21,4 @@ cache
 classes
 reflection
 libs
-
+local/*.gz
