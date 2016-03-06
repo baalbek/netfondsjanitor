@@ -140,14 +140,16 @@
       (.insertDerivativePrice ^DerivativeMapper ctx c))))
 
 (defn insert-existing-spot [spot calls puts ctx]
-  (let [oid (.findSpotId ^DerivativeMapper ctx ^StockPrice spot)]
-    (.setOid ^StockPrice spot oid)
-    (let [num-prices (.countOpxPricesForSpot ^DerivativeMapper ctx ^StockPrice spot)]
-      (if (= num-prices 0)
-        (do
-          (LOG/info (str "Inserting new option price for existing spot [oid " (.getOid ^StockPrice spot) "]"))
-          (insert calls puts ^DerivativeMapper ctx))
-        (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]"))))))
+  (if-let [oid (.findSpotId ^DerivativeMapper ctx ^StockPrice spot)]
+    (do
+      (.setOid ^StockPrice spot oid)
+      (let [num-prices (.countOpxPricesForSpot ^DerivativeMapper ctx ^StockPrice spot)]
+        (if (= num-prices 0)
+          (do
+            (LOG/info (str "Inserting new option price for existing spot [oid " (.getOid ^StockPrice spot) "]"))
+            (insert calls puts ^DerivativeMapper ctx))
+          (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]")))))
+  (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
 
 (defn redo-harvest-spots-and-optionprices [^File f,
                                            ^EtradeDerivatives etrade]
@@ -158,7 +160,8 @@
         (do
           (.setOid spot spot-oid)
           (println (.getOid (.getStockPrice (first (.second scp)))))
-          spot-oid)))))
+          spot-oid)
+        (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))))
 
 
 (comment
