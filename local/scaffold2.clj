@@ -18,7 +18,7 @@
   (memoize
     (fn []
       ;(ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
-      (ClassPathXmlApplicationContext. "demorun.xml"))))
+      (ClassPathXmlApplicationContext. "harvest.xml"))))
 
 (defn get-bean [n]
   (.getBean (factory) n))
