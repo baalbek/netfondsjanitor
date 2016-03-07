@@ -146,7 +146,7 @@
       (let [num-prices (.countOpxPricesForSpot ^DerivativeMapper ctx ^StockPrice spot)]
         (if (= num-prices 0)
           (do
-            (LOG/info (str "Inserting new option price for existing spot [oid " (.getOid ^StockPrice spot) "]"))
+            (LOG/info (str "Inserting new option prices for existing spot [oid " (.getOid ^StockPrice spot) "]"))
             (insert calls puts ^DerivativeMapper ctx))
           (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]")))))
   (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
@@ -157,10 +157,11 @@
         ^StockPrice spot (.first scp)]
     (DB/with-session DerivativeMapper
       (if-let [spot-oid (.findSpotId ^DerivativeMapper it ^StockPrice spot)]
-        (do
+        (let [calls (.second scp)
+              puts (.third scp)]
           (.setOid spot spot-oid)
-          (println (.getOid (.getStockPrice (first (.second scp)))))
-          spot-oid)
+          (LOG/info (str "Inserting new option prices for existing spot [oid " spot-oid "]"))
+          (insert calls puts ctx)))
         (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))))
 
 
