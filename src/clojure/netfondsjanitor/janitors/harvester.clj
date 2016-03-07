@@ -162,7 +162,7 @@
           (.setOid spot spot-oid)
           (LOG/info (str "Inserting new option prices for existing spot [oid " spot-oid "]"))
           (insert calls puts ctx)))
-        (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))))
+        (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]")))))
 
 
 (comment
