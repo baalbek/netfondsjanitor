@@ -155,15 +155,25 @@
                                            ^EtradeDerivatives etrade]
   (let [scp (.getSpotCallsPuts2 etrade ^File f)
         ^StockPrice spot (.first scp)]
-    (DB/with-session DerivativeMapper
-      (if-let [spot-oid (.findSpotId ^DerivativeMapper it ^StockPrice spot)]
-        (let [calls (.second scp)
-              puts (.third scp)]
-          (.setOid spot spot-oid)
-          (LOG/info (str "Inserting new option prices for existing spot [oid " spot-oid "]"))
-          (insert calls puts ctx)))
-        (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]")))))
-
+    (if-let [spot-oid (DB/with-session DerivativeMapper
+                          (.findSpotId ^DerivativeMapper it ^StockPrice spot))]
+      (let [calls (.second scp)
+            puts (.third scp)
+            insert-fn (fn [x]
+                        (let [opid (.getDerivativeId x)
+                              sid (.getStockPriceId x)]
+                          (DB/with-session DerivativeMapper
+                            (try
+                              (do
+                                (LOG/info (str "New option price?: stockprice id: " sid ", option id: " opid ", buy: " (.getBuy x) ", sell: " (.getSell x)))
+                                (.insertDerivativePrice ^DerivativeMapper it x))
+                              (catch Exception e
+                                (LOG/warn (.getMessage e)))))))]
+        (.setOid spot spot-oid)
+        (LOG/info (str "Inserting new option prices for existing spot [oid " spot-oid "]"))
+        (doseq [cx calls] (insert-fn cx))
+        (doseq [px puts] (insert-fn px)))
+      (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]")))))
 
 (comment
   (try

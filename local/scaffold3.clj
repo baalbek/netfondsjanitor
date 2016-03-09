@@ -46,6 +46,10 @@
   (DB/with-session DerivativeMapper
     (.findSpotId ^DerivativeMapper it ^StockPrice s)))
 
-(def f (File. "/home/rcs/opt/java/netfondsjanitor/feed/2015/12/17/YAR.html"))
+;(def f (File. "/home/rcs/opt/java/netfondsjanitor/feed/2015/12/17/YAR.html"))
+(def f (File. "/home/rcs/opt/java/netfondsjanitor/feed/2015/9/30/YAR.html"))
 
 (def redo harv/redo-harvest-spots-and-optionprices)
+
+(defn exec-redo []
+  (redo f (etrade))) 
