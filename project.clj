@@ -11,12 +11,14 @@
                  [org.springframework/spring-context "4.3.2.RELEASE"]
                  [org.springframework/spring-aop "4.3.2.RELEASE"]
                  [org.clojure/clojure "1.7.0"]
-                 [org.apache.logging.log4j/log4j-core "2.6.2"]
                  [args4j/args4j "2.33"]
                  [org.clojure/algo.monads "0.1.5"]
                  [net.sourceforge.htmlunit/htmlunit "2.23"]
                  [org.jsoup/jsoup "1.9.2"]
                  [org.ccil.cowan.tagsoup/tagsoup "1.2.1"]
+                 ;[org.apache.logging.log4j/log4j-core "2.6.2"]
+                 [log4j/log4j "1.2.17"]
+                 [commons-logging/commons-logging "1.2"]
     ]
   ;:main ^:skip-aot harborview.webapp
   ;:compile 
