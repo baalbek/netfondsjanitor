@@ -5,15 +5,15 @@ group = 'rcstadheim'
 archivesBaseName = 'netfondsjanitor'
 
 ext.springVersion = '4.2.3.RELEASE'
-ext.htmlunitVersion = '2.18'
+ext.htmlunitVersion = '2.22'
 ext.junitVersion = '4.11'
 ext.log4jVersion = '1.2.17'
-ext.aspectjVersion = '1.8.8'
-ext.mybatisVersion = '3.3.0'
+ext.aspectjVersion = '1.8.9'
+ext.mybatisVersion = '3.4.1'
 ext.mongoVersion = '2.12.5'
-ext.postgresVersion = '9.4-1206-jdbc41'  // '9.1-901.jdbc4'
+ext.postgresVersion = '9.4-1206-jdbc42'  // '9.1-901.jdbc4'
 ext.coltVersion = '1.2.0'
-ext.arg4jVersion = '2.0.28'
+ext.arg4jVersion = '2.33'
 ext.commonsLangVersion = '20030203.000129'
 ext.enliveVersion = '1.1.5'
 
@@ -22,11 +22,13 @@ ext.clojureVersion = '1.7.0'
 ext.clojureContribVersion = '1.2.0'
 ext.algoMonadsVersion = '0.1.5'
 ext.clojuresqueVersion = '1.5.8'
-ext.numericTowerVersion = '0.0.2'
+ext.numericTowerVersion = '0.0.4'
 
 
 ext.major = '5'
-ext.minor = '1'
+ext.minor = '3'
+
+ext.parentDist = '/home/rcs/opt/java/netfondsjanitor/dist'
 
 version = "${major}.${minor}.SNAPSHOT"
 
@@ -69,10 +71,9 @@ sourceSets {
 
 dependencies {
     compile project(':oahu')
-    compile project(':maunakea')
-    compile project(':vegaq')
     compile project(':ranoraraku')
-    runtime project(':kilauea')
+    compile project(':waimea')
+    compile project(':netfonds-repos')
     //compile project(':kilauea')
     //------------------- aspectj -------------------
     compile "org.aspectj:aspectjrt:$aspectjVersion"
@@ -110,6 +111,15 @@ task coypJavaDeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'netfondsjanitor.App'
+        attributes 'Class-Path': clazzPath()
+    }
+    from ("target/classes") include "**/*.class"
+}
+
+/*
 buildscript {
     repositories {
         mavenLocal()
@@ -125,11 +135,5 @@ apply plugin: 'rcstadheim.palenque'
 task winLeinDeps(type: rcstadheim.palenque.LeinDepsTask) {
     useLibsSymlink = false
 }
+//*/
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'netfondsjanitor.App'
-        attributes 'Class-Path': clazzPath()
-    }
-    from ("target/classes") include "**/*.class"
-}
