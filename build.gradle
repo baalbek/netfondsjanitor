@@ -48,7 +48,6 @@ repositories {
         url 'http://clojars.org/repo'
     }
 }
-/*
 sourceSets {
     main {
         java {
@@ -67,7 +66,6 @@ sourceSets {
         }
     }
 }
-*/
 
 dependencies {
     compile project(':oahu')
@@ -119,7 +117,6 @@ jar {
     from ("target/classes") include "**/*.class"
 }
 
-/*
 buildscript {
     repositories {
         mavenLocal()
@@ -130,10 +127,30 @@ buildscript {
     }
 }
 
+
+def leinResources() {
+    def result = []
+
+    def subp = getProject().subprojects.findAll()
+    subp.each {
+        def at = it.getTasks()
+        Jar j = at.findByName('jar') as Jar
+        result.add(j.archivePath)
+    }
+    result
+}
+
+task x << {
+    def r = leinResources()
+    r.each {
+        println it.getAbsolutePath()
+    }
+}
+
 apply plugin: 'rcstadheim.palenque'
 
-task winLeinDeps(type: rcstadheim.palenque.LeinDepsTask) {
-    useLibsSymlink = false
+task myLeinDeps (type: rcstadheim.palenque.LeinDepsTask) {
+    leinProjectFile = file('demoproj.clj')
+    leinTemplateFile = file('local/project.clj')
 }
-//*/
 
