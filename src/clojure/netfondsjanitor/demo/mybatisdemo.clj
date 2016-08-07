@@ -20,6 +20,6 @@
   (DB/with-session StockMapper
     (.selectStocks it)))
 
-(defn update []
+(defn xupdate []
   (DB/with-session StockMapper
     (prn "Hi")))

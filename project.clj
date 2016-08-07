@@ -12,6 +12,7 @@
 		[org.springframework/spring-aop "4.2.3.RELEASE"]
 		[org.clojure/clojure "1.7.0"]
 		[org.clojure/clojure-contrib "1.2.0"]
+		[org.mybatis/mybatis "3.4.1"]
 		[junit/junit "4.11"]
 		[log4j/log4j "1.2.17"]
 		[args4j/args4j "2.33"]

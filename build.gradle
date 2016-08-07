@@ -85,6 +85,7 @@ dependencies {
     runtime "org.clojure:clojure:$clojureVersion"
     runtime "org.clojure:clojure-contrib:$clojureContribVersion"
     //------------------- diverse -------------------
+    compile "org.mybatis:mybatis:$mybatisVersion"
     compile "junit:junit:$junitVersion"
     compile "log4j:log4j:$log4jVersion"
     compile "args4j:args4j:$arg4jVersion"

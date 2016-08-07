@@ -8,28 +8,26 @@
                [setStockMarketRepos [oahu.financial.repository.StockMarketRepository] void]
                [setDownloader [oahu.financial.html.EtradeDownloader] void]
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
-               [setEtrade [oahu.financial.repository.EtradeDerivatives] void]
+               [setEtradeRepos [oahu.financial.repository.EtradeRepository] void]
+               ;[setEtrade [oahu.financial.repository.EtradeDerivatives] void]
                [setCalculator [oahu.financial.OptionCalculator] void]
                ]
     )
   (:use
     [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator*)])
   (:import
-    [oahu.financial.html OptionsHtmlParser]
     [java.io File FileNotFoundException]
     [java.time LocalTime]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper]
     [ranoraraku.beans StockPriceBean]
+    [oahu.financial.repository EtradeRepository]
     [oahu.financial.repository StockMarketRepository]
     [oahu.financial Stock StockPrice OptionCalculator]
-    [oahu.financial.repository EtradeDerivatives]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial.html EtradeDownloader]
     [oahu.financial.html DownloadManager])
   (:require
-    [kilauea.util :as hx]
-    [kilauea.financial.htmlutil :as hu]
     [netfondsjanitor.janitors.harvester :as HARV]
     [netfondsjanitor.janitors.dbharvester :as DB-HARV]
     [netfondsjanitor.service.common :as COM]
@@ -43,12 +41,12 @@
 (defn -init []
   [[] (atom {})])
 
-(hx/defprop :set "stockMarketRepos")
-(hx/defprop :set "feedStoreDir")
-(hx/defprop :set "etrade")
-(hx/defprop :set "downloader")
-(hx/defprop :set "downloadManager")
-(hx/defprop :set "calculator")
+(COM/defprop :set "stockMarketRepos")
+(COM/defprop :set "feedStoreDir")
+(COM/defprop :set "etradeRepos")
+(COM/defprop :set "downloader")
+(COM/defprop :set "downloadManager")
+(COM/defprop :set "calculator")
 
 
 ;;;------------------------------------------------------------------------
@@ -80,9 +78,9 @@
           (System/exit 0))))))
 
 
-(defn do-spot [^EtradeDerivatives etrade]
+(defn do-spot [^EtradeRepository etrade]
   (let [tix-s (COM/db-tix COM/tcat-in-1-3)
-        stocks (COM/map-java-fn .getSpot etrade tix-s)]
+        stocks (COM/map-java-fn .stockPrice etrade tix-s)]
     (DB/with-session StockMapper
       (doseq [^StockPriceBean s stocks]
         (if-not (nil? s)
@@ -91,7 +89,9 @@
             (.insertStockPrice ^StockMapper it s)
             ))))))
 
-(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeDerivatives etrade]
+(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade]
+)
+(comment do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade]
   (let [
         tix-s (or *user-tix* (COM/db-tix (partial COM/tcat-in-1-3)))
         pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)

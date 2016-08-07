@@ -3,7 +3,7 @@
   (:import
     [java.time LocalDate]
     [oahu.financial StockPrice]
-    [maunakea.util MyBatisUtils]
+    [ranoraraku.utils MyBatisUtils]
     [ranoraraku.models.mybatis StockMapper DerivativeMapper]
     [ranoraraku.beans.options  DerivativeBean]
     [org.apache.ibatis.session SqlSession])
