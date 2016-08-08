@@ -60,8 +60,6 @@
 
 (defn get-lines [ticker]
   (let [stock (.findStock *repos* ticker)
-        ;max-dx (DB/get-max-dx)
-        ;cur-dx (max-dx (.findId *locator* ticker))
         cur-filter (if (nil? stock)
                      (fn [_] true)
                      (let [max-dx (DB/get-max-dx)

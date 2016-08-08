@@ -22,7 +22,7 @@
     -->
 
 
-    <bean id="downloader" class="maunakea.financial.NetfondsDownloader">
+    <bean id="downloader" class="netfondsrepos.downloader.DefaultDownloader">
         <property name="javaScriptEnabled" value="false" />
     </bean>
 
@@ -33,11 +33,13 @@
     -->
     <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" ></bean>
 
-    <bean id="etrade" class="kilauea.financial.repository.NetfondsDerivatives">
+    <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
         <property name="downloader" ref="downloader" />
         <property name="calculator" ref="calculator" />
         <property name="stockMarketRepos" ref="repos" />
+        <!--
         <property name="derivativePriceType" value="1" />
+        -->
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">

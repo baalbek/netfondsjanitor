@@ -106,8 +106,13 @@ String clazzPath() {
 }
 
 
-task coypJavaDeps(type: Copy) {
+task copyDeps(type: Copy) {
     into 'dist' from configurations.runtime
+}
+
+task buildAndCopy(type: Copy, dependsOn: build) {
+    description 'Builds jar and copies into dist'
+    into 'dist' from new File("$libsDir/$myLibName")
 }
 
 jar {
@@ -128,30 +133,5 @@ buildscript {
     }
 }
 
-
-def leinResources() {
-    def result = []
-
-    def subp = getProject().subprojects.findAll()
-    subp.each {
-        def at = it.getTasks()
-        Jar j = at.findByName('jar') as Jar
-        result.add(j.archivePath)
-    }
-    result
-}
-
-task x << {
-    def r = leinResources()
-    r.each {
-        println it.getAbsolutePath()
-    }
-}
-
 apply plugin: 'rcstadheim.palenque'
-
-task myLeinDeps (type: rcstadheim.palenque.LeinDepsTask) {
-    leinProjectFile = file('demoproj.clj')
-    leinTemplateFile = file('local/project.clj')
-}
 
