@@ -35,9 +35,9 @@
 
     <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
         <property name="downloader" ref="downloader" />
-        <property name="calculator" ref="calculator" />
-        <property name="stockMarketRepos" ref="repos" />
+        <property name="stockMarketRepository" ref="repos" />
         <!--
+        <property name="calculator" ref="calculator" />
         <property name="derivativePriceType" value="1" />
         -->
     </bean>
@@ -46,7 +46,7 @@
         <property name="stockMarketRepos" ref="repos" />
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="downloader" ref="downloader" />
-        <property name="etrade" ref="etrade" />
+        <property name="etradeRepos" ref="etrade" />
         <property name="calculator" ref="calculator" />
     </bean>
 </beans>
