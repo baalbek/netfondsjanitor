@@ -138,15 +138,15 @@
       (doif .isQuery ctx (let [tix-s (COM/db-tix nil)] (doseq [t tix-s] (println t))))
       (doif .isPaperHistory ctx (do-paper-history (@s :downloader)))
       (doif .isFeed ctx (do-feed))
-      (doif .isSpot ctx (do-spot (@s :etrade)))
+      (doif .isSpot ctx (do-spot (@s :etraderepos)))
       (doif .isListHarvestFiles ctx
-        (HARV/do-harvest-files-with HARV/harvest-list-file (@s :etrade) ctx))
+        (HARV/do-harvest-files-with HARV/harvest-list-file (@s :etraderepos) ctx))
       (doif .isOptionPriceHarvest ctx
-        (HARV/do-harvest-files-with HARV/harvest-spots-and-optionprices (@s :etrade) ctx))
+        (HARV/do-harvest-files-with HARV/harvest-spots-and-optionprices (@s :etraderepos) ctx))
       (doif .isRedoOptionPriceHarvest ctx
-        (HARV/do-harvest-files-with HARV/redo-harvest-spots-and-optionprices (@s :etrade) ctx))
+        (HARV/do-harvest-files-with HARV/redo-harvest-spots-and-optionprices (@s :etraderepos) ctx))
       (doif .isUpdateDbOptions ctx
-        (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etrade) ctx))
+        (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etraderepos) ctx))
       (doif .isIvHarvest ctx
         (binding [*calculator* (@s :calculator)]
           (DB-HARV/do-harvest ctx)))
@@ -156,7 +156,7 @@
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
             (.downloadDerivatives dl t))))
-      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etrade)))
+      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etraderepos)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))

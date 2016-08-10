@@ -21,7 +21,7 @@ import java.util.Collection;
 public class ValidateHarvestBeansAspect extends AbstractValidateBeans {
     Logger log = Logger.getLogger(getClass().getPackage().getName());
 
-    @Pointcut("execution(* oahu.financial.repository.EtradeDerivatives.getSpotCallsPuts2(java.io.File))")
+    @Pointcut("execution(* oahu.financial.repository.EtradeRepository.getSpotCallsPuts2(java.io.File))")
     public void getSpotCallsPuts2Pointcut() {
     }
 
