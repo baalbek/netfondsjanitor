@@ -36,8 +36,8 @@
     <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
         <property name="downloader" ref="downloader" />
         <property name="stockMarketRepository" ref="repos" />
+        <property name="optionCalculator" ref="calculator" />
         <!--
-        <property name="calculator" ref="calculator" />
         <property name="derivativePriceType" value="1" />
         -->
     </bean>
