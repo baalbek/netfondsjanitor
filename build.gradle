@@ -93,10 +93,9 @@ dependencies {
     compile "net.sourceforge.htmlunit:htmlunit:$htmlunitVersion"
     runtime "org.jsoup:jsoup:1.8.3"
     runtime "org.ccil.cowan.tagsoup:tagsoup:1.2.1"
-
-
     //------------------- Colt -------------------
     runtime "colt:colt:$coltVersion"
+    //runtime group: 'jline', name: 'jline', version: '0.9.94'
 }
 
 String clazzPath() {

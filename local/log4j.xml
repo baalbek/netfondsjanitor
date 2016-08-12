@@ -16,7 +16,7 @@
     </appender>
 
     <root>
-        <priority value="DEBUG"/>
+        <priority value="INFO"/>
         <appender-ref ref="rollingAppender" />
         <!--
         <appender-ref ref="consoleAppender" />

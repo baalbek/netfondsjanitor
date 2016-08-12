@@ -4,9 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <!--
     <import resource="classpath:aop.xml" />
-    -->
 
     <!--
     <bean id="downloader" class="maunakea.financial.mocks.MockRollingDownloader">
@@ -24,14 +22,14 @@
     -->
 
 
-    <bean id="downloader" class="netfondsrepos.downloader.MockDownloader">
-
-    </bean>
     <!--
+    <bean id="downloader" class="netfondsrepos.downloader.MockDownloader">
+    </bean>
+    -->
+
     <bean id="downloader" class="netfondsrepos.downloader.DefaultDownloader">
         <property name="javaScriptEnabled" value="false" />
     </bean>
-    -->
 
     <bean id="calculator" class="vega.financial.calculator.BlackScholes">
     </bean>

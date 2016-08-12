@@ -61,3 +61,11 @@
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
+(defn calls [ticker]
+  (let [e (etrade)]
+    (.calls e ticker)))
+
+(defn dlx [ticker]
+  (let [d (dl)]
+    (.downloadDerivatives d ticker)))
+
