@@ -69,3 +69,15 @@
   (let [d (dl)]
     (.downloadDerivatives d ticker)))
 
+(defn fx []
+  (let [a (LocalDate/of 2016 1 1)
+        b (LocalDate/of 2016 8 1)]
+    (HARV/items-between-dates a b)))
+
+(def fdx (LocalDate/of 2016 1 1))
+
+(def tdx (LocalDate/of 2016 3 1))
+
+
+(defn dhfw[]  (HARV/do-harvest-files-with HARV/harvest-list-file (etrade) ["YAR"] fdx tdx))
+

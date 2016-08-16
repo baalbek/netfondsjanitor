@@ -128,8 +128,11 @@
     (let [to-datex (if (nil? to-date) from-date to-date)
           items (items-between-dates from-date to-datex)]
         (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex))
+        (LOG/info (str "Num items: " (count items)))
         (binding [*process-file* (process-file tix etrade on-process-file)]
-          (doseq [cur-dir items] (process-dir cur-dir))))))
+          (doseq [cur-dir items] 
+            (println cur-dir)
+            (process-dir cur-dir))))))
       ;(catch HtmlConversionException hex (LOG/error (str "(Harvest) " (.getMessage hex)))))))
 
 
@@ -248,6 +251,7 @@
 
 (defn harvest-list-file [^File f,
                         ^EtradeRepository etrade]
+  (println "(Harvest new derivatives) Hit on file: " (.getPath f))
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
   )
 
