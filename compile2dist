@@ -1,11 +1,9 @@
 #!/bin/bash
 
-lein javac
+gradle compileJava
 
 lein compile
 
-gradle jar
-
-cp build/libs/netfondsjanitor-5.1.SNAPSHOT.jar dist/
+gradle bAC
 
 exit 0
