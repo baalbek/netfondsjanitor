@@ -1,0 +1,5 @@
+#!/bin/bash
+
+java -jar netfondsjanitor-5.3.SNAPSHOT.jar "$@"
+
+exit 0

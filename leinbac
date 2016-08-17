@@ -1,11 +1,7 @@
 #!/bin/bash
 
-gradle compileJava
-
 lein compile
 
 gradle bAC
-
-gradle cTPP
 
 exit 0

@@ -127,8 +127,7 @@
     ;(try
     (let [to-datex (if (nil? to-date) from-date to-date)
           items (items-between-dates from-date to-datex)]
-        (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex))
-        (LOG/info (str "Num items: " (count items)))
+        (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex ", num items: " (.count items)))
         (binding [*process-file* (process-file tix etrade on-process-file)]
           (doseq [cur-dir items] 
             (println cur-dir)
