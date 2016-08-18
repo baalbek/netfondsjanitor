@@ -61,6 +61,14 @@
         b (month-begin y m d)]
     (concat a b)))
 
+(def tix-re (re-pattern "(\\S*)\\.html$"))
+
+(defn ticker-name-from-file [^File f]
+  (let [m (re-matches tix-re (.getName f))]
+    (if (nil? m)
+      nil
+      (second m))))
+
 (defn process-file [tix etrade on-process-file]
   (fn [^File f]
     (let [tix-re (re-pattern "(\\S*)\\.html$")]
@@ -254,3 +262,6 @@
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
   )
 
+(defn file-name-demo [^File f,
+                      ^EtradeRepository etrade]
+  (println (ticker-name-from-file f)))

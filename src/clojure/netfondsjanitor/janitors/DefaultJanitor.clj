@@ -146,7 +146,8 @@
       (doif .isRedoOptionPriceHarvest ctx
         (HARV/do-harvest-files-with HARV/redo-harvest-spots-and-optionprices (@s :etraderepos) ctx))
       (doif .isUpdateDbOptions ctx
-        (HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etraderepos) ctx))
+        (HARV/do-harvest-files-with HARV/file-name-demo (@s :etraderepos) ctx))
+        ;(HARV/do-harvest-files-with HARV/harvest-derivatives (@s :etraderepos) ctx))
       (doif .isIvHarvest ctx
         (binding [*calculator* (@s :calculator)]
           (DB-HARV/do-harvest ctx)))
