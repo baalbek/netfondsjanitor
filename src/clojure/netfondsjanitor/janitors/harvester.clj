@@ -5,6 +5,7 @@
     [org.apache.ibatis.exceptions PersistenceException]
     [oahu.financial.janitors JanitorContext]
     [oahu.financial DerivativePrice StockPrice]
+    [oahu.financial Derivative$LifeCycle]
     [oahu.financial.repository EtradeRepository]
     [ranoraraku.models.mybatis DerivativeMapper]
     [oahu.exceptions HtmlConversionException]
@@ -71,14 +72,13 @@
 
 (defn process-file [tix etrade on-process-file]
   (fn [^File f]
-    (let [tix-re (re-pattern "(\\S*)\\.html$")]
-      (LOG/info (str "(Harvest) Trying file: " (.getPath f)))
-      (domonad maybe-m
-        [
-          cur-tix (re-matches tix-re (.getName f))
-          hit (COM/in? (second cur-tix) tix)
-          ]
-        (on-process-file f etrade)))))
+    (LOG/info (str "(Harvest) Trying file: " (.getPath f)))
+    (domonad maybe-m
+      [
+        cur-tix (ticker-name-from-file f)
+        hit (COM/in? cur-tix tix)
+        ]
+      (on-process-file f etrade))))
 
 (def ^:dynamic *process-file*)
 
@@ -246,10 +246,11 @@
                            ^EtradeRepository etrade]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
-    (let [call-put-defs (.callPutDefs etrade f)]
+    (let [ticker (ticker-name-from-file f)
+          call-put-defs (filter #(= (.getLifeCycle %) Derivative$LifeCycle/FROM_HTML) (.callPutDefs etrade ticker f))]
       (if (= *test-run* true)
         (doseq [d call-put-defs]
-          (LOG/info (str "(Test run) Would insert  " (.getOpTypeStr d) ": " (.getTicker d))))
+          (LOG/info (str "(Test run) Would insert  " (.getOpTypeStr d) ": " (.getTicker d) ", life cycle: " (.getLifeCycle d))))
         (DB/insert-derivatives call-put-defs)))
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 

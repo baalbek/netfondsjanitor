@@ -4,7 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+    <!--
     <import resource="classpath:aop.xml" />
+    -->
 
     <!--
     <bean id="downloader" class="maunakea.financial.mocks.MockRollingDownloader">
@@ -36,20 +38,15 @@
 
     <bean id="contenthandler" class="netfondsrepos.contenthandler.DefaultContentHandler">
     </bean>
-    <!--
-    <bean id="locator" class="ranoraraku.models.impl.LocatorImpl" ></bean>
-    -->
-    <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" ></bean>
+
+    <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" >
+    </bean>
 
     <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
         <property name="downloader" ref="downloader" />
         <property name="stockMarketRepository" ref="repos" />
         <property name="optionCalculator" ref="calculator" />
         <property name="contentHandler" ref="contenthandler" />
-
-        <!--
-        <property name="derivativePriceType" value="1" />
-        -->
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">

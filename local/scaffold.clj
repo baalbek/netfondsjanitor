@@ -9,7 +9,7 @@
     [netfondsjanitor.janitors.DefaultJanitor :as JAN]
     [netfondsjanitor.service.db :as DB])
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *repos* *feed*)]
+    [netfondsjanitor.service.common :only (*user-tix* *repos* *feed* *test-run*)]
     [clojure.string :only [split join]]))
 
 
@@ -78,11 +78,17 @@
 
 (def tdx (LocalDate/of 2016 3 1))
 
+(def feed-path "/home/rcs/opt/java/netfondsjanitor/feed")
 
 (defn dhfw[]
-  (binding [*feed* "/home/rcs/opt/java/netfondsjanitor/feed"]
+  (binding [*feed* feed-path] 
     (HARV/do-harvest-files-with HARV/harvest-list-file (etrade) ["YAR"] fdx tdx)))
 
+(def my-file (java.io.File. (str feed-path "/2016/8/16/YAR.html")))
 
+(defn my-harv []
+  (binding [*test-run* true]
+    (HARV/harvest-derivatives my-file (etrade))))
 
-
+(defn my-cp-defs []
+  (.callPutDefs (etrade) "YAR" my-file))
