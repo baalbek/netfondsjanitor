@@ -1,5 +1,6 @@
 (ns scaffold
   (:import
+    [oahu.financial Derivative$LifeCycle]
     [java.time LocalDate LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
     [ranoraraku.models.mybatis DerivativeMapper]
@@ -92,3 +93,15 @@
 
 (defn my-cp-defs []
   (.callPutDefs (etrade) "YAR" my-file))
+
+(defn fromLifeCycle [defs lifeCycle]
+  (filter #(= (.getLifeCycle %) lifeCycle) defs))
+
+(defn fromHtml [defs]
+  (fromLifeCycle defs Derivative$LifeCycle/FROM_HTML))
+
+(defn fromDb [defs]
+  (fromLifeCycle defs Derivative$LifeCycle/FROM_DATABASE))
+
+
+
