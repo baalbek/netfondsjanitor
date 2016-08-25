@@ -1,5 +1,6 @@
 (ns scaffold
   (:import
+    [oahu.dto Tuple2]
     [oahu.financial Derivative$LifeCycle]
     [java.time LocalDate LocalTime]
     [org.springframework.context.support ClassPathXmlApplicationContext]
