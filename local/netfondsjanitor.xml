@@ -40,11 +40,15 @@
     <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" >
     </bean>
 
-    <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
+    <bean id="helper" class="netfondsrepos.contenthandler.impl.DefaultEtradeReposHelper">
         <property name="downloader" ref="downloader" />
         <property name="stockMarketRepository" ref="repos" />
         <property name="optionCalculator" ref="calculator" />
         <property name="contentHandler" ref="contenthandler" />
+    </bean>
+    <bean id="etrade" class="netfondsrepos.repos.DefaultEtradeRepository">
+        <property name="stockMarketRepository" ref="repos" />
+        <property name="etradeReposHelper" ref="helper" />
     </bean>
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
