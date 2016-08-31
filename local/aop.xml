@@ -7,6 +7,7 @@
 
     <aop:aspectj-autoproxy />
 
+    <!--
 
     <bean id="validateBeansAspect" class="netfondsjanitor.aspects.ValidateBeansAspect">
         <property name="daysLimit" value="10" />
@@ -16,6 +17,18 @@
         <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="htmlFileStoreDir" value="/home/rcs/opt/java/netfondsjanitor/html" />
         <property name="htmlFileStoreFormat" value="html" />
+    </bean>
+    -->
+
+    <!--
+    <bean id="keyFactory" class="oahu.aspects.cache.impl.CacheKeyWithIdFactory">
+    </bean>
+    -->
+
+    <bean id="cacheBeanAspect" class="netfondsrepos.aspects.EtradeRepositoryManager">
+        <!--
+        <property name="keyFactory" ref="keyFactory"/>
+        -->
     </bean>
 
     <!--

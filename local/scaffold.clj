@@ -92,8 +92,11 @@
   (binding [*test-run* true]
     (HARV/harvest-derivatives my-file (etrade))))
 
-(defn my-cp-defs []
+(defn my-cp-defs-2 []
   (.callPutDefs (etrade) "YAR" my-file))
+
+(defn my-cp-defs []
+  (.callPutDefs (etrade) "YAR"))
 
 (defn fromLifeCycle [defs lifeCycle]
   (filter #(= (.getLifeCycle %) lifeCycle) defs))
