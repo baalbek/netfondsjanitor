@@ -1,16 +1,16 @@
 package netfondsjanitor.aspects;
 
-import oahu.dto.Tuple3;
-import oahu.exceptions.BinarySearchException;
+import netfondsjanitor.aspects.validation.ValidateHarvestDerivativePrice;
 import oahu.financial.DerivativePrice;
-import oahu.financial.StockPrice;
 import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,86 +20,50 @@ import java.util.Collection;
  */
 
 @Aspect
-public class ValidateBeansAspect extends AbstractValidateBeans {
+public class ValidateBeansAspect {
     Logger log = Logger.getLogger(getClass().getPackage().getName());
 
     private Double spreadLimit = null;
     private Integer daysLimit = 0;
 
-    @Pointcut("execution(* oahu.financial.repository.EtradeRepository.getSpotCallsPuts2(java.io.File))")
-    public void getSpotCallsPuts2Pointcut() {
+    @Pointcut("execution(Collection<DerivativePrice> oahu.financial.repository.EtradeRepository.*(String))")
+    public void getCallsPutsPointcut() {
     }
 
-    @Around("getSpotCallsPuts2Pointcut()")
-    public Tuple3<StockPrice,Collection<DerivativePrice>,Collection<DerivativePrice>>
-    getSpotCallsPuts2PointcutMethod(ProceedingJoinPoint jp) throws Throwable {
-        return exec(jp);
-    }
-
-    protected boolean isOk(DerivativePrice cb) {
-
+    @SuppressWarnings("unchecked")
+    @Around("getCallsPutsPointcut()")
+    public Collection<DerivativePrice> 
+    getCallsPutsPointcutMethod(ProceedingJoinPoint jp) throws Throwable {
+        Collection<DerivativePrice> items = (Collection<DerivativePrice>)jp.proceed();
         /*
-        if (cb.getParent() == null) {
-            log.warn(String.format("%s: parent is null",ticker));
-            return false;
-        }
-        */
+        Collection<DerivativePrice> result =
+                items.stream().filter(
+                        p -> derivativePriceValidation.apply(p)
+                ).collect(Collectors.toCollection(ArrayList::new));
+        //*/
+        Collection<DerivativePrice> result = new ArrayList<>();
 
-        if (cb.getDays() < daysLimit) {
-            log.info(String.format("%s has expired within %d days",getTickerFor(cb),daysLimit));
-            return false;
-        }
-
-        if (cb.getBuy() <= 0) {
-            log.warn(String.format("%s: buy <= 0.0",getTickerFor(cb) ));
-            return false;
+        if (derivativePriceValidation == null) {
+            derivativePriceValidation = new ValidateHarvestDerivativePrice();
         }
 
-        if (cb.getSell() <= 0) {
-            log.warn(String.format("%s: sell <= 0.0",getTickerFor(cb)));
-            return false;
-        }
-
-        if (spreadLimit != null) {
-            double spread = cb.getSell() - cb.getBuy();
-            if (spread > spreadLimit.doubleValue()) {
-                log.info(String.format("%s: spread (%.2f) larger than allowed (%.2f)",getTickerFor(cb),spread,spreadLimit));
-                return false;
+        for (DerivativePrice p : items) {
+            if (derivativePriceValidation.apply(p)) {
+                result.add(p);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Option passed ok: %s", p.getDerivative().getTicker()));
+                }
+            }
+            else if (log.isDebugEnabled()) {
+                log.debug(String.format("Option fail: %s", p.getDerivative().getTicker()));
             }
         }
-
-        try {
-            if (cb.getIvSell() <= 0) {
-                log.info(String.format("%s: ivSell <= 0.0",getTickerFor(cb)));
-                return false;
-            }
-
-            if (cb.getIvBuy() <= 0) {
-                log.info(String.format("%s: ivBuy <= 0.0",getTickerFor(cb)));
-                return false;
-            }
-        }
-        catch (BinarySearchException ex) {
-            log.warn(String.format("%s: %s",getTickerFor(cb),ex.getMessage()));
-            return false;
-        }
-        return true;
+        return result;
     }
 
-    public Double getSpreadLimit() {
-        return spreadLimit;
-    }
+    private Function<DerivativePrice,Boolean> derivativePriceValidation;
 
-    public void setSpreadLimit(Double spreadLimit) {
-        this.spreadLimit = spreadLimit;
+    public void setDerivativePriceValidation(Function<DerivativePrice, Boolean> derivativePriceValidation) {
+        this.derivativePriceValidation = derivativePriceValidation;
     }
-
-    public Integer getDaysLimit() {
-        return daysLimit;
-    }
-
-    public void setDaysLimit(Integer daysLimit) {
-        this.daysLimit = daysLimit;
-    }
-
 }
