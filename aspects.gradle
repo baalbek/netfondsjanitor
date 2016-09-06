@@ -1,0 +1,40 @@
+//apply from: 'settings.gradle'
+
+apply from: 'build.gradle'
+
+configurations {
+    aspectjTask
+}
+
+dependencies {
+    aspectjTask "org.aspectj:aspectjrt:$aspectjVersion"
+    aspectjTask "org.aspectj:aspectjweaver:$aspectjVersion"
+    aspectjTask "org.aspectj:aspectjtools:$aspectjVersion"
+    aspectjTask "org.springframework:spring-core:$springVersion"
+    aspectjTask "org.springframework:spring-context:$springVersion"
+}
+
+ext {
+    netfondsHome = '/home/rcs/opt/java/netfondsjanitor'
+    classesHome = "$netfondsHome/target/classes"
+    aspectHome = "$netfondsHome/src/aspect"
+}
+
+compileJava.deleteAllActions()
+
+compileJava << {
+    println configurations.aspectjTask.asPath
+    ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
+            classpath: configurations.aspectjTask.asPath)
+    ant.iajc(inpath: classesHome,
+            source: '1.8',
+            target: '1.8',
+            destDir: classesHome,
+            sourceRoots: aspectHome,
+            classpath: configurations.aspectjTask.asPath) //'/home/rcs/opt/aspectj1.8/lib/aspectjrt.jar')
+}
+
+task printInfo << {
+    println classesHome
+    println configurations.aspectjTask.asPath
+}

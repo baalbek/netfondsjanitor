@@ -4,9 +4,9 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+    <!--
     <import resource="classpath:aop.xml" />
 
-    <!--
     <bean id="downloader" class="maunakea.financial.mocks.MockRollingDownloader">
         <property name="htmlPath"
                   value="file:///home/rcs/opt/java/ivharvest/html/volsnapshots/2012/12" ></property>

@@ -123,6 +123,7 @@ jar {
     from ("target/classes") include "**/*.class"
 }
 
+/*
 buildscript {
     repositories {
         mavenLocal()
@@ -134,4 +135,6 @@ buildscript {
 }
 
 apply plugin: 'rcstadheim.palenque'
+*/
+
 
