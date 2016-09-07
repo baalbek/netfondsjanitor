@@ -27,6 +27,7 @@
     </bean>
     -->
 
+    <!--
     <bean id="downloader" class="netfondsrepos.downloader.DefaultDownloader">
         <property name="javaScriptEnabled" value="false" />
     </bean>
@@ -57,6 +58,9 @@
         <property name="downloader" ref="downloader" />
         <property name="etradeRepos" ref="etrade" />
         <property name="calculator" ref="calculator" />
+    </bean>
+    -->
+    <bean id="repos" class="ranoraraku.models.impl.StockMarketReposImpl" >
     </bean>
 </beans>
 

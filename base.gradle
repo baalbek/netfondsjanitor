@@ -1,0 +1,52 @@
+//apply plugin: 'java'
+
+group = 'rcstadheim'
+
+ext.major = '5'
+ext.minor = '3'
+
+version = "${major}.${minor}.SNAPSHOT"
+
+archivesBaseName = 'netfondsjanitor'
+
+ext {
+    springVersion = '4.2.3.RELEASE'
+    htmlunitVersion = '2.22'
+    junitVersion = '4.11'
+    log4jVersion = '1.2.17'
+    aspectjVersion = '1.8.9'
+    mybatisVersion = '3.4.1'
+    mongoVersion = '2.12.5'
+    postgresVersion = '9.4-1206-jdbc42'  // '9.1-901.jdbc4'
+    coltVersion = '1.2.0'
+    arg4jVersion = '2.33'
+    commonsLangVersion = '20030203.000129'
+    enliveVersion = '1.1.5'
+
+    //-------------------- clojure ---------------------
+    clojureVersion = '1.7.0'
+    clojureContribVersion = '1.2.0'
+    algoMonadsVersion = '0.1.5'
+    clojuresqueVersion = '1.5.8'
+    numericTowerVersion = '0.0.4'
+
+
+
+    parentDist = '/home/rcs/opt/java/netfondsjanitor/dist'
+
+
+    myLibName = "netfondsjanitor-${version}.jar"
+}
+
+
+sourceCompatibility = 1.8
+
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://clojars.org/repo'
+    }
+}
+

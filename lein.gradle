@@ -1,0 +1,12 @@
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath group: 'rcstadheim', name: 'palenque',
+                version: '1.0'
+    }
+}
+
+apply plugin: 'rcstadheim.palenque'
