@@ -7,6 +7,8 @@ import netfondsjanitor.service.CmdLineValues;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import oahu.financial.repository.StockMarketRepository;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -18,16 +20,12 @@ public class App {
 
             ApplicationContext factory = new ClassPathXmlApplicationContext(opts.getXml());
 
+            StockMarketRepository repo = factory.getBean("repos",StockMarketRepository.class);
+            /*
             Janitor janitor = factory.getBean("janitor",Janitor.class);
 
-            /*List<String> tickers = opts.getTickers();
-            if (tickers == null) {
-                Locator locator = factory.getBean("locator",Locator.class);
-                List<Stock> stox = locator.getTickers();
-                tickers = stox.stream().map(Stock::getTicker).collect(Collectors.toList());
-            }*/
-
             janitor.run(opts);
+            */
 
         } catch (CmdLineException e) {
             System.out.println(e.getMessage());
