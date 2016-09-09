@@ -1,23 +1,18 @@
 apply plugin: 'java'
 
+apply from: '/home/rcs/opt/java/gradlecommon/depversions.gradle'
+
 apply from: 'base.gradle'
 
 configurations {
     aspectjTask
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        url 'http://clojars.org/repo'
-    }
-}
-
 dependencies {
     aspectjTask project(':oahu')
     aspectjTask project(':ranoraraku')
     aspectjTask project(':waimea')
-    aspectjTask project(':netfonds-repos')
+    //aspectjTask project(':netfonds-repos')
     //------------------- spring -------------------
     aspectjTask "org.springframework:spring-core:$springVersion"
     aspectjTask "org.springframework:spring-context:$springVersion"
@@ -32,6 +27,7 @@ dependencies {
     aspectjTask "args4j:args4j:$arg4jVersion"
     aspectjTask "org.clojure:algo.monads:$algoMonadsVersion"
     aspectjTask "net.sourceforge.htmlunit:htmlunit:$htmlunitVersion"
+    aspectjTask "colt:colt:$coltVersion"
     //------------------- aspectj -------------------
     aspectjTask "org.aspectj:aspectjrt:$aspectjVersion"
     aspectjTask "org.aspectj:aspectjweaver:$aspectjVersion"
@@ -40,33 +36,11 @@ dependencies {
     aspectjTask "org.springframework:spring-context:$springVersion"
 }
 
-String clazzPath() {
-    ((configurations.aspectjTask.files.collect { f ->
-        f.name
-    }) << ".").join(" ")
-}
-
-
-task copyDeps(type: Copy) {
-    into 'dist' from configurations.runtime
-}
-
-task buildAndCopy(type: Copy, dependsOn: build) {
-    description 'Builds jar and copies into dist'
-    into 'dist' from new File("$libsDir/$myLibName")
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': 'netfondsjanitor.App'
-        attributes 'Class-Path': clazzPath()
-    }
-    from ("target/classes") include "**/*.class"
-}
-
-
-ext.netfondsHome = '/home/rcs/opt/java/netfondsjanitor'
-ext.classesHome = "$netfondsHome/target/classes"
+ext.top = '/home/rcs/opt/java'
+ext.netfondsHome = "$top/netfondsjanitor"
+ext.reposHome = "$top/netfonds-repos"
+ext.classesHome = "$netfondsHome/build/classes:$reposHome/build/classes"
+ext.targetClassesHome = "$netfondsHome/target/classes"
 ext.aspectHome = "$netfondsHome/src/aspect"
 
 compileJava.deleteAllActions()
@@ -78,11 +52,25 @@ task compileAop << {
     ant.iajc(inpath: classesHome,
             source: '1.8',
             target: '1.8',
-            destDir: classesHome,
+            destDir: targetClassesHome,
             sourceRoots: aspectHome,
             classpath: configurations.aspectjTask.asPath) //'/home/rcs/opt/aspectj1.8/lib/aspectjrt.jar')
 }
 
-task printClazzPath << {
-    println clazzPath()
+String clazzPath() {
+    ((configurations.aspectjTask.files.collect { f ->
+        f.name
+    }) << ".").join(" ")
+}
+
+task prnClazzPathX << {
+   println clazzPath()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'netfondsjanitor.App'
+        attributes 'Class-Path': clazzPath()
+    }
+    from ("target/classes") include "**/*.class"
 }

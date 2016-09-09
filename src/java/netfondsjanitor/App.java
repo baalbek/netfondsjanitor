@@ -1,5 +1,6 @@
 package netfondsjanitor;
 
+import oahu.aspects.cache.Cacheable;
 import oahu.financial.janitors.Janitor;
 import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
@@ -20,12 +21,14 @@ public class App {
 
             ApplicationContext factory = new ClassPathXmlApplicationContext(opts.getXml());
 
-            StockMarketRepository repo = factory.getBean("repos",StockMarketRepository.class);
-            /*
             Janitor janitor = factory.getBean("janitor",Janitor.class);
 
-            janitor.run(opts);
-            */
+            Cacheable c = factory.getBean("demo",Cacheable.class);
+
+            System.out.println("Get uuid: " + c.getUUID());
+
+
+            // janitor.run(opts);
 
         } catch (CmdLineException e) {
             System.out.println(e.getMessage());

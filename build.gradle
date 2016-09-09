@@ -1,6 +1,12 @@
 apply plugin: 'java'
 
-apply from: 'base.gradle'
+apply from: '/home/rcs/opt/java/gradlecommon/depversions.gradle'
+
+group = 'rcstadheim'
+
+configurations {
+    aspectjTask
+}
 
 sourceSets {
     main {
@@ -10,7 +16,7 @@ sourceSets {
         resources {
             srcDir "src/resources"
         }
-        output.classesDir = 'target/classes'
+        output.classesDir = 'build/classes'
     }
     test {
         java {
@@ -22,23 +28,42 @@ sourceSets {
     }
 }
 
+ext {
+    major = '5'
+    minor = '3'
+    parentDist = '/home/rcs/opt/java/netfondsjanitor/dist'
+    myLibName = "netfondsjanitor-${version}.jar"
+}
+
+version = "${major}.${minor}.SNAPSHOT"
+
+archivesBaseName = 'netfondsjanitor'
+
+sourceCompatibility = 1.8
+
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://clojars.org/repo'
+    }
+}
+
 dependencies {
     compile project(':oahu')
     compile project(':ranoraraku')
     compile project(':waimea')
-    compile project(':netfonds-repos')
-    //compile project(':kilauea')
-    //------------------- aspectj -------------------
-    //compile "org.aspectj:aspectjrt:$aspectjVersion"
-    //compile "org.aspectj:aspectjweaver:$aspectjVersion"
-    //compile "org.aspectj:aspectjtools:$aspectjVersion"
+    if (!project.hasProperty('aop')) {
+        compile project(':netfonds-repos')
+    }
     //------------------- spring -------------------
     compile "org.springframework:spring-core:$springVersion"
     compile "org.springframework:spring-context:$springVersion"
     compile "org.springframework:spring-aop:$springVersion"
     //------------------- clojure-------------------
-    runtime "org.clojure:clojure:$clojureVersion"
-    runtime "org.clojure:clojure-contrib:$clojureContribVersion"
+    compile "org.clojure:clojure:$clojureVersion"
+    compile "org.clojure:clojure-contrib:$clojureContribVersion"
     //------------------- diverse -------------------
     compile "org.mybatis:mybatis:$mybatisVersion"
     compile "junit:junit:$junitVersion"
@@ -46,27 +71,43 @@ dependencies {
     compile "args4j:args4j:$arg4jVersion"
     compile "org.clojure:algo.monads:$algoMonadsVersion"
     compile "net.sourceforge.htmlunit:htmlunit:$htmlunitVersion"
-    runtime "org.jsoup:jsoup:1.8.3"
-    runtime "org.ccil.cowan.tagsoup:tagsoup:1.2.1"
+    compile "org.jsoup:jsoup:1.8.3"
+    compile "org.ccil.cowan.tagsoup:tagsoup:1.2.1"
     //------------------- Colt -------------------
     runtime "colt:colt:$coltVersion"
-    //runtime group: 'jline', name: 'jline', version: '0.9.94'
+    //------------------- Aspectj -------------------
+    runtime "org.aspectj:aspectjrt:$aspectjVersion"
+    aspectjTask "org.aspectj:aspectjweaver:$aspectjVersion"
+    aspectjTask "org.aspectj:aspectjtools:$aspectjVersion"
 }
 
 String clazzPath() {
-    ((configurations.runtime.files.collect { f ->
+    (configurations.runtime.files.collect { f ->
         f.name
-    }) << ".").join(" ")
+    } 
+    << configurations.aspectjTask.files.collect { f ->
+        f.name
+    } 
+    << ".").join(" ")
 }
 
-
-task copyDeps(type: Copy) {
-    into 'dist' from configurations.runtime
+task printXx1 << {
+    configurations.runtime.files.collect { f ->
+        println f
+    }
+}
+task printXx2 << {
+    def aopcp = configurations.compile.files << configurations.aspectjTask.files
+    aopcp.each {
+        println it
+    }
 }
 
-task buildAndCopy(type: Copy, dependsOn: build) {
-    description 'Builds jar and copies into dist'
-    into 'dist' from new File("$libsDir/$myLibName")
+task aopClazzPath << {
+    def r = configurations.aspectjTask.asPath //<< configurations.runtime.asPath 
+    r.each {
+        println it
+    }
 }
 
 jar {
@@ -77,9 +118,36 @@ jar {
     from ("target/classes") include "**/*.class"
 }
 
-task printClassPath << {
+ext.top = '/home/rcs/opt/java'
+ext.netfondsHome = "$top/netfondsjanitor"
+ext.reposHome = "$top/netfonds-repos"
+ext.classesHome = "$netfondsHome/build/classes:$reposHome/build/classes"
+ext.targetClassesHome = "$netfondsHome/target/classes"
+ext.aspectHome = "$netfondsHome/src/aspect"
 
-    println clazzPath()
+//compileJava.deleteAllActions()
+
+task compileAop << {
+    def aopcp = configurations.compile.asPath << configurations.aspectjTask.asPath
+    ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
+            classpath: configurations.aspectjTask.asPath)
+    ant.iajc(inpath: classesHome,
+            source: '1.8',
+            target: '1.8',
+            destDir: targetClassesHome,
+            sourceRoots: aspectHome,
+            classpath: aopcp) 
 }
 
 
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath group: 'rcstadheim', name: 'palenque',
+                version: '1.0'
+    }
+}
+
+apply plugin: 'rcstadheim.palenque'

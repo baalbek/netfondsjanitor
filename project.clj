@@ -25,7 +25,7 @@
     ]
   ;:main ^:skip-aot harborview.webapp
   ;:compile 
-  :target-path "target"
+  :target-path "build"
   :source-paths ["src/clojure"]
   :test-paths ["test/clojure" "dist" "test/resources"]
   :java-source-paths ["src/java" "test/java"]
