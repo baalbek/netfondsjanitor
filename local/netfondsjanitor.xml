@@ -56,8 +56,11 @@
     </bean>
 
 
-    <bean id="demo" class="netfondsjanitor.aspects.DemoAspect"
-        factory-method="aspectOf">
+    <bean id="cachekey" class="netfondsjanitor.cache.CacheIdKeyFactory">
+    </bean>
+
+    <bean id="cache" class="netfondsjanitor.aspects.cache.CacheAspect" factory-method="aspectOf">
+        <property name="cacheKeyFactory" ref="cachekey" />
     </bean>
 
 </beans>

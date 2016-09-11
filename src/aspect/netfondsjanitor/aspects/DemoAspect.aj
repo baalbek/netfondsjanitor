@@ -21,13 +21,11 @@ public privileged aspect DemoAspect implements  Cacheable {
         System.out.println("Before " + thisJoinPoint + ", " + counter++);
     }
 
-    /*
     pointcut htmlParse() : execution(* DefaultEtradeRepository.parseHtmlFor(..));
 
-    around() : htmlParse() {
+    Object around() : htmlParse() {
         System.out.println("PARSING HTML...");
         return proceed();
     }
-    */
 }
 

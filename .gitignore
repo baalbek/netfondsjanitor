@@ -17,7 +17,6 @@ html/
 .gradle
 build/
 dist/
-cache
 classes
 reflection
 libs
