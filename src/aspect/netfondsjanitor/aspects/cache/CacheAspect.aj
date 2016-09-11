@@ -12,47 +12,45 @@ import oahu.annotations.Cache;
 import java.util.function.Function;
 
 public privileged aspect CacheAspect  {
-    Map<String,Object> cached = new HashMap<>();
+    Map<Integer,Map<String,Object>> cachedThisObj = new HashMap<>();
 
     pointcut cached() : execution(@Cache * *(..));
 
 
     Object around() : cached() {
-        /*
-        JoinPoint jp = thisJoinPoint;
-        Object[] args = jp.getArgs();
-        Cache annot = getAnnotation(jp);
+        if (cacheKeyFactory == null) {
+            return proceed();
+        }
 
-        System.out.println("CACHED " + jp.getThis() + ", args: " + args + ", annot: " + annot.id());
+        Map<String,Object> cachedMethods = null;
 
-        System.out.println(cacheKeyFactory.apply(jp));
-
-        return proceed();
-        */
+        int hc =  thisJoinPoint.getThis().hashCode();
+        if (cachedThisObj.containsKey(hc)) {
+            cachedMethods = cachedThisObj.get(hc);
+        }
+        else {
+            cachedMethods = new HashMap<>();
+            cachedThisObj.put(hc,cachedMethods);
+        }
 
         String key = cacheKeyFactory.apply(thisJoinPoint);
-        if (cached.containsKey(key)){
+        if (cachedMethods.containsKey(key)){
             System.out.println("Return cached result");
-            return cached.get(key);
+            return cachedMethods.get(key);
         }
         else {
             System.out.println("Caching result");
             Object result = proceed();
 
-            cached.put(key,result);
+            cachedMethods.put(key,result);
 
             return result;
         }
     }
 
-    /*
-    Cache getAnnotation(JoinPoint jp) {
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        Method method = signature.getMethod();
-        return method.getAnnotation(Cache.class);
+    public void invalidate(Object thisObj) {
+        cachedThisObj.remove(thisObj);
     }
-    //*/
-
 
     Function<JoinPoint,String> cacheKeyFactory;
 

@@ -27,7 +27,7 @@ public class CacheIdKeyFactory implements Function<JoinPoint,String> {
         }
     }
 
-    Cache getAnnotation(JoinPoint jp) {
+    private Cache getAnnotation(JoinPoint jp) {
         MethodSignature signature = (MethodSignature) jp.getSignature();
         Method method = signature.getMethod();
         return method.getAnnotation(Cache.class);
