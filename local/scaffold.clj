@@ -98,6 +98,9 @@
 (defn my-cp-defs []
   (.callPutDefs (etrade) "YAR"))
 
+(defn my-defs [prices]
+  (map #(.getDerivative %) prices))
+
 (defn fromLifeCycle [defs lifeCycle]
   (filter #(= (.getLifeCycle %) lifeCycle) defs))
 

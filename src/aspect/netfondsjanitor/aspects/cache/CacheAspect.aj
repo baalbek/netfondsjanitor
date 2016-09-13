@@ -12,7 +12,7 @@ import oahu.annotations.Cache;
 import java.util.function.Function;
 
 public privileged aspect CacheAspect  {
-    Map<Integer,Map<String,Object>> cachedThisObj = new HashMap<>();
+    Map<Object,Map<String,Object>> cachedThisObj = new HashMap<>();
 
     pointcut cached() : execution(@Cache * *(..));
 
@@ -24,7 +24,8 @@ public privileged aspect CacheAspect  {
 
         Map<String,Object> cachedMethods = null;
 
-        int hc =  thisJoinPoint.getThis().hashCode();
+        //int hc =  thisJoinPoint.getThis().hashCode();
+        Object hc =  thisJoinPoint.getThis();
         if (cachedThisObj.containsKey(hc)) {
             cachedMethods = cachedThisObj.get(hc);
         }

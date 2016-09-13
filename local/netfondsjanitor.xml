@@ -56,10 +56,21 @@
     </bean>
 
 
+    <!-- Validation -->
+    <bean id="validatePrices" class="netfondsjanitor.validation.ValidateDerivativePrices1">
+    </bean>
+
+    <bean id="validateAspect" class="netfondsjanitor.aspects.validation.ValidateDerivatives"
+          factory-method="aspectOf">
+        <property name="validatePrices" ref="validatePrices" />
+    </bean>
+
+    <!-- Cache -->
     <bean id="cachekey" class="netfondsjanitor.cache.CacheIdKeyFactory">
     </bean>
 
-    <bean id="cache" class="netfondsjanitor.aspects.cache.CacheAspect" factory-method="aspectOf">
+    <bean id="cache" class="netfondsjanitor.aspects.cache.CacheAspect"
+          factory-method="aspectOf">
         <property name="cacheKeyFactory" ref="cachekey" />
     </bean>
 
