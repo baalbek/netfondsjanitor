@@ -23,12 +23,7 @@ public class App {
 
             Janitor janitor = factory.getBean("janitor",Janitor.class);
 
-            Cacheable c = factory.getBean("demo",Cacheable.class);
-
-            System.out.println("Get uuid: " + c.getUUID());
-
-
-            // janitor.run(opts);
+            janitor.run(opts);
 
         } catch (CmdLineException e) {
             System.out.println(e.getMessage());

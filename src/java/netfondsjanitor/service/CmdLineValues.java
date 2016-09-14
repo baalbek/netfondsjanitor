@@ -60,10 +60,10 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-t", aliases = { "--tickers" }, required = false, usage = "Manually supplied Stock Tickers (comma-separated)")
     private String tickers;
 
-    @Option(name = "-A", aliases = { "--harvestFrom" }, required = false, usage = "Harvest (iv of option price) start date (yyyy-mm-dd)" )
+    @Option(name = "-A", aliases = { "--harvestFrom" }, required = false, usage = "Harvest (iv of option price) start date (yyyy-mm[-dd])" )
     private String harvestFrom;
 
-    @Option(name = "-B", aliases = { "--harvestTo" }, required = false, usage = "Harvest (iv or option price) end date (yyyy-mm-dd)" )
+    @Option(name = "-B", aliases = { "--harvestTo" }, required = false, usage = "Harvest (iv or option price) end date (yyyy-mm[-dd])" )
     private String harvestTo;
 
     @Option(name = "-D", aliases = { "--test-run" }, required = false, usage = "If set, will perform test run" )
