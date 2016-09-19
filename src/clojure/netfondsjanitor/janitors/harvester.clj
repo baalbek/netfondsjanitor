@@ -1,5 +1,6 @@
 (ns netfondsjanitor.janitors.harvester
   (:import
+    [java.util Optional]
     [java.io File]
     [java.time LocalDate]
     [org.apache.ibatis.exceptions PersistenceException]
@@ -188,59 +189,34 @@
   (catch Exception e
     (LOG/warn (.getMessage e)))))
 
-(comment redo-harvest-spots-and-optionprices [^File f,
-                                           ^EtradeRepository etrade]
-  (try
-    (let [scp (.getSpotCallsPuts2 etrade ^File f)
-          ^StockPrice spot (.first scp)]
-      (if-let [spot-oid (DB/with-session DerivativeMapper
-                          (.findSpotId ^DerivativeMapper it ^StockPrice spot))]
-        (let [calls (.second scp)
-              puts (.third scp)
-              insert-fn (fn [x]
-                          (let [opid (.getDerivativeId x)
-                                sid (.getStockPriceId x)]
-                            (DB/with-session DerivativeMapper
-                              (try
-                                (do
-                                  (LOG/info (str "New option price?: stockprice id: " sid ", option id: " opid ", buy: " (.getBuy x) ", sell: " (.getSell x)))
-                                  (.insertDerivativePrice ^DerivativeMapper it x))
-                                (catch Exception e
-                                  (LOG/warn (.getMessage e)))))))]
-          (.setOid spot spot-oid)
-          (LOG/info (str "Inserting new option prices for existing spot [oid " spot-oid "]"))
-          (doseq [cx calls] (insert-fn cx))
-          (doseq [px puts] (insert-fn px)))
-        (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
-  (catch Exception e
-    (LOG/warn (.getMessage e)))))
-
 (defn harvest-spots-and-optionprices [^File f,
                   ^EtradeRepository etrade]
   (try
-    (let [scp (.getSpotCallsPuts2 etrade ^File f)
-          ^StockPrice spot (.first scp)
-          calls (.second scp)
-          puts (.third scp)]
-      (if (= *test-run* true)
-        (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
-        (try
-          (LOG/info (str "(harvest) Hit on file: " (.getPath f)
-                      ", date: " (.getDx spot)
-                      ", time: " (.getSqlTime spot)))
-          (DB/with-session DerivativeMapper
-            (do
-              (.insertSpot it spot)
-              (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
-              (insert calls puts it)))
-          (catch PersistenceException e
-            (let [err-code (.getSQLState (.getCause e))]
-              (if (.equals err-code "23505")
-                (DB/with-session DerivativeMapper
-                  (insert-existing-spot spot calls puts it))
-                (LOG/error (str (.getMessage e))))))
-          (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))
-    (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
+    (let [f-name (ticker-name-from-file f)
+          ^Optional opt-spot (.stockPrice etrade f-name)]
+      (if (= (.isPresent opt-spot) true)
+        (let  [^StockPrice spot (.get opt-spot)
+               calls (.calls etrade f-name)
+               puts (.puts etrade f-name)]
+          (if (= *test-run* true)
+            (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
+            (try
+              (LOG/info (str "(harvest) Hit on file: " (.getPath f)
+                          ", date: " (.getDx spot)
+                          ", time: " (.getSqlTime spot)))
+              (DB/with-session DerivativeMapper
+                (do
+                  (.insertSpot it spot)
+                  (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
+                  (insert calls puts it)))
+              (catch PersistenceException e
+                (let [err-code (.getSQLState (.getCause e))]
+                  (if (.equals err-code "23505")
+                    (DB/with-session DerivativeMapper
+                      (insert-existing-spot spot calls puts it))
+                    (LOG/error (str (.getMessage e))))))
+              (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))))
+        (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
 (defn harvest-derivatives [^File f,
                            ^EtradeRepository etrade]

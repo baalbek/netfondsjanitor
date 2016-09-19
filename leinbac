@@ -2,6 +2,10 @@
 
 lein compile
 
-gradle bAC
+gradle compileJava
+
+gradle jar 
+
+cp build/libs/netfondsjanitor-5.3.SNAPSHOT.jar dist/
 
 exit 0

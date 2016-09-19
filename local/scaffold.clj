@@ -42,6 +42,9 @@
     (.setStock s (stock-impl))
     s))
 
+(defn max-spot-dx []
+  (DB/with-session DerivativeMapper
+    (.maxSpotDxPrTicker it)))
 
 (def factory
   (memoize

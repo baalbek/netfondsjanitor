@@ -92,7 +92,7 @@ public class CmdLineValues implements JanitorContext {
         parser.setUsageWidth(80);
         parser.parseArgument(args);
 
-        if (help == true) {
+        if (help) {
             parser.printUsage(System.err);
             System.exit(0);
         }
@@ -199,8 +199,21 @@ public class CmdLineValues implements JanitorContext {
     public boolean isIvHarvest() {
         return ivHarvest;
     }
+
+    private List m31 = Arrays.asList("1","3","5","7","8","10","12");
+
     @Override
     public LocalDate harvestFrom() {
+        if (harvestFrom == null) {
+            return LocalDate.now();
+        }
+        String[] s = harvestFrom.split("-");
+        if (s.length == 2) {
+            harvestFrom = String.format("%s-%s-1", s[0],s[1]);
+            String endDay = s[1].equals("2") ? "28" :
+                    m31.contains(s[1]) ? "31" : "30";
+            harvestTo = String.format("%s-%s-%s", s[0],s[1],endDay);
+        }
         return LocalDate.parse(harvestFrom, formatter);
     }
     @Override
@@ -215,7 +228,10 @@ public class CmdLineValues implements JanitorContext {
 
     @Override
     public String toString() {
-        return String.format("xml: %s",getXml());
+        return String.format("-x: %s, -A: %s, -B: %s",
+                getXml(),
+                harvestFrom(),
+                harvestTo());
     }
 
     @Override

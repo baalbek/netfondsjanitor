@@ -1,8 +1,8 @@
 #!/bin/bash
 
-gradle compileJava
-
 lein compile
+
+gradle compileJava
 
 gradle compileAop
 
