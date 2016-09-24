@@ -44,7 +44,7 @@
 
 (defn max-spot-dx []
   (DB/with-session DerivativeMapper
-    (.maxSpotDxPrTicker it)))
+    (.spotOptionPriceSummary it)))
 
 (def factory
   (memoize
@@ -113,5 +113,5 @@
 (defn fromDb [defs]
   (fromLifeCycle defs Derivative$LifeCycle/FROM_DATABASE))
 
-
+(def rex "mandag 11/01-2016 17:59:05")
 

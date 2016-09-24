@@ -72,22 +72,21 @@
       (second m))))
 
 (defn process-file [tix etrade on-process-file]
-  (fn [^File f]
+  (fn [^File f year month day]
     (LOG/info (str "(Harvest) Trying file: " (.getPath f)))
     (domonad maybe-m
       [
         cur-tix (ticker-name-from-file f)
         hit (COM/in? cur-tix tix)
         ]
-      (on-process-file f etrade))))
+      (on-process-file f etrade year month day))))
 
 (def ^:dynamic *process-file*)
 
 (defn process-dir [[y m d]]
-  ;(let [cur-dir (clojure.java.io/file (join "/" ["/home/rcs/opt/java/netfondsjanitor/feed" y m d]))
   (let [cur-dir (clojure.java.io/file (join "/" [*feed* y m d]))
         files (filter #(.isFile ^File %) (file-seq cur-dir))]
-    (doseq [cur-file files] (*process-file* cur-file))))
+    (doseq [cur-file files] (*process-file* cur-file y m d))))
 
 (defn items-between-dates [^LocalDate from-date
                            ^LocalDate to-date]
@@ -139,7 +138,7 @@
         (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex ", num items: " (.count items)))
         (binding [*process-file* (process-file tix etrade on-process-file)]
           (doseq [cur-dir items] 
-            (println cur-dir)
+            (LOG/info (str "Cur dir: " cur-dir))
             (process-dir cur-dir))))))
       ;(catch HtmlConversionException hex (LOG/error (str "(Harvest) " (.getMessage hex)))))))
 
@@ -163,7 +162,8 @@
   (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
 
 (defn redo-harvest-spots-and-optionprices [^File f,
-                                           ^EtradeRepository etrade]
+                                           ^EtradeRepository etrade
+                                           year month day]
   (try
     (let [scp (.getSpotCallsPuts2 etrade ^File f)
           ^StockPrice spot (.first scp)]
@@ -189,37 +189,50 @@
   (catch Exception e
     (LOG/warn (.getMessage e)))))
 
-(defn harvest-spots-and-optionprices [^File f,
-                  ^EtradeRepository etrade]
+
+
+(defn try-harvest-spot-calls-puts [^StockPrice spot calls puts ^File f]
   (try
-    (let [f-name (ticker-name-from-file f)
-          ^Optional opt-spot (.stockPrice etrade f-name)]
-      (if (= (.isPresent opt-spot) true)
-        (let  [^StockPrice spot (.get opt-spot)
-               calls (.calls etrade f-name)
-               puts (.puts etrade f-name)]
-          (if (= *test-run* true)
-            (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
-            (try
+    (do
+      (LOG/info (str "(harvest) Hit on file: " (.getPath f)
+                  ", date: " (.getDx spot)
+                  ", time: " (.getSqlTime spot)))
+      (DB/with-session DerivativeMapper
+        (do
+          (.insertSpot it spot)
+          (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
+          (insert calls puts it))))
+  (catch PersistenceException e
+    (let [err-code (.getSQLState (.getCause e))]
+      (if (.equals err-code "23505")
+        (DB/with-session DerivativeMapper
+          (insert-existing-spot spot calls puts it))
+        (LOG/error (str (.getMessage e))))))
+  (catch Exception e (LOG/error (str "[" (.getPath f) "] " (.getMessage e))))))
+
+(defn harvest-spots-and-optionprices [^File f,
+                                      ^EtradeRepository etrade
+                                      year month day]
+  (do 
+    (.setDownloadDate etrade (LocalDate/of year month day))
+    (try
+      (let [f-name (ticker-name-from-file f)
+            ^Optional opt-spot (.stockPrice etrade f-name)]
+        (if (= (.isPresent opt-spot) true)
+          (let  [^StockPrice spot (.get opt-spot)
+                calls (.calls etrade f-name)
+                puts (.puts etrade f-name)]
+            (if (= *test-run* true)
+              (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
               (LOG/info (str "(harvest) Hit on file: " (.getPath f)
                           ", date: " (.getDx spot)
-                          ", time: " (.getSqlTime spot)))
-              (DB/with-session DerivativeMapper
-                (do
-                  (.insertSpot it spot)
-                  (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
-                  (insert calls puts it)))
-              (catch PersistenceException e
-                (let [err-code (.getSQLState (.getCause e))]
-                  (if (.equals err-code "23505")
-                    (DB/with-session DerivativeMapper
-                      (insert-existing-spot spot calls puts it))
-                    (LOG/error (str (.getMessage e))))))
-              (catch Exception e (LOG/error (str "[" (.getPath f) "] "(.getMessage e)))))))))
-        (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
+                          ", time: " (.getSqlTime spot)))))))
+              ;(try-harvest-spot-calls-puts spot calls puts f)))))
+    (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
 (defn harvest-derivatives [^File f,
-                           ^EtradeRepository etrade]
+                           ^EtradeRepository etrade
+                           year month day]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
     (let [ticker (ticker-name-from-file f)
@@ -231,13 +244,13 @@
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
 (defn harvest-list-derivatives [^File f,
-                           ^EtradeRepository etrade])
+                                ^EtradeRepository etrade
+                                year month day])
 
 (defn harvest-list-file [^File f,
-                        ^EtradeRepository etrade]
-  (println "(Harvest new derivatives) Hit on file: " (.getPath f))
-  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
-  )
+                        ^EtradeRepository etrade
+                         year month day]
+  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f) ", year: " year ", monht: " month ", day:" day)))
 
 (defn file-name-demo [^File f,
                       ^EtradeRepository etrade]
