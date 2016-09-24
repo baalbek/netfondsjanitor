@@ -79,7 +79,7 @@
         cur-tix (ticker-name-from-file f)
         hit (COM/in? cur-tix tix)
         ]
-      (on-process-file f etrade year month day))))
+      (on-process-file {:f f :etrade etrade :year year :month month :day day}))))
 
 (def ^:dynamic *process-file*)
 
@@ -161,9 +161,10 @@
           (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]")))))
   (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
 
-(defn redo-harvest-spots-and-optionprices [^File f,
-                                           ^EtradeRepository etrade
-                                           year month day]
+(defn redo-harvest-spots-and-optionprices 
+  [{:keys [^File f ^EtradeRepository etrade year month day]}])
+
+(comment
   (try
     (let [scp (.getSpotCallsPuts2 etrade ^File f)
           ^StockPrice spot (.first scp)]
@@ -210,9 +211,8 @@
         (LOG/error (str (.getMessage e))))))
   (catch Exception e (LOG/error (str "[" (.getPath f) "] " (.getMessage e))))))
 
-(defn harvest-spots-and-optionprices [^File f,
-                                      ^EtradeRepository etrade
-                                      year month day]
+(defn harvest-spots-and-optionprices 
+  [{:keys [^File f ^EtradeRepository etrade year month day]}]
   (do 
     (.setDownloadDate etrade (LocalDate/of year month day))
     (try
@@ -230,9 +230,8 @@
               ;(try-harvest-spot-calls-puts spot calls puts f)))))
     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
-(defn harvest-derivatives [^File f,
-                           ^EtradeRepository etrade
-                           year month day]
+(defn harvest-derivatives 
+  [{:keys [^File f ^EtradeRepository etrade]}]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
     (let [ticker (ticker-name-from-file f)
@@ -243,15 +242,13 @@
         (DB/insert-derivatives call-put-defs)))
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
-(defn harvest-list-derivatives [^File f,
-                                ^EtradeRepository etrade
-                                year month day])
+(defn harvest-list-derivatives 
+  [{:keys [^File f ^EtradeRepository etrade year month day]}])
 
-(defn harvest-list-file [^File f,
-                        ^EtradeRepository etrade
-                         year month day]
+(defn harvest-list-file 
+  [{:keys [^File f ^EtradeRepository etrade year month day]}]
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f) ", year: " year ", monht: " month ", day:" day)))
 
-(defn file-name-demo [^File f,
-                      ^EtradeRepository etrade]
+(defn file-name-demo 
+  [{:keys [^File f ^EtradeRepository etrade]}]
   (println (ticker-name-from-file f)))
