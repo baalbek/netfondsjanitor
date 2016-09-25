@@ -82,13 +82,32 @@ dependencies {
 }
 
 String clazzPath() {
+    /*
     (configurations.runtime.files.collect { f ->
         f.name
     } 
     << configurations.aspectjTask.files.collect { f ->
         f.name
-    } 
+    }
     << ".").join(" ")
+    //*/
+    def runt = configurations.runtime.files.collect { f ->
+            f.name
+    }
+    def aopt = configurations.aspectjTask.files.collect { f ->
+        f.name
+    }
+    runt.remove("netfondsrepos-1.0.jar")
+
+    aopt.each {
+        runt.add(it)
+    }
+
+    runt.join(" ")
+}
+
+task printClazzPath << {
+    println clazzPath()
 }
 
 task printXx1 << {

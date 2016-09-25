@@ -51,6 +51,10 @@
     (fn []
       (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
 
+(def feed-path "/home/rcs/opt/java/netfondsjanitor/feed")
+
+(def my-file (java.io.File. (str feed-path "/2016/2/1/YAR.html")))
+
 (defn etrade []
   (.getBean (factory) "etrade"))
 
@@ -66,9 +70,13 @@
 (defn dlm []
   (.getBean (factory) "downloadMaintenanceAspect"))
 
-(defn calls [ticker]
+(defn calls []
   (let [e (etrade)]
-    (.calls e ticker)))
+    (.calls e "YAR" my-file)))
+
+(defn spot []
+  (let [e (etrade)]
+    (.stockPrice e "YAR" my-file)))
 
 (defn dlx [ticker]
   (let [d (dl)]
@@ -83,13 +91,11 @@
 
 (def tdx (LocalDate/of 2016 3 1))
 
-(def feed-path "/home/rcs/opt/java/netfondsjanitor/feed")
 
 (defn dhfw[]
   (binding [*feed* feed-path] 
     (HARV/do-harvest-files-with HARV/harvest-list-file (etrade) ["YAR"] fdx tdx)))
 
-(def my-file (java.io.File. (str feed-path "/2016/8/16/YAR.html")))
 
 (defn my-harv []
   (binding [*test-run* true]
