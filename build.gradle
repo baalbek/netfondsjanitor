@@ -85,12 +85,13 @@ String clazzPath() {
     /*
     (configurations.runtime.files.collect { f ->
         f.name
-    } 
+    } << ".").join(" ")
     << configurations.aspectjTask.files.collect { f ->
         f.name
     }
     << ".").join(" ")
     //*/
+
     def runt = configurations.runtime.files.collect { f ->
             f.name
     }
@@ -102,7 +103,7 @@ String clazzPath() {
     aopt.each {
         runt.add(it)
     }
-
+    runt.add(".")
     runt.join(" ")
 }
 
@@ -147,7 +148,7 @@ ext.aspectHome = "$netfondsHome/src/aspect"
 //compileJava.deleteAllActions()
 
 task compileAop << {
-    def aopcp = configurations.compile.asPath << configurations.aspectjTask.asPath
+    def aopcp = configurations.compile.asPath << ":" << configurations.aspectjTask.asPath
     ant.taskdef(resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
             classpath: configurations.aspectjTask.asPath)
     ant.iajc(inpath: classesHome,
@@ -155,7 +156,7 @@ task compileAop << {
             target: '1.8',
             destDir: targetClassesHome,
             sourceRoots: aspectHome,
-            classpath: aopcp) 
+            classpath: aopcp)
 }
 
 
