@@ -219,11 +219,11 @@
     (.setDownloadDate etrade (LocalDate/of year month day))
     (try
       (let [f-name (ticker-name-from-file f)
-            ^Optional opt-spot (.stockPrice etrade f-name)]
+            ^Optional opt-spot (.stockPrice etrade f-name f)]
         (if (= (.isPresent opt-spot) true)
           (let  [^StockPrice spot (.get opt-spot)
-                calls (.calls etrade f-name)
-                puts (.puts etrade f-name)]
+                calls (.calls etrade f-name f)
+                puts (.puts etrade f-name f)]
             (if (= *test-run* true)
               (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
               (try-harvest-spot-calls-puts spot calls puts f)))))
