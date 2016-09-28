@@ -198,6 +198,8 @@
       (LOG/info (str "(harvest) Hit on file: " (.getPath f)
                   ", date: " (.getDx spot)
                   ", time: " (.getSqlTime spot)))
+        ;(doseq [c calls]
+        ;  (println (str "Call: " (.getDerivativeId c)))))
       (DB/with-session DerivativeMapper
         (do
           (.insertSpot it spot)
@@ -224,10 +226,7 @@
                 puts (.puts etrade f-name)]
             (if (= *test-run* true)
               (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
-              (LOG/info (str "(harvest) Hit on file: " (.getPath f)
-                          ", date: " (.getDx spot)
-                          ", time: " (.getSqlTime spot)))))))
-              ;(try-harvest-spot-calls-puts spot calls puts f)))))
+              (try-harvest-spot-calls-puts spot calls puts f)))))
     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
 (defn harvest-derivatives 

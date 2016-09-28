@@ -74,6 +74,10 @@
   (let [e (etrade)]
     (.calls e "YAR" my-file)))
 
+(defn puts []
+  (let [e (etrade)]
+    (.puts e "YAR" my-file)))
+
 (defn spot []
   (let [e (etrade)]
     (.stockPrice e "YAR" my-file)))

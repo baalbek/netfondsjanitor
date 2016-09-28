@@ -1,5 +1,6 @@
 package netfondsjanitor.validation;
 
+import oahu.financial.Derivative;
 import oahu.financial.DerivativePrice;
 
 import java.util.Collection;
@@ -31,9 +32,17 @@ public class ValidateDerivativePrices1
             warn(p,3);
             return true;
         }
-        if (p.getStockPrice() == null) {
+        if (p.getDerivative().getOid() == 0) {
             warn(p,4);
             return true;
+        }
+        if (p.getStockPrice() == null) {
+            warn(p,5);
+            return true;
+        }
+        if (log.isDebugEnabled()){
+            Derivative d = p.getDerivative();
+            log.debug(String.format("DerivativePrice [%s - %d] pass.",d.getTicker(),d.getOid()));
         }
         return false;
     }
@@ -53,6 +62,9 @@ public class ValidateDerivativePrices1
                 msg = String.format(stem,dn," getDerivative == null"); 
                 break;
             case 4:
+                msg = String.format(stem,dn," derivative oid == 0");
+                break;
+            case 5:
                 msg = String.format(stem,dn," getStockPrice == null"); 
                 break;
         }
