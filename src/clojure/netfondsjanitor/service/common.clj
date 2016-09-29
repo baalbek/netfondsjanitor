@@ -17,6 +17,8 @@
 
 (def ^:dynamic *calculator*)
 
+(def ^:dynamic *cache*)
+
 (defn str->date [arg]
   (if-let [v (re-find #"(\d+):(\d+)" arg)]
     (let [hours (nth v 1)

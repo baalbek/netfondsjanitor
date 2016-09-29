@@ -14,7 +14,7 @@
   (:use
     [clojure.string :only [split join]]
     [clojure.algo.monads :only [domonad maybe-m]]
-    [netfondsjanitor.service.common :only (*user-tix* *test-run* *feed*)])
+    [netfondsjanitor.service.common :only (*user-tix* *test-run* *feed* *cache*)])
   (:require
     [netfondsjanitor.service.common :as COM]
     [netfondsjanitor.service.logservice :as LOG]
@@ -132,15 +132,14 @@
     tix
     from-date
     & [to-date]]
-    ;(try
     (let [to-datex (if (nil? to-date) from-date to-date)
           items (items-between-dates from-date to-datex)]
         (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex ", num items: " (.count items)))
         (binding [*process-file* (process-file tix etrade on-process-file)]
           (doseq [cur-dir items] 
             (LOG/info (str "Cur dir: " cur-dir))
-            (process-dir cur-dir))))))
-      ;(catch HtmlConversionException hex (LOG/error (str "(Harvest) " (.getMessage hex)))))))
+            (process-dir cur-dir)
+            (.invalidate *cache* etrade))))))
 
 
 (defn insert [calls puts ctx]

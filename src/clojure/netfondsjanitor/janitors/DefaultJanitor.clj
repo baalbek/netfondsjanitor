@@ -10,16 +10,18 @@
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setEtradeRepos [oahu.financial.repository.EtradeRepository] void]
                ;[setEtrade [oahu.financial.repository.EtradeDerivatives] void]
+               [setCache [oahu.aspects.cache.Cacheable] void]
                [setCalculator [oahu.financial.OptionCalculator] void]
                ]
     )
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator* *cache*)])
   (:import
     [java.io File FileNotFoundException]
     [java.time LocalTime]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper]
+    [oahu.aspects.cache Cacheable]
     [ranoraraku.beans StockPriceBean]
     [oahu.financial.repository EtradeRepository]
     [oahu.financial.repository StockMarketRepository]
@@ -47,6 +49,7 @@
 (COM/defprop :set "downloader")
 (COM/defprop :set "downloadManager")
 (COM/defprop :set "calculator")
+(COM/defprop :set "cache")
 
 
 ;;;------------------------------------------------------------------------
@@ -133,6 +136,7 @@
   (let [s (.state this)]
     (binding [*feed* (@s :feedstoredir)
               *repos* (@s :stockmarketrepos)
+              *cache* (@s :cache)
               *user-tix* (.getTickers ctx)
               *test-run* (.isTestRun ctx)]
       (doif .isQuery ctx (let [tix-s (COM/db-tix nil)] (doseq [t tix-s] (println t))))

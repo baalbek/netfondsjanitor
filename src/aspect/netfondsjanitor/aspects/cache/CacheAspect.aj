@@ -8,10 +8,11 @@ import org.aspectj.lang.JoinPoint;
 
 import java.lang.reflect.Method;
 
+import oahu.aspects.cache.Cacheable;
 import oahu.annotations.Cache;
 import java.util.function.Function;
 
-public privileged aspect CacheAspect  {
+public privileged aspect CacheAspect implements Cacheable {
     Map<Object,Map<String,Object>> cachedThisObj = new HashMap<>();
 
     pointcut cached() : execution(@Cache * *(..));
@@ -36,11 +37,11 @@ public privileged aspect CacheAspect  {
 
         String key = cacheKeyFactory.apply(thisJoinPoint);
         if (cachedMethods.containsKey(key)){
-            System.out.println("Return cached result");
+            System.out.printf("[%s] Return cached result\n",hc);
             return cachedMethods.get(key);
         }
         else {
-            System.out.println("Caching result");
+            System.out.printf("[%s] Caching result\n",hc);
             Object result = proceed();
 
             cachedMethods.put(key,result);
@@ -49,6 +50,8 @@ public privileged aspect CacheAspect  {
         }
     }
 
+
+    @Override
     public void invalidate(Object thisObj) {
         cachedThisObj.remove(thisObj);
     }
