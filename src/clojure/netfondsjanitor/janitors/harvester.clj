@@ -139,7 +139,8 @@
           (doseq [cur-dir items] 
             (LOG/info (str "Cur dir: " cur-dir))
             (process-dir cur-dir)
-            (.invalidate *cache* etrade))))))
+            (if (some? *cache*) 
+              (.invalidate *cache* etrade)))))))
 
 
 (defn insert [calls puts ctx]
@@ -229,9 +230,10 @@
     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
 (defn harvest-derivatives 
-  [{:keys [^File f ^EtradeRepository etrade]}]
+  [{:keys [^File f ^EtradeRepository etrade year month day]}]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
+    (.setDownloadDate etrade (LocalDate/of year month day))
     (let [ticker (ticker-name-from-file f)
           call-put-defs (filter #(= (.getLifeCycle %) Derivative$LifeCycle/FROM_HTML) (.callPutDefs etrade ticker f))]
       (if (= *test-run* true)

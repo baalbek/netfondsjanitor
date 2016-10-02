@@ -53,7 +53,11 @@
 
 (def feed-path "/home/rcs/opt/java/netfondsjanitor/feed")
 
-(def my-file (java.io.File. (str feed-path "/2016/2/1/YAR.html")))
+(def my-file-1 (java.io.File. (str feed-path "/2014/7/29/YAR.html")))
+(def my-file-2 (java.io.File. (str feed-path "/2016/2/1/YAR.html")))
+
+(defn val-1 [] 
+  (.getBean (factory) "validatePrices"))
 
 (defn etrade []
   (.getBean (factory) "etrade"))
@@ -72,15 +76,27 @@
 
 (defn calls []
   (let [e (etrade)]
-    (.calls e "YAR" my-file)))
+    (.calls e "YAR")))
 
 (defn puts []
   (let [e (etrade)]
-    (.puts e "YAR" my-file)))
+    (.puts e "YAR" my-file-2)))
 
-(defn spot []
+(defn invalidate [x]
+  (let [cache (.getBean (factory) "cache")]
+    (.invalidate cache x)))
+
+(defn spot-1 []
   (let [e (etrade)]
-    (.stockPrice e "YAR" my-file)))
+    (invalidate e)
+    (.get (.stockPrice e "YAR" my-file-1))))
+
+(defn spot-2 []
+  (let [e (etrade)]
+    (invalidate e)
+    (.get (.stockPrice e "YAR" my-file-2))))
+
+
 
 (defn dlx [ticker]
   (let [d (dl)]
@@ -103,12 +119,12 @@
 
 (defn my-harv []
   (binding [*test-run* true]
-    (HARV/harvest-derivatives my-file (etrade))))
+    (HARV/harvest-derivatives my-file-2 (etrade))))
 
-(defn my-cp-defs-2 []
-  (.callPutDefs (etrade) "YAR" my-file))
+(defn cp-defs-2 []
+  (.callPutDefs (etrade) "YAR" my-file-2))
 
-(defn my-cp-defs []
+(defn -cp-defs []
   (.callPutDefs (etrade) "YAR"))
 
 (defn my-defs [prices]

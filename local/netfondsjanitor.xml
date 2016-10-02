@@ -37,7 +37,9 @@
 
     <bean id="validateAspect" class="netfondsjanitor.aspects.validation.ValidateDerivatives"
           factory-method="aspectOf">
+        <!--
         <property name="validatePrices" ref="validatePrices" />
+        -->
     </bean>
 
     <!-- Cache -->
