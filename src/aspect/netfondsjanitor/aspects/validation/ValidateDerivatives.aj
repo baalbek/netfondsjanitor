@@ -4,30 +4,30 @@ import java.util.Collection;
 
 import java.util.function.Function;
 
-import oahu.financial.DerivativePrice;
+import oahu.financial.Derivative;
 import oahu.financial.repository.EtradeRepository;
 
 public aspect ValidateDerivatives {
 
-    pointcut validatePrices() : execution(public Collection<DerivativePrice> EtradeRepository.*(..));
+    pointcut validateDerivatives () : execution(public Collection<Derivative> EtradeRepository.*(..));
 
 
-    Collection<DerivativePrice> around() : validatePrices() {
-        System.out.println("around() : validatePrices() aspect...");
+    Collection<Derivative> around() : validateDerivatives() {
+        System.out.println("around() : validateDerivatives() aspect...");
 
-        Collection<DerivativePrice> result = proceed();
+        Collection<Derivative> result = proceed();
 
-        if (validatePrices != null) {
-            result = validatePrices.apply(result);
+        if (validateDerivatives != null) {
+            result = validateDerivatives.apply(result);
         }
         return result;
     }
 
-    Function<Collection<DerivativePrice>,Collection<DerivativePrice>> validatePrices;
+    Function<Collection<Derivative>,Collection<Derivative>> validateDerivatives;
 
     public void
-    setValidatePrices
-        (Function<Collection<DerivativePrice>,Collection<DerivativePrice>> validatePrices) {
-            this.validatePrices = validatePrices;
+    setValidateDerivatives
+        (Function<Collection<Derivative>,Collection<Derivative>> validateDerivatives) {
+            this.validateDerivatives = validateDerivatives;
     }
 }

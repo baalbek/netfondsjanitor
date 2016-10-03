@@ -72,14 +72,14 @@
       (second m))))
 
 (defn process-file [tix etrade on-process-file]
-  (fn [^File f year month day]
+  (fn [^File f]
     (LOG/info (str "(Harvest) Trying file: " (.getPath f)))
     (domonad maybe-m
       [
         cur-tix (ticker-name-from-file f)
         hit (COM/in? cur-tix tix)
         ]
-      (on-process-file {:f f :etrade etrade :year year :month month :day day}))))
+      (on-process-file {:f f :etrade etrade}))))
 
 (def ^:dynamic *process-file*)
 
@@ -162,7 +162,7 @@
   (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
 
 (defn redo-harvest-spots-and-optionprices 
-  [{:keys [^File f ^EtradeRepository etrade year month day]}])
+  [{:keys [^File f ^EtradeRepository etrade]}])
 
 (comment
   (try
@@ -214,9 +214,8 @@
   (catch Exception e (LOG/error (str "[" (.getPath f) "] " (.getMessage e))))))
 
 (defn harvest-spots-and-optionprices 
-  [{:keys [^File f ^EtradeRepository etrade year month day]}]
+  [{:keys [^File f ^EtradeRepository etrade]}]
   (do 
-    (.setDownloadDate etrade (LocalDate/of year month day))
     (try
       (let [f-name (ticker-name-from-file f)
             ^Optional opt-spot (.stockPrice etrade f-name f)]
@@ -230,10 +229,9 @@
     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
 (defn harvest-derivatives 
-  [{:keys [^File f ^EtradeRepository etrade year month day]}]
+  [{:keys [^File f ^EtradeRepository etrade]}]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
-    (.setDownloadDate etrade (LocalDate/of year month day))
     (let [ticker (ticker-name-from-file f)
           call-put-defs (filter #(= (.getLifeCycle %) Derivative$LifeCycle/FROM_HTML) (.callPutDefs etrade ticker f))]
       (if (= *test-run* true)
@@ -243,11 +241,11 @@
   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
 (defn harvest-list-derivatives 
-  [{:keys [^File f ^EtradeRepository etrade year month day]}])
+  [{:keys [^File f ^EtradeRepository etrade]}])
 
 (defn harvest-list-file 
-  [{:keys [^File f ^EtradeRepository etrade year month day]}]
-  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f) ", year: " year ", monht: " month ", day:" day)))
+  [{:keys [^File f ^EtradeRepository etrade]}]
+  (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f))))
 
 (defn file-name-demo 
   [{:keys [^File f ^EtradeRepository etrade]}]

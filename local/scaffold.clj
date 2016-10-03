@@ -121,10 +121,10 @@
   (binding [*test-run* true]
     (HARV/harvest-derivatives my-file-2 (etrade))))
 
-(defn cp-defs-2 []
+(defn defs-2 []
   (.callPutDefs (etrade) "YAR" my-file-2))
 
-(defn -cp-defs []
+(defn defs []
   (.callPutDefs (etrade) "YAR"))
 
 (defn my-defs [prices]

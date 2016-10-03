@@ -35,11 +35,17 @@
     <bean id="validatePrices" class="netfondsjanitor.validation.ValidateDerivativePrices1">
     </bean>
 
-    <bean id="validateAspect" class="netfondsjanitor.aspects.validation.ValidateDerivatives"
+    <bean id="validateAspect1" class="netfondsjanitor.aspects.validation.ValidateDerivativePrices"
           factory-method="aspectOf">
-        <!--
         <property name="validatePrices" ref="validatePrices" />
-        -->
+    </bean>
+
+    <bean id="validateDerivatives" class="netfondsjanitor.validation.ValidateDerivatives1">
+    </bean>
+
+    <bean id="validateAspect2" class="netfondsjanitor.aspects.validation.ValidateDerivatives"
+          factory-method="aspectOf">
+        <property name="validateDerivatives" ref="validateDerivatives" />
     </bean>
 
     <!-- Cache -->
