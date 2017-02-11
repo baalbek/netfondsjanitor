@@ -50,13 +50,12 @@ repositories {
     }
 }
 
+
 dependencies {
     compile project(':oahu')
     compile project(':ranoraraku')
     compile project(':waimea')
-    if (!project.hasProperty('aop')) {
-        compile project(':netfonds-repos')
-    }
+    compile project(':netfonds-repos')
     //------------------- spring -------------------
     compile "org.springframework:spring-core:$springVersion"
     compile "org.springframework:spring-context:$springVersion"
@@ -81,6 +80,9 @@ dependencies {
     aspectjTask "org.aspectj:aspectjtools:$aspectjVersion"
 }
 
+task common << {
+    println "$springVersion"
+}
 String clazzPath() {
     /*
     (configurations.runtime.files.collect { f ->
