@@ -21,7 +21,8 @@
 
     ]
   ;:main ^:skip-aot harborview.webapp
-  ;:compile 
+  ;:compile
+  :global-vars {*warn-on-reflection* true}
   :target-path "target"
   :source-paths ["src/clojure"]
   :test-paths ["test/clojure" "dist" "test/resources"]
