@@ -74,39 +74,15 @@ dependencies {
     compile "org.ccil.cowan.tagsoup:tagsoup:1.2.1"
     //------------------- Colt -------------------
     runtime "colt:colt:$coltVersion"
-    //------------------- Aspectj -------------------
-    runtime "org.aspectj:aspectjrt:$aspectjVersion"
-    aspectjTask "org.aspectj:aspectjweaver:$aspectjVersion"
-    aspectjTask "org.aspectj:aspectjtools:$aspectjVersion"
 }
 
 task common << {
     println "$springVersion"
 }
 String clazzPath() {
-    /*
-    (configurations.runtime.files.collect { f ->
-        f.name
-    } << ".").join(" ")
-    << configurations.aspectjTask.files.collect { f ->
-        f.name
-    }
-    << ".").join(" ")
-    //*/
-
     def runt = configurations.runtime.files.collect { f ->
             f.name
     }
-    /*
-    def aopt = configurations.aspectjTask.files.collect { f ->
-        f.name
-    }
-    runt.remove("netfondsrepos-1.0.jar")
-
-    aopt.each {
-        runt.add(it)
-    }
-    */
     runt.add(".")
     runt.join(" ")
 }
@@ -120,20 +96,6 @@ task printXx1 << {
         println f
     }
 }
-task printXx2 << {
-    def aopcp = configurations.compile.files << configurations.aspectjTask.files
-    aopcp.each {
-        println it
-    }
-}
-
-task aopClazzPath << {
-    def r = configurations.aspectjTask.asPath //<< configurations.runtime.asPath
-    r.each {
-        println it
-    }
-}
-
 jar {
     manifest {
         attributes 'Main-Class': 'netfondsjanitor.App'
@@ -142,14 +104,13 @@ jar {
     from ("target/classes") include "**/*.class"
 }
 
+/*
 ext.top = '/home/rcs/opt/java'
 ext.netfondsHome = "$top/netfondsjanitor"
 ext.reposHome = "$top/netfonds-repos"
 ext.classesHome = "$netfondsHome/build/classes:$reposHome/build/classes"
 ext.targetClassesHome = "$netfondsHome/target/classes"
 ext.aspectHome = "$netfondsHome/src/aspect"
-
-//compileJava.deleteAllActions()
 
 task compileAop << {
     def aopcp = configurations.compile.asPath << ":" << configurations.aspectjTask.asPath
@@ -162,6 +123,7 @@ task compileAop << {
             sourceRoots: aspectHome,
             classpath: aopcp)
 }
+*/
 
 task copydeps(type: Copy) {
     into 'dist' from configurations.runtime

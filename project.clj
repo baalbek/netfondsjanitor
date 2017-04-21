@@ -18,7 +18,6 @@
 		[org.jsoup/jsoup "1.8.3"]
 		[org.ccil.cowan.tagsoup/tagsoup "1.2.1"]
 		[colt/colt "1.2.0"]
-		[org.aspectj/aspectjrt "1.8.9"]
 
     ]
   ;:main ^:skip-aot harborview.webapp
@@ -34,6 +33,7 @@
 		"/home/rcs/opt/java/netfonds-repos/build/libs/netfondsrepos-1.0.jar"
 		"/home/rcs/opt/java/oahu/build/libs/oahu-1.0.jar"
 		"/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-1.0.jar"
+		"/home/rcs/opt/java/vega/build/libs/vega-1.0.jar"
 
                    ]
   :profiles {:uberjar {:aot :all}})
