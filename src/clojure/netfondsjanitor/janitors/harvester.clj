@@ -77,8 +77,8 @@
     (domonad maybe-m
       [
         cur-tix (ticker-name-from-file f)
-        hit (COM/in? cur-tix tix)
-        ]
+        hit (COM/in? cur-tix tix)]
+
       (on-process-file {:f f :etrade etrade}))))
 
 (def ^:dynamic *process-file*)
@@ -94,23 +94,23 @@
           (fn [v]
             ;(map read-string (split v #"-")))
             [(.getYear v)
-            (.getValue (.getMonth v))
-            (.getDayOfMonth v)])
+             (.getValue (.getMonth v))
+             (.getDayOfMonth v)])
         [y1 m1 d1] (pfn from-date)
         [y2 m2 d2] (pfn to-date)
         items (cond
                 (and (= y1 y2) (= m1 m2) (= d1 d2))
-                  [[y1 m1 d1]]
+                [[y1 m1 d1]]
                 (and (= y1 y2) (= m1 m2))
-                  (let [days (range d1 (+ d2 1))]
-                    (for [d days]
-                      [y1 m1 d]))
+                (let [days (range d1 (+ d2 1))]
+                  (for [d days]
+                    [y1 m1 d]))
                 (= y1 y2)
-                  (let [months (drop 1 (range m1 m2))
-                        a (month-end y1 m1 d1)
-                        b (flatten-1 (map (all-days y1) months))
-                        c (month-begin y2 m2 d2)]
-                    (concat a b c))
+                (let [months (drop 1 (range m1 m2))
+                      a (month-end y1 m1 d1)
+                      b (flatten-1 (map (all-days y1) months))
+                      c (month-begin y2 m2 d2)]
+                  (concat a b c))
                 :else
                   (let [years (drop 1 (range y1 y2))
                         a (year-end y1 m1 d1)
@@ -123,24 +123,24 @@
   ([on-process-file
     ^EtradeRepository etrade
     ^JanitorContext ctx]
-    (let [tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
-          from-date (.harvestFrom ctx)
-          to-date (.harvestTo ctx)]
-      (do-harvest-files-with on-process-file etrade tix from-date to-date)))
+   (let [tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
+         from-date (.harvestFrom ctx)
+         to-date (.harvestTo ctx)]
+     (do-harvest-files-with on-process-file etrade tix from-date to-date)))
   ([on-process-file
     ^EtradeRepository etrade
     tix
     from-date
     & [to-date]]
-    (let [to-datex (if (nil? to-date) from-date to-date)
-          items (items-between-dates from-date to-datex)]
-        (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex ", num items: " (.count items)))
-        (binding [*process-file* (process-file tix etrade on-process-file)]
-          (doseq [cur-dir items] 
-            (LOG/info (str "Cur dir: " cur-dir))
-            (process-dir cur-dir)
-            (if (some? *cache*) 
-              (.invalidate *cache* etrade)))))))
+   (let [to-datex (if (nil? to-date) from-date to-date)
+         items (items-between-dates from-date to-datex)]
+       (LOG/info (str "(Harvest) Processing files from: " from-date " to: " to-datex ", num items: " (.count items)))
+       (binding [*process-file* (process-file tix etrade on-process-file)]
+         (doseq [cur-dir items]
+           (LOG/info (str "Cur dir: " cur-dir))
+           (process-dir cur-dir)
+           (if (some? *cache*)
+             (.invalidate *cache* etrade)))))))
 
 
 (defn insert [calls puts ctx]
@@ -159,9 +159,9 @@
             (LOG/info (str "Inserting new option prices for existing spot [oid " (.getOid ^StockPrice spot) "]"))
             (insert calls puts ^DerivativeMapper ctx))
           (LOG/info (str "Option prices  already inserted (" num-prices  ") for existing spot [oid " (.getOid ^StockPrice spot) "]")))))
-  (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
+   (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
 
-(defn redo-harvest-spots-and-optionprices 
+(defn redo-harvest-spots-and-optionprices
   [{:keys [^File f ^EtradeRepository etrade]}])
 
 (comment
@@ -187,8 +187,8 @@
           (doseq [cx calls] (insert-fn cx))
           (doseq [px puts] (insert-fn px)))
         (LOG/info (str "Did not find oid for StockPrice [oid " (.getOid ^StockPrice spot) "]"))))
-  (catch Exception e
-    (LOG/warn (.getMessage e)))))
+   (catch Exception e
+     (LOG/warn (.getMessage e)))))
 
 
 
@@ -205,30 +205,30 @@
           (.insertSpot it spot)
           (LOG/info (str "Inserted new spot [oid " (.getOid spot) "]: " (-> spot .getStock .getTicker)))
           (insert calls puts it))))
-  (catch PersistenceException e
-    (let [err-code (.getSQLState (.getCause e))]
-      (if (.equals err-code "23505")
-        (DB/with-session DerivativeMapper
-          (insert-existing-spot spot calls puts it))
-        (LOG/error (str (.getMessage e))))))
-  (catch Exception e (LOG/error (str "[" (.getPath f) "] " (.getMessage e))))))
+   (catch PersistenceException e
+     (let [err-code (.getSQLState (.getCause e))]
+       (if (.equals err-code "23505")
+         (DB/with-session DerivativeMapper
+           (insert-existing-spot spot calls puts it))
+         (LOG/error (str (.getMessage e))))))
+   (catch Exception e (LOG/error (str "[" (.getPath f) "] " (.getMessage e))))))
 
-(defn harvest-spots-and-optionprices 
+(defn harvest-spots-and-optionprices
   [{:keys [^File f ^EtradeRepository etrade]}]
-  (do 
+  (do
     (try
       (let [f-name (ticker-name-from-file f)
             ^Optional opt-spot (.stockPrice etrade f-name f)]
         (if (= (.isPresent opt-spot) true)
           (let  [^StockPrice spot (.get opt-spot)
-                calls (.calls etrade f-name f)
-                puts (.puts etrade f-name f)]
+                 calls (.calls etrade f-name f)
+                 puts (.puts etrade f-name f)]
             (if (= *test-run* true)
               (LOG/info (str "[Test Run] Ticker: " (-> spot .getStock .getTicker) ", number of calls: " (count calls) ", puts: " (count puts)))
               (try-harvest-spot-calls-puts spot calls puts f)))))
-    (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
+     (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] " (.getMessage hex)))))))
 
-(defn harvest-derivatives 
+(defn harvest-derivatives
   [{:keys [^File f ^EtradeRepository etrade]}]
   (try
     (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f)))
@@ -238,15 +238,15 @@
         (doseq [d call-put-defs]
           (LOG/info (str "(Test run) Would insert  " (.getOpTypeStr d) ": " (.getTicker d) ", life cycle: " (.getLifeCycle d))))
         (DB/insert-derivatives call-put-defs)))
-  (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
+   (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
 
-(defn harvest-list-derivatives 
+(defn harvest-list-derivatives
   [{:keys [^File f ^EtradeRepository etrade]}])
 
-(defn harvest-list-file 
+(defn harvest-list-file
   [{:keys [^File f ^EtradeRepository etrade]}]
   (LOG/info (str "(Harvest new derivatives) Hit on file: " (.getPath f))))
 
-(defn file-name-demo 
+(defn file-name-demo
   [{:keys [^File f ^EtradeRepository etrade]}]
   (println (ticker-name-from-file f)))

@@ -11,9 +11,9 @@
                [setEtradeRepos [oahu.financial.repository.EtradeRepository] void]
                ;[setEtrade [oahu.financial.repository.EtradeDerivatives] void]
                [setCache [oahu.aspects.cache.Cacheable] void]
-               [setCalculator [oahu.financial.OptionCalculator] void]
-               ]
-    )
+               [setCalculator [oahu.financial.OptionCalculator] void]])
+
+
   (:use
     [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator* *cache*)])
   (:import
@@ -89,27 +89,27 @@
         (if-not (nil? s)
           (do
             (LOG/info (str "Will insert spot for " (.getTicker s)))
-            (.insertStockPrice ^StockMapper it s)
-            ))))))
+            (.insertStockPrice ^StockMapper it s)))))))
 
-(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade]
-)
+
+(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade])
+
 (comment do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade]
   (let [
         tix-s (or *user-tix* (COM/db-tix (partial COM/tcat-in-1-3)))
-        pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)
-        ]
+        pages (COM/map-tuple-java-fn .getLastDownloadedFile manager tix-s)]
+
     (if (= *test-run* true)
       (doseq [[^String ticker, ^File page] pages]
         (let [^StockPrice s (.getSpot2 etrade page ticker)]
           (println "Test run for: " ticker ", page: " page ", ticker from html: " (-> s .getStock .getTicker))))
-    (DB/with-session StockMapper
-      (doseq [[^String ticker, ^File page] pages]
-        (let [^StockPrice s (.getSpot2 etrade page ticker)]
-          (LOG/info (str "Inserting stock price: " s ))
-          (.insertStockPrice it s)
+     (DB/with-session StockMapper
+       (doseq [[^String ticker, ^File page] pages]
+         (let [^StockPrice s (.getSpot2 etrade page ticker)]
+           (LOG/info (str "Inserting stock price: " s))
+           (.insertStockPrice it s)))))))
           ;(println "Here we are: " (-> s .getStock .getTicker) ",opn: " (.getOpn s) ", hi: " (.getHi s) ", lo: " (.getLo s) ", cls: " (.getCls s))
-          ))))))
+
 
 (defn block-task [test wait]
   (while (test)
@@ -172,8 +172,8 @@
                               (.downloadDerivatives dl t)))]
             (block-task (time-less-than opening-time) (* 10 60 1000))
             (while-task (time-less-than closing-time) (* 60000 (.getRollingInterval ctx)) rollopt-run)
-            (System/exit 0)))
-        )))
+            (System/exit 0))))))
+
 
 ;(use '[clojure.contrib.monads :only [defmonad domonad]])
 

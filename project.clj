@@ -7,9 +7,9 @@
 		[org.springframework/spring-core "4.2.3.RELEASE"]
 		[org.springframework/spring-context "4.2.3.RELEASE"]
 		[org.springframework/spring-aop "4.2.3.RELEASE"]
-		[org.clojure/clojure "1.7.0"]
+		[org.clojure/clojure "1.8.0"]
 		[org.clojure/clojure-contrib "1.2.0"]
-		[org.mybatis/mybatis "3.4.1"]
+		[org.mybatis/mybatis "3.4.2"]
 		[junit/junit "4.12"]
 		[log4j/log4j "1.2.17"]
 		[args4j/args4j "2.33"]
@@ -31,12 +31,9 @@
   :aot :all
   ;:test {:resource-paths ["test/resources" "dist"]}
   :resource-paths [
-		"/home/rcs/opt/java/maunaloax/build/libs/maunaloax-5.3.1.jar"
 		"/home/rcs/opt/java/netfonds-repos/build/libs/netfondsrepos-1.0.jar"
-		"/home/rcs/opt/java/oahu/build/libs/oahu-5.3.1.jar"
-		"/home/rcs/opt/java/oahux/build/libs/oahux-5.3.1.jar"
-		"/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-5.3.5.jar"
-		"/home/rcs/opt/java/waimea/build/libs/waimea-5.3.SNAPSHOT.jar"
+		"/home/rcs/opt/java/oahu/build/libs/oahu-1.0.jar"
+		"/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-1.0.jar"
 
                    ]
   :profiles {:uberjar {:aot :all}})

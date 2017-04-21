@@ -1,7 +1,4 @@
 includeFlat 'oahu'
 includeFlat 'ranoraraku'
-includeFlat 'waimea'
 includeFlat 'netfonds-repos'
-includeFlat 'oahux'
-includeFlat 'maunaloax'
-
+includeFlat 'vega'

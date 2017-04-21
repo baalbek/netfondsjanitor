@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-apply from: '/home/rcs/opt/java/gradlecommon/depversions.gradle'
+apply from: '../gradlecommon/depversions.gradle'
 
 group = 'rcstadheim'
 
@@ -54,8 +54,8 @@ repositories {
 dependencies {
     compile project(':oahu')
     compile project(':ranoraraku')
-    compile project(':waimea')
     compile project(':netfonds-repos')
+    runtime project(':vega')
     //------------------- spring -------------------
     compile "org.springframework:spring-core:$springVersion"
     compile "org.springframework:spring-context:$springVersion"
@@ -97,6 +97,7 @@ String clazzPath() {
     def runt = configurations.runtime.files.collect { f ->
             f.name
     }
+    /*
     def aopt = configurations.aspectjTask.files.collect { f ->
         f.name
     }
@@ -105,6 +106,7 @@ String clazzPath() {
     aopt.each {
         runt.add(it)
     }
+    */
     runt.add(".")
     runt.join(" ")
 }
@@ -126,7 +128,7 @@ task printXx2 << {
 }
 
 task aopClazzPath << {
-    def r = configurations.aspectjTask.asPath //<< configurations.runtime.asPath 
+    def r = configurations.aspectjTask.asPath //<< configurations.runtime.asPath
     r.each {
         println it
     }
@@ -161,6 +163,9 @@ task compileAop << {
             classpath: aopcp)
 }
 
+task copydeps(type: Copy) {
+    into 'dist' from configurations.runtime
+}
 
 buildscript {
     repositories {
