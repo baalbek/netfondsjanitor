@@ -130,6 +130,14 @@ task copydeps(type: Copy) {
     into 'dist' from configurations.runtime
 }
 
+task setupDist << {
+    ant.symlink(resource: "../local/log4j.xml", link: "dist/log4j.xml")
+    ant.symlink(resource: "../src/resources/mybatis.conf.xml", link: "dist/mybatis.conf.xml")
+    ant.symlink(resource: "../local/netfonds-dbcp.properties", link: "dist/netfonds-dbcp.properties")
+    ant.symlink(resource: "../local/netfondsjanitor.xml", link: "dist/netfondsjanitor.xml")
+    ant.symlink(resource: "../local/runjar", link: "dist/runjar")
+}
+
 buildscript {
     repositories {
         mavenLocal()
