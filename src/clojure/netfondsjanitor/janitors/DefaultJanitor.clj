@@ -17,8 +17,8 @@
   (:use
     [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator* *cache*)])
   (:import
-    [java.io File FileNotFoundException]
-    [java.time LocalTime]
+    [java.io IOException File FileOutputStream FileNotFoundException]
+    [java.time LocalTime LocalDate]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper]
     [oahu.aspects.cache Cacheable]
@@ -127,6 +127,12 @@
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
 
+(defn today-feed [feed]
+  (let [dx (LocalDate/now)
+        y (.getYear dx)
+        m (-> dx .getMonth .getValue)
+        d (.getDayOfMonth dx)]
+    (str feed "/" y "/" m "/" d)))
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
@@ -160,7 +166,21 @@
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
-            (.downloadDerivatives dl t))))
+            (let [tf (today-feed *feed*)
+                  page (.downloadDerivatives dl t)
+                  file-name (str tf "/" t ".html")
+                  out (File. file-name)]
+              (try
+                (if (= (.exists out) false)
+                  (.createNewFile out))
+                (let [contentInBytes (-> page .getWebResponse .getContentAsString .getBytes)
+                      fop (FileOutputStream. out)]
+                  (doto fop
+                    .writeContentInBytes
+                    .flush
+                    .close))
+                (catch IOException e
+                  (println (str "Could not save: " file-name ", " (.getMessage e)))))))))
       (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etraderepos)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
