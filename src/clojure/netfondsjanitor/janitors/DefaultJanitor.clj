@@ -134,6 +134,16 @@
         d (.getDayOfMonth dx)]
     (str feed "/" y "/" m "/" d)))
 
+(defn check-file [feed t]
+  (let [cur-file (str (today-feed feed) "/" t ".html")
+        out (File. cur-file)
+        pout (.getParentFile out)]
+    (if (= (.exists pout) false)
+      (.mkdirs pout))
+    (if (= (.exists out) false)
+      (.createNewFile out))
+    out))
+
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
 ;;;------------------------------------------------------------------------
@@ -166,21 +176,17 @@
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
-            (let [tf (today-feed *feed*)
-                  page (.downloadDerivatives dl t)
-                  file-name (str tf "/" t ".html")
-                  out (File. file-name)]
+            (let [page (.downloadDerivatives dl t)
+                  out (check-file *feed* t)]
               (try
-                (if (= (.exists out) false)
-                  (.createNewFile out))
                 (let [contentInBytes (-> page .getWebResponse .getContentAsString .getBytes)
                       fop (FileOutputStream. out)]
+                  (.write fop contentInBytes)
                   (doto fop
-                    .writeContentInBytes
                     .flush
                     .close))
                 (catch IOException e
-                  (println (str "Could not save: " file-name ", " (.getMessage e)))))))))
+                  (println (str "Could not save: " out ", " (.getMessage e)))))))))
       (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etraderepos)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
