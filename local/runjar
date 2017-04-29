@@ -1,5 +1,10 @@
 #!/bin/bash
 
-java -jar netfondsjanitor-5.3.SNAPSHOT.jar "$@"
+JAVA_HOME=/usr/local/java
+export JAVA_HOME
+
+export PATH=$JAVA_HOME/bin:$PATH
+
+java -jar /home/rcs/opt/java/netfondsjanitor/dist/netfondsjanitor-5.3.SNAPSHOT.jar "$@"
 
 exit 0
