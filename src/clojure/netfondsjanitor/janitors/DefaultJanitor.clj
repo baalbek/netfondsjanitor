@@ -56,12 +56,47 @@
 ;;;-------------------------- Cloure methods ---------------------------
 ;;;------------------------------------------------------------------------
 
+(defn check-file [file-name]
+  (let [;cur-file (str (today-feed feed) "/" t postfix)
+        out (File. file-name)
+        pout (.getParentFile out)]
+   (if (= (.exists pout) false)
+     (.mkdirs pout))
+   (if (= (.exists out) false)
+     (.createNewFile out))
+   out))
+
+(comment check-file-2 [ticker]
+  (let [my-feed "../feed"
+        cur-file (str my-feed "/" ticker ".txt")
+        out (File. cur-file)
+        pout (.getParentFile out)]
+    (if (= (.exists pout) false)
+      (.mkdirs pout))
+    (if (= (.exists out) false)
+      (.createNewFile out))
+    out))
+
+(defn save-page [page file-name]
+  (let [out (check-file file-name)] ;(str "../feed" ticker ".txt"))]
+    (try
+      (let [contentInBytes (-> page .getWebResponse .getContentAsString .getBytes)
+            fop (FileOutputStream. out)]
+        (.write fop contentInBytes)
+        (doto fop
+          .flush
+          .close))
+      (catch IOException e
+        (println (str "Could not save: " out ", " (.getMessage e)))))
+    out))
+
 
 (defn do-paper-history [^EtradeDownloader downloader]
   (let [tix-s (or *user-tix* (COM/db-tix nil))]
     (doseq [t tix-s]
       (LOG/info (str "Will download paper history for " t))
-      (.downloadPaperHistory downloader t))))
+      (let [page (.downloadPaperHistory downloader t)]
+        (save-page page (str "../feed" t ".txt"))))))
 
 (defn do-feed []
   (let [tix-s (or *user-tix* (COM/db-tix nil))]
@@ -134,15 +169,18 @@
         d (.getDayOfMonth dx)]
     (str feed "/" y "/" m "/" d)))
 
-(defn check-file [feed t]
-  (let [cur-file (str (today-feed feed) "/" t ".html")
-        out (File. cur-file)
-        pout (.getParentFile out)]
-    (if (= (.exists pout) false)
-      (.mkdirs pout))
-    (if (= (.exists out) false)
-      (.createNewFile out))
-    out))
+
+
+(comment
+  [feed t
+    (let [cur-file (str (today-feed feed) "/" t ".html")
+          out (File. cur-file)
+          pout (.getParentFile out)]
+      (if (= (.exists pout) false)
+        (.mkdirs pout))
+      (if (= (.exists out) false)
+        (.createNewFile out))
+      out)])
 
 ;;;------------------------------------------------------------------------
 ;;;-------------------------- Interface methods ---------------------------
@@ -171,22 +209,27 @@
       (doif .isIvHarvest ctx
         (binding [*calculator* (@s :calculator)]
           (DB-HARV/do-harvest ctx)))
+      (doif .isDownloadNumPurchases ctx
+        (let [^EtradeDownloader dl (@s :downloader)
+              opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
+          (doseq [t opx-tix]
+            (LOG/info (str "One-time download of stock purhcase file " t))
+            (let [page (.downloadPurchases dl t)]
+              (save-page page (str (today-feed *feed*) "/" t "_hndl.csv"))))))
+      (doif .isDownloadDepth ctx
+        (let [^EtradeDownloader dl (@s :downloader)
+              opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
+          (doseq [t opx-tix]
+            (LOG/info (str "One-time download of stock depth file " t))
+            (let [page (.downloadDepth dl t)]
+              (save-page page (str (today-feed *feed*) "/" t "_dy.csv"))))))
       (doif .isOneTimeDownloadOptions ctx
         (let [^EtradeDownloader dl (@s :downloader)
               opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))]
           (doseq [t opx-tix]
             (LOG/info (str "One-time download of " t))
-            (let [page (.downloadDerivatives dl t)
-                  out (check-file *feed* t)]
-              (try
-                (let [contentInBytes (-> page .getWebResponse .getContentAsString .getBytes)
-                      fop (FileOutputStream. out)]
-                  (.write fop contentInBytes)
-                  (doto fop
-                    .flush
-                    .close))
-                (catch IOException e
-                  (println (str "Could not save: " out ", " (.getMessage e)))))))))
+            (let [page (.downloadDerivatives dl t)]
+              (save-page page (str (today-feed *feed*) "/" t ".html"))))))
       (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etraderepos)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))

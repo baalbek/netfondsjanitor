@@ -6,6 +6,6 @@ lein compile
 
 gradle jar 
 
-cp build/libs/netfondsjanitor-5.3.SNAPSHOT.jar dist/
+cp build/libs/netfondsjanitor-5.5.jar dist/
 
 exit 0

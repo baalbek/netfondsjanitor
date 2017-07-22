@@ -32,8 +32,8 @@
   ;:test {:resource-paths ["test/resources" "dist"]}
   :resource-paths [
 		"/home/rcs/opt/java/netfonds-repos/build/libs/netfondsrepos-1.0.jar"
-		"/home/rcs/opt/java/oahu/build/libs/oahu-1.0.jar"
-		"/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-1.0.jar"
+		"/home/rcs/opt/java/oahu/build/libs/oahu-1.1.jar"
+		"/home/rcs/opt/java/ranoraraku/build/libs/ranoraraku-1.1.jar"
 		"/home/rcs/opt/java/vega/build/libs/vega-1.0.jar"
 
                    ]

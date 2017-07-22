@@ -30,13 +30,13 @@ sourceSets {
 
 ext {
     major = '5'
-    minor = '3'
+    minor = '5'
     // parentDist = '/home/rcs/opt/java/netfondsjanitor/dist'
     parentDist = '../netfondsjanitor/dist'
     myLibName = "netfondsjanitor-${version}.jar"
 }
 
-version = "${major}.${minor}.SNAPSHOT"
+version = "${major}.${minor}"
 
 archivesBaseName = 'netfondsjanitor'
 

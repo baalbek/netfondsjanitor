@@ -22,7 +22,7 @@
 (defn str->date [arg]
   (if-let [v (re-find #"(\d+):(\d+)" arg)]
     (let [hours (nth v 1)
-          minutes (nth v 2)] 
+          minutes (nth v 2)]
       (println (str hours " " minutes))
       (LocalTime/of (read-string hours) (read-string minutes)))))
 
@@ -121,9 +121,8 @@
         set-fn (symbol (as-get-set prop "set" prefix))]
     (cond
       (= variants :getset)
-        (getsetter s-prop get-fn set-fn default)
+      (getsetter s-prop get-fn set-fn default)
       (= variants :get)
-        (getter s-prop get-fn default)
+      (getter s-prop get-fn default)
       (= variants :set)
-        (setter s-prop set-fn))))
-
+      (setter s-prop set-fn))))

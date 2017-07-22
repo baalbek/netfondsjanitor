@@ -87,6 +87,12 @@ public class CmdLineValues implements JanitorContext {
     @Option(name = "-F", aliases = { "--harvest-files" }, required = false, usage = "List which files harvest (iv or option price) will process for the supplied args")
     private boolean _isListHarvestFiles;
 
+    @Option(name = "-n", aliases = { "--download-nump" }, required = false, usage = "Download number of stock purchases file")
+    private boolean downloadNumPurchases;
+
+    @Option(name = "-y", aliases = { "--download-depth" }, required = false, usage = "Download stock depth file")
+    private boolean downloadDepth;
+
     public CmdLineValues(String... args) throws CmdLineException  {
         CmdLineParser parser = new CmdLineParser(this);
         parser.setUsageWidth(80);
@@ -173,6 +179,16 @@ public class CmdLineValues implements JanitorContext {
     @Override
     public boolean isOneTimeDownloadOptions() {
         return oneTimeDownloadOptions;
+    }
+
+    @Override
+    public boolean isDownloadDepth() {
+        return downloadDepth;
+    }
+
+    @Override
+    public boolean isDownloadNumPurchases() {
+        return downloadNumPurchases;
     }
 
     @Override

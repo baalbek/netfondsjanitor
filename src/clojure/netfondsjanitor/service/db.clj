@@ -25,7 +25,7 @@
          ~'it (.getMapper session# ~mapper)
          result# ~@body]
     (doto session# .commit .close)
-      result#))
+    result#))
 
 (defn insert-derivatives [ds]
   (with-session DerivativeMapper
@@ -56,12 +56,11 @@
     (let [value-sym (gensym)]
       `(let [~value-sym (* 2 v)]
          ~@(replace {:value value-sym} body))))
-(defmacro make [v & body]
-  `(let [~'the-value ~(some-calc v)]
-     ~@body))
-  (defmacro nth-c [n coll]
-    `(loop [n# ~n coll# ~coll]
-       (if (= n# 0)
-         (first coll#)
-         (recur (dec n#) (rest coll#)))))
-)
+ (defmacro make [v & body]
+   `(let [~'the-value ~(some-calc v)]
+      ~@body))
+ (defmacro nth-c [n coll]
+   `(loop [n# ~n coll# ~coll]
+      (if (= n# 0)
+        (first coll#)
+        (recur (dec n#) (rest coll#))))))

@@ -53,8 +53,8 @@
       (.setCls (str->double cls))
       (.setVolume (str->int vol))
       (.setMarketValue (str->double market-val))
-      (.setStock stock)
-      )
+      (.setStock stock))
+
     bean))
 
 
