@@ -96,7 +96,7 @@
     (doseq [t tix-s]
       (LOG/info (str "Will download paper history for " t))
       (let [page (.downloadPaperHistory downloader t)]
-        (save-page page (str "../feed" t ".txt"))))))
+        (save-page page (str "../feed/" t ".txt"))))))
 
 (defn do-feed []
   (let [tix-s (or *user-tix* (COM/db-tix nil))]
