@@ -78,7 +78,6 @@
       [
         cur-tix (ticker-name-from-file f)
         hit (COM/in? cur-tix tix)]
-
       (on-process-file {:f f :etrade etrade}))))
 
 (def ^:dynamic *process-file*)
@@ -86,7 +85,7 @@
 (defn process-dir [[y m d]]
   (let [cur-dir (clojure.java.io/file (join "/" [*feed* y m d]))
         files (filter #(.isFile ^File %) (file-seq cur-dir))]
-    (doseq [cur-file files] (*process-file* cur-file y m d))))
+    (doseq [cur-file files] (*process-file* cur-file))))
 
 (defn items-between-dates [^LocalDate from-date
                            ^LocalDate to-date]
