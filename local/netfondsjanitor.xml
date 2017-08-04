@@ -34,7 +34,7 @@
 
     <bean id="janitor" class="netfondsjanitor.janitors.DefaultJanitor">
         <property name="stockMarketRepos" ref="repos" />
-        <property name="feedStoreDir" value="../feed" />
+        <property name="feedStoreDir" value="/home/rcs/opt/java/netfondsjanitor/feed" />
         <property name="downloader" ref="downloader" />
         <property name="etradeRepos" ref="etrade" />
         <property name="calculator" ref="calculator" />

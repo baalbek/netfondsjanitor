@@ -5,9 +5,9 @@
     [java.time LocalDate]
     [org.apache.ibatis.exceptions PersistenceException]
     [oahu.financial.janitors JanitorContext]
-    [oahu.financial DerivativePrice StockPrice]
-    [oahu.financial Derivative$LifeCycle]
+    [oahu.financial Derivative DerivativePrice StockPrice Derivative$LifeCycle]
     [oahu.financial.repository EtradeRepository]
+    [ranoraraku.beans StockPriceBean]
     [ranoraraku.models.mybatis DerivativeMapper]
     [oahu.exceptions HtmlConversionException]
     [ranoraraku.beans.options DerivativePriceBean])
@@ -90,7 +90,7 @@
 (defn items-between-dates [^LocalDate from-date
                            ^LocalDate to-date]
   (let [pfn
-          (fn [v]
+          (fn [^LocalDate v]
             ;(map read-string (split v #"-")))
             [(.getYear v)
              (.getValue (.getMonth v))
@@ -151,7 +151,7 @@
 (defn insert-existing-spot [spot calls puts ctx]
   (if-let [oid (.findSpotId ^DerivativeMapper ctx ^StockPrice spot)]
     (do
-      (.setOid ^StockPrice spot oid)
+      (.setOid ^StockPriceBean spot oid)
       (let [num-prices (.countOpxPricesForSpot ^DerivativeMapper ctx ^StockPrice spot)]
         (if (= num-prices 0)
           (do
@@ -195,8 +195,8 @@
   (try
     (do
       (LOG/info (str "(harvest) Hit on file: " (.getPath f)
-                  ", date: " (.getDx spot)
-                  ", time: " (.getSqlTime spot)))
+                  ", date: " (.getLocalDx spot)
+                  ", time: " (.getLocalTime spot)))
         ;(doseq [c calls]
         ;  (println (str "Call: " (.getDerivativeId c)))))
       (DB/with-session DerivativeMapper
@@ -234,7 +234,7 @@
     (let [ticker (ticker-name-from-file f)
           call-put-defs (filter #(= (.getLifeCycle %) Derivative$LifeCycle/FROM_HTML) (.callPutDefs etrade ticker f))]
       (if (= *test-run* true)
-        (doseq [d call-put-defs]
+        (doseq [^Derivative d call-put-defs]
           (LOG/info (str "(Test run) Would insert  " (.getOpTypeStr d) ": " (.getTicker d) ", life cycle: " (.getLifeCycle d))))
         (DB/insert-derivatives call-put-defs)))
    (catch HtmlConversionException hex (LOG/warn (str "[" (.getPath f) "] "(.getMessage hex))))))
