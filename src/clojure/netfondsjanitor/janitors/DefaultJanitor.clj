@@ -96,9 +96,9 @@
     (doseq [t tix-s]
       (LOG/info (str "Will download paper history for " t))
       (let [page (.downloadPaperHistory downloader t)]
-        (save-page page (str "../feed/" t ".txt"))))))
+        (save-page page (str "../feed/" t ".csv"))))))
 
-(defn do-feed []
+(comment do-feed []
   (let [tix-s (or *user-tix* (COM/db-tix nil))]
     (doseq [t tix-s]
       (try
@@ -115,6 +115,28 @@
           (LOG/fatal (str "Unexpected error: " (.getMessage e) " aborting"))
           (System/exit 0))))))
 
+(defn do-feed-lines [t lines]
+  (let [num-beans (count lines)]
+    (if (> num-beans 0)
+      (do
+        (LOG/info (str "Will insert " num-beans " for " t))
+        (DB/update-stockprices lines))
+      (LOG/info (str "No beans for " t)))))
+
+
+(defn do-feed-1 [mx]
+  (let [stox (.getStocks *repos*)]
+    (doseq [s stox]
+      (let [cur-lines (FEED/get-lines-1 s mx)]
+        (do-feed-lines (.getTicker s) cur-lines)))))
+
+(defn do-feed-2 [tix mx])
+
+(defn do-feed []
+  (let [max-dx-dict (DB/get-max-dx)]
+    (if (nil? *user-tix*)
+      (do-feed-1 max-dx-dict)
+      (do-feed-2 *user-tix* max-dx-dict))))
 
 (defn do-spot [^EtradeRepository etrade]
   (let [tix-s (COM/db-tix COM/tcat-in-1-3)

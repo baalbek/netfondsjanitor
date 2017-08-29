@@ -9,7 +9,11 @@
     [ranoraraku.models.mybatis DerivativeMapper]
     [vega.financial.calculator BlackScholes]
     [org.springframework.context.support ClassPathXmlApplicationContext])
+  (:use
+    [clojure.string :only (join split)]
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator* *cache*)])
   (:require
+    [netfondsjanitor.service.feed :as FEED]
     [netfondsjanitor.janitors.harvester :as harv]
     [clojure.string :as cs]
     [netfondsjanitor.service.db :as DB]))
@@ -17,8 +21,8 @@
 (def factory
   (memoize
     (fn []
-      ;(ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
-      (ClassPathXmlApplicationContext. "harvest.xml"))))
+      (ClassPathXmlApplicationContext. "netfondsjanitor.xml"))))
+      ;(ClassPathXmlApplicationContext. "harvest.xml"))))
 
 (defn get-bean [n]
   (.getBean (factory) n))
@@ -52,4 +56,29 @@
 (def redo harv/redo-harvest-spots-and-optionprices)
 
 (defn exec-redo []
-  (redo f (etrade))) 
+  (redo f (etrade)))
+
+(defn str->list [line]
+  (split line #","))
+
+
+(defn stox []
+  (.getStocks (repos)))
+
+(defn feed []
+  (binding [*feed* "../feed"
+            *repos* (repos)]
+    (let [max-dx-dict (DB/get-max-dx)
+          sx (stox)
+          s (first sx)]
+      (let [cur-lines (FEED/get-linesx s max-dx-dict)]
+        (println cur-lines)))))
+      ;(doseq [s sx]
+      ;  (println (.getTicker s))
+      ;  (let [cur-lines (FEED/get-linesx s max-dx)]
+      ;    (println cur-lines)])))
+
+
+    ;(FEED/parse-file
+    ;(let [lx (FEED/get-lines "YAR")]
+    ;  (println lx))))
