@@ -10,18 +10,16 @@
                [setDownloadManager [oahu.financial.html.DownloadManager] void]
                [setEtradeRepos [oahu.financial.repository.EtradeRepository] void]
                ;[setEtrade [oahu.financial.repository.EtradeDerivatives] void]
-               [setCache [oahu.aspects.cache.Cacheable] void]
                [setCalculator [oahu.financial.OptionCalculator] void]])
 
 
   (:use
-    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator* *cache*)])
+    [netfondsjanitor.service.common :only (*user-tix* *feed* *repos* *test-run* *calculator*)])
   (:import
     [java.io IOException File FileOutputStream FileNotFoundException]
     [java.time LocalTime LocalDate]
     [com.gargoylesoftware.htmlunit.html HtmlPage]
     [ranoraraku.models.mybatis StockMapper]
-    [oahu.aspects.cache Cacheable]
     [ranoraraku.beans StockPriceBean]
     [oahu.financial.repository EtradeRepository]
     [oahu.financial.repository StockMarketRepository]
@@ -49,7 +47,6 @@
 (COM/defprop :set "downloader")
 (COM/defprop :set "downloadManager")
 (COM/defprop :set "calculator")
-(COM/defprop :set "cache")
 
 
 ;;;------------------------------------------------------------------------
@@ -148,8 +145,29 @@
             (LOG/info (str "Will insert spot for " (.getTicker s)))
             (.insertStockPrice ^StockMapper it s)))))))
 
+(defn today-feed [feed]
+  (let [dx (LocalDate/now)
+        y (.getYear dx)
+        m (-> dx .getMonth .getValue)
+        d (.getDayOfMonth dx)]
+    (str feed "/" y "/" m "/" d)))
 
-(defn do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade])
+(defn do-spots-from-downloaded-options [^EtradeRepository etrade]
+  (let [opx-tix (or *user-tix* (COM/db-tix COM/tcat-in-1-3))
+        tf (today-feed *feed*)]
+    (DB/with-session StockMapper
+      (doseq [t opx-tix]
+        (let [html-fname (str tf "/" t ".html")
+              html-file (clojure.java.io/file html-fname)
+              sx (.stockPrice etrade t html-file)]
+          (if (= (.isPresent sx) false)
+            (LOG/warn (str "No stockPrice for ticker: " t))
+            (let [s (.get sx)]
+              (if (= *test-run* true)
+                (LOG/info (str "[Test run] Will insert spot for: " s ", file: " html-fname))
+                (do
+                  (LOG/info (str "Will insert spot for: " s ", file: " html-fname))
+                  (.insertStockPrice ^StockMapper it s))))))))))
 
 (comment do-spots-from-downloaded-options [^DownloadManager manager, ^EtradeRepository etrade]
   (let [
@@ -184,12 +202,6 @@
   `(if (= (~java-prop  ~ctx) true)
     ~@body))
 
-(defn today-feed [feed]
-  (let [dx (LocalDate/now)
-        y (.getYear dx)
-        m (-> dx .getMonth .getValue)
-        d (.getDayOfMonth dx)]
-    (str feed "/" y "/" m "/" d)))
 
 
 
@@ -212,7 +224,6 @@
   (let [s (.state this)]
     (binding [*feed* (@s :feedstoredir)
               *repos* (@s :stockmarketrepos)
-              *cache* (@s :cache)
               *user-tix* (.getTickers ctx)
               *test-run* (.isTestRun ctx)]
       (doif .isQuery ctx (let [tix-s (COM/db-tix nil)] (doseq [t tix-s] (println t))))
@@ -252,7 +263,7 @@
             (LOG/info (str "One-time download of " t))
             (let [page (.downloadDerivatives dl t)]
               (save-page page (str (today-feed *feed*) "/" t ".html"))))))
-      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :downloadmanager) (@s :etraderepos)))
+      (doif .isSpotFromDownloadedOptions ctx (do-spots-from-downloaded-options (@s :etraderepos)))
       (doif .isRollingOptions ctx
         (let [opening-time (COM/str->date (.getOpen ctx))
               closing-time (COM/str->date (.getClose ctx))
