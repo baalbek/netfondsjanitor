@@ -111,11 +111,11 @@
                       c (month-begin y2 m2 d2)]
                   (concat a b c))
                 :else
-                  (let [years (drop 1 (range y1 y2))
-                        a (year-end y1 m1 d1)
-                        b (flatten-1 (map full-year years))
-                        c (year-begin y2 m2 d2)]
-                    (concat a b c)))]
+                (let [years (drop 1 (range y1 y2))
+                      a (year-end y1 m1 d1)
+                      b (flatten-1 (map full-year years))
+                      c (year-begin y2 m2 d2)]
+                  (concat a b c)))]
     items))
 
 (defn do-harvest-files-with
@@ -138,7 +138,7 @@
          (doseq [cur-dir items]
            (LOG/info (str "Cur dir: " cur-dir))
            (process-dir cur-dir)
-           (if (some? *cache*)
+           (if (bound? #'*cache*)
              (.invalidate *cache* etrade)))))))
 
 
