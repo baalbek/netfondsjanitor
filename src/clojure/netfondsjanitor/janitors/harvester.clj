@@ -196,7 +196,7 @@
     (do
       (LOG/info (str "(harvest) Hit on file: " (.getPath f)
                   ", date: " (.getLocalDx spot)
-                  ", time: " (.getLocalTime spot)))
+                  ", time: " (.getTm spot)))
         ;(doseq [c calls]
         ;  (println (str "Call: " (.getDerivativeId c)))))
       (DB/with-session DerivativeMapper
