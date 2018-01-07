@@ -23,3 +23,4 @@ libs
 local/*.gz
 *.txt
 reflection_warn
+.lein-failures

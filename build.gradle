@@ -51,6 +51,9 @@ repositories {
     }
 }
 
+configurations {
+    sshAntTask
+}
 
 dependencies {
     compile project(':oahu')
@@ -75,6 +78,10 @@ dependencies {
     compile "org.ccil.cowan.tagsoup:tagsoup:1.2.1"
     //------------------- Colt -------------------
     runtime "colt:colt:$coltVersion"
+
+    //-------------------- SCP ---------------------
+    sshAntTask "org.apache.ant:ant-jsch:$antJschVersion"
+    sshAntTask "com.jcraft:jsch:$jschVersion"
 }
 
 task common << {
@@ -97,6 +104,24 @@ task printXx1 << {
         println f
     }
 }
+
+def scp2hilo(Closure fset) {
+    ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/netfondsjanitor/feed'
+    /*
+    if (project.hasProperty('target')==true) {
+        if (ext.target == 'rel') {
+            ext.hiloTarget = 'rcs@hilo:/home/rcs/opt/java/netfondsjanitor'
+        }
+    }
+    */
+    println "Copying to hilo with target ${ext.hiloTarget}"
+    ant.scp(todir: ext.hiloTarget,
+            password: 'q2uebec9',
+            verbose: 'true') {
+        fset()
+    }
+}
+
 jar {
     manifest {
         attributes 'Main-Class': 'netfondsjanitor.App'
@@ -136,6 +161,18 @@ task setupDist << {
     ant.symlink(resource: "../local/netfonds-dbcp.properties", link: "dist/netfonds-dbcp.properties")
     ant.symlink(resource: "../local/netfondsjanitor.xml", link: "dist/netfondsjanitor.xml")
     ant.symlink(resource: "../local/runjar", link: "dist/runjar")
+}
+
+task hilofull (description: 'Scp jars: all RCS jars',
+        group: 'Hilo') <<  {
+    scp2hilo {
+        ant.fileset(dir: 'dist') {
+            depLibs.each { s ->
+                include(name: myDepLibName(s,LibContext.BARE))
+            }
+            include(name: myLibName)
+        }
+    }
 }
 
 buildscript {
